@@ -26,7 +26,7 @@ export function useNews(params: { section?: Section | "all"; country?: string; l
 }
 
 export function useIndicators(mode: string) {
-  const enabled = mode === "economy" || mode === "defense";
+  const enabled = mode === "economy" || mode === "defense" || mode === "energy";
   return useQuery({
     queryKey: ["indicators", mode],
     queryFn: () => getJson<ApiEnvelope<IndicatorsSnapshot["metrics"]>>(`/api/indicators?mode=${mode}`),

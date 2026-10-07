@@ -2,21 +2,22 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { timeAgo, useIndicators, useNews } from "@/lib/api";
-import { MODE_COPY, MODE_SCALES, metricById, metricsFor, scaleDomain } from "@/lib/metrics";
+import { MODE_COPY, MODE_SCALES, isChoroplethMode, metricById, metricsFor, scaleDomain } from "@/lib/metrics";
 import { TRADE_COLORS } from "@/components/globe/layers/TradeLayer";
+import { CRUDE_COLOR } from "./EnergySections";
 import { Term } from "@/components/learn/Term";
 import { useGlobe } from "@/lib/store";
 
 /** Left card in Economy / Defense: question, metric chips, colour scale and the mode's news (UI-DESIGN §6). */
 export function ModeCard() {
   const mode = useGlobe((s) => s.mode);
-  const metricId = useGlobe((s) => (s.mode === "economy" || s.mode === "defense" ? s.modeMetric[s.mode] : null));
+  const metricId = useGlobe((s) => (isChoroplethMode(s.mode) ? s.modeMetric[s.mode] : null));
   const setMetric = useGlobe((s) => s.setModeMetric);
   const countrySelected = useGlobe((s) => s.selectedIso3 !== null);
   const { data, isPending } = useIndicators(mode);
-  const news = useNews({ section: mode === "economy" ? "economy" : "defense", limit: 3 });
+  const news = useNews({ section: mode === "economy" ? "economy" : mode === "energy" ? "energy" : "defense", limit: 3 });
 
-  if (mode !== "economy" && mode !== "defense") return null;
+  if (!isChoroplethMode(mode)) return null;
   const copy = MODE_COPY[mode];
   const def = metricId ? metricById(metricId) : null;
   const metric = metricId ? data?.data[metricId] : undefined;
@@ -71,6 +72,15 @@ export function ModeCard() {
               Source: {def.source}. Countries without data stay uncoloured. Tap a country for its numbers.
             </p>
           </div>
+        )}
+        {mode === "energy" && countrySelected && (
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-ink-2" aria-label="Arc colours">
+            <i className="h-0.5 w-4 rounded" style={{ background: CRUDE_COLOR }} aria-hidden />
+            Crude oil suppliers
+          </div>
+        )}
+        {mode === "energy" && (
+          <p className="mt-2 text-xs text-ink-3">Amber markers show the six chokepoints most of the world&apos;s oil passes through.</p>
         )}
         {mode === "economy" && countrySelected && (
           <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-2" aria-label="Arc colours">

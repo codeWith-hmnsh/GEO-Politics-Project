@@ -1,7 +1,7 @@
 // App state (docs/ARCHITECTURE.md §3.2). Grows milestone by milestone.
 import { create } from "zustand";
 import type { CameraState } from "@/lib/camera/fly";
-import type { MetricId } from "@/lib/metrics";
+import type { ChoroplethMode, MetricId } from "@/lib/metrics";
 
 export type FlyRequest = { lat: number; lng: number; dist?: number; durationMs?: number; id: number };
 export type ZoomRequest = { factor: number; id: number };
@@ -25,6 +25,9 @@ type GlobeState = {
   selectedConflict: string | null;
   selectedOrg: string | null;
   selectedSummit: string | null;
+  /** Energy chokepoint card. */
+  selectedChoke: string | null;
+  selectChoke: (id: string) => void;
   /** Learn panels opened from the header: Daily Brief or the Stories list. */
   sidePanel: "brief" | "stories" | null;
   /** Story Tour in progress: which tour, which stop (stops.length = the live-news stop), playing or paused. */
@@ -46,8 +49,8 @@ type GlobeState = {
   layers: Record<LayerId, boolean>;
   pulseOpen: boolean;
   adminLabels: Record<string, AdminLabel[]>;
-  modeMetric: { economy: MetricId; defense: MetricId };
-  setModeMetric: (mode: "economy" | "defense", id: MetricId) => void;
+  modeMetric: Record<ChoroplethMode, MetricId>;
+  setModeMetric: (mode: ChoroplethMode, id: MetricId) => void;
   setHover: (iso3: string | null, name: string | null, x: number, y: number, latLng?: [number, number] | null) => void;
   select: (iso3: string | null) => void;
   selectConflict: (id: string | null) => void;
@@ -65,7 +68,7 @@ type GlobeState = {
 
 let requestId = 0;
 
-const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null, highlight: [] as string[], compareIso3: null, comparePicking: false, sidePanel: null };
+const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null, selectedChoke: null, highlight: [] as string[], compareIso3: null, comparePicking: false, sidePanel: null };
 
 /** True when any detail panel is open. */
 export const panelOpenSelector = (s: {
@@ -73,9 +76,10 @@ export const panelOpenSelector = (s: {
   selectedConflict: string | null;
   selectedOrg: string | null;
   selectedSummit: string | null;
+  selectedChoke: string | null;
   sidePanel: string | null;
 }) =>
-  s.selectedIso3 !== null || s.selectedConflict !== null || s.selectedOrg !== null || s.selectedSummit !== null || s.sidePanel !== null;
+  s.selectedIso3 !== null || s.selectedConflict !== null || s.selectedOrg !== null || s.selectedSummit !== null || s.selectedChoke !== null || s.sidePanel !== null;
 
 export const HOME_VIEW: CameraState = { lat: 25, lng: 70, dist: 3.05 };
 
@@ -98,6 +102,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   selectedConflict: null,
   selectedOrg: null,
   selectedSummit: null,
+  selectedChoke: null,
   sidePanel: null,
   tour: null,
   orbit: 0,
@@ -109,7 +114,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   layers: { wars: true, orgs: true, econ: true, rel: true },
   pulseOpen: true,
   adminLabels: {},
-  modeMetric: { economy: "growth", defense: "milPct" },
+  modeMetric: { economy: "growth", defense: "milPct", energy: "clean" },
   setModeMetric: (mode, id) => set((s) => ({ modeMetric: { ...s.modeMetric, [mode]: id } })),
   setHover: (iso3, name, x, y, latLng = null) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y }, hoverLatLng: latLng }),
   // One panel at a time: each selection clears the others.
@@ -131,6 +136,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   selectConflict: (id) => set({ ...NONE, selectedConflict: id }),
   selectOrg: (id) => set({ ...NONE, selectedOrg: id }),
   selectSummit: (id) => set({ ...NONE, selectedSummit: id }),
+  selectChoke: (id) => set({ ...NONE, selectedChoke: id }),
   closePanel: () => set(NONE),
   flyTo: (req) => set({ fly: { ...req, id: ++requestId } }),
   zoomBy: (factor) => set({ zoom: { factor, id: ++requestId } }),

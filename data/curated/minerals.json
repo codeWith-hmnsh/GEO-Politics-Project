@@ -1,0 +1,12 @@
+{
+  "reviewedAt": "2026-10-07",
+  "needsEditorialReview": true,
+  "source": "USGS Mineral Commodity Summaries 2025 (estimated 2024 mine production). Shares rounded; an editor must check them before launch.",
+  "year": 2024,
+  "minerals": {
+    "lithium": { "label": "Lithium", "use": "Batteries for phones and electric cars", "shares": { "AUS": 37, "CHL": 20, "CHN": 17, "ZWE": 9, "ARG": 8, "BRA": 4 } },
+    "cobalt": { "label": "Cobalt", "use": "Batteries and jet-engine alloys", "shares": { "COD": 76, "IDN": 10, "RUS": 3 } },
+    "rareEarths": { "label": "Rare earths", "use": "Magnets for motors, wind turbines and weapons", "shares": { "CHN": 69, "USA": 12, "MMR": 8, "AUS": 3, "NGA": 3, "THA": 3 } },
+    "nickel": { "label": "Nickel", "use": "Stainless steel and batteries", "shares": { "IDN": 59, "PHL": 9, "RUS": 6, "CAN": 5, "CHN": 3, "AUS": 3 } }
+  }
+}

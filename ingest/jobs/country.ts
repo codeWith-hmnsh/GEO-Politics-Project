@@ -12,6 +12,9 @@ export type TradeSnapshot = { asOf: string; trade: Record<string, TradeRow> };
 
 /** A lender: a country (iso3) or an institution such as the World Bank or bondholders (name only). */
 export type Creditor = { name: string; iso3?: string; value: number };
+export type CrudeRow = { year: number; total: number; suppliers: Partner[] };
+export type CrudeSnapshot = { asOf: string; crude: Record<string, CrudeRow> };
+
 export type CreditorRow = { year: number; total: number; creditors: Creditor[] };
 export type CreditorsSnapshot = { asOf: string; creditors: Record<string, CreditorRow> };
 
@@ -72,8 +75,8 @@ export const TRADE_REPORTERS = [
 
 type ComtradeRow = { partnerCode: number; flowCode: string; primaryValue: number; isAggregate?: boolean };
 
-async function comtrade(reporter: number, year: number): Promise<ComtradeRow[]> {
-  const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=${reporter}&period=${year}&cmdCode=TOTAL&flowCode=X,M`;
+async function comtrade(reporter: number, year: number, cmd = "TOTAL", flows = "X,M"): Promise<ComtradeRow[]> {
+  const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=${reporter}&period=${year}&cmdCode=${cmd}&flowCode=${flows}`;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const res = await fetch(url, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(60_000) });
@@ -189,5 +192,38 @@ export async function runCreditors(log: (s: string) => void = console.log) {
   const snapshot: CreditorsSnapshot = { asOf: new Date().toISOString(), creditors };
   const where = await writeSnapshot("creditors", snapshot, snapshot.asOf);
   log(`creditors: ${Object.keys(creditors).length} countries → ${where}`);
+  return snapshot;
+}
+
+/** Where each large economy buys its crude oil (HS 2709 imports, UN Comtrade), top 5 suppliers. */
+export async function runCrude(log: (s: string) => void = console.log) {
+  const thisYear = new Date().getUTCFullYear();
+  const crude: Record<string, CrudeRow> = {};
+  for (const iso3 of TRADE_REPORTERS) {
+    const code = toComtrade(iso3);
+    if (!code) continue;
+    try {
+      for (let year = thisYear - 1; year >= thisYear - 3; year--) {
+        const rows = (await comtrade(code, year, "2709", "M")).filter((r) => r.flowCode === "M");
+        await sleep(1200);
+        if (!rows.some((r) => r.partnerCode !== 0)) continue;
+        const total = rows.find((r) => r.partnerCode === 0)?.primaryValue ?? 0;
+        const suppliers = rows
+          .filter((r) => r.partnerCode !== 0)
+          .map((r) => ({ iso3: fromComtrade(r.partnerCode), value: Math.round(r.primaryValue) }))
+          .filter((p): p is Partner => !!p.iso3 && p.iso3 !== iso3)
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 5);
+        if (suppliers.length) crude[iso3] = { year, total: Math.round(total), suppliers };
+        log(`crude ${iso3}: ${year} (${suppliers.length})`);
+        break;
+      }
+    } catch (e) {
+      log(`crude ${iso3} failed: ${(e as Error).message}`);
+    }
+  }
+  const snapshot: CrudeSnapshot = { asOf: new Date().toISOString(), crude };
+  const where = await writeSnapshot("crude", snapshot, snapshot.asOf);
+  log(`crude: ${Object.keys(crude).length} countries → ${where}`);
   return snapshot;
 }

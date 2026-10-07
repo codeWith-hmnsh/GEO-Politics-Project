@@ -145,7 +145,7 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 
 ## M4 — Energy + Diplomacy (weeks 11–12)
 
-- [ ] **Energy**: OWID + Ember + EIA + Comtrade HS 2709/2711 + USGS jobs; chokepoints markers + cards; chips: Clean %, Oil & Gas, Imports, Chokepoints, Minerals.
+- [x] **Energy**: OWID job (renewable share of electricity, oil and gas production, oil and gas import dependence, energy mix with electricity fallback; `npm run ingest -- energy`); Comtrade HS 2709 crude suppliers for 55 economies with supply arcs (`npm run ingest -- crude`); `minerals.json` (USGS MCS 2025) and `chokepoints.json` (EIA) drafts; amber chokepoint markers and cards with "Why it matters" and news; chips: Clean %, Oil & Gas, Imports, Minerals. EIA reserves and Ember monthly data wait for free keys.
 - [ ] **Diplomacy**: UN voting alignment computation; GDELT Events diplomacy beacons (30 days); sanctions arcs from `sanctions.json`; chips: Blocs, UN votes, Sanctions, Activity, Relations.
 - [ ] Enable modes (flags), Compare for both.
 - [ ] "Changed this week" badges from `change_log`.

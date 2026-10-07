@@ -57,3 +57,13 @@ test("brief API returns up to five ranked stories with a place", async ({ reques
   expect(body.data.length).toBeLessThanOrEqual(5);
   for (const c of body.data) expect(c.lat).toEqual(expect.any(Number));
 });
+
+test("energy indicators include clean power, imports and minerals", async ({ request }) => {
+  const body = await (await request.get("/api/indicators?mode=energy")).json();
+  expect(body.data.clean.values.IND.value).toEqual(expect.any(Number));
+  expect(body.data.imports.values.SAU.value).toBeLessThan(0);
+  expect(body.data.minerals.values.COD.value).toBeGreaterThan(50);
+  const ind = await (await request.get("/api/country?iso3=IND")).json();
+  expect(ind.data.mix.coal).toBeGreaterThan(0);
+  expect(ind.data.crude.suppliers.length).toBeGreaterThan(0);
+});

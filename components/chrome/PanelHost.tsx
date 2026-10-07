@@ -16,7 +16,9 @@ import { useGlobe } from "@/lib/store";
 import { CountryFacts } from "./CountryFacts";
 import { BriefPanel } from "@/components/learn/BriefPanel";
 import { StoriesPanel } from "@/components/learn/StoriesPanel";
-import { tourForConflict } from "@/lib/tours";
+import { isChoroplethMode } from "@/lib/metrics";
+import chokepoints from "@/data/curated/chokepoints.json";
+import { matchesTour, tourForConflict } from "@/lib/tours";
 import { ComparePanel } from "./ComparePanel";
 import { CountryModePanel } from "./CountryModePanel";
 import { Term, termById } from "@/components/learn/Term";
@@ -174,6 +176,38 @@ function BlocPanel({ org, countryName }: { org: Pulse["organizations"][number]; 
         <h3 className={sectTitle}>Latest news</h3>
         <NewsList items={related} empty={`No ${org.id} headlines from trusted outlets in the last 48 hours.`} />
       </section>
+    </>
+  );
+}
+
+type Choke = (typeof chokepoints.items)[number];
+
+/** Energy chokepoint card: what flows through, why it matters, live news (PRD §9.6, FR-E-01). */
+function ChokePanel({ choke }: { choke: Choke }) {
+  const news = useNews({ section: "all", limit: 80 });
+  const related = matchesTour(news.data?.data ?? [], choke.terms).slice(0, 3);
+  return (
+    <>
+      <div className={kicker}>Chokepoint</div>
+      <h2 className="mr-11 text-[26px] leading-tight font-bold tracking-tight">{choke.name}</h2>
+      <p className="mt-2 rounded-2xl bg-paper p-3.5 text-sm leading-relaxed">{choke.flow}</p>
+      <WhyItMatters points={choke.why} />
+      <section className="mt-5 border-t border-border pt-4">
+        <h3 className={sectTitle}>Latest news</h3>
+        <NewsList items={related} empty={`No headlines about the ${choke.name} from trusted outlets in the last 48 hours.`} />
+      </section>
+      {"tour" in choke && choke.tour && (
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => useGlobe.getState().startTour(choke.tour!)}
+            className="inline-flex h-[42px] items-center gap-2 rounded-[11px] bg-[var(--ink-strong)] px-3.5 font-semibold text-white"
+          >
+            <Play className="size-4" aria-hidden /> Watch the story
+          </button>
+        </div>
+      )}
+      <p className="mt-3 text-xs leading-relaxed text-ink-3">{chokepoints.source}</p>
     </>
   );
 }
@@ -382,6 +416,7 @@ export function PanelHost() {
   const conflictId = useGlobe((s) => s.selectedConflict);
   const orgId = useGlobe((s) => s.selectedOrg);
   const summitId = useGlobe((s) => s.selectedSummit);
+  const chokeId = useGlobe((s) => s.selectedChoke);
   const { data: pulse } = usePulse();
   const [countries, setCountries] = useState<IndexedCountry[]>([]);
 
@@ -407,13 +442,14 @@ export function PanelHost() {
   const country = iso3 ? countries.find((c) => c.iso3 === iso3) : undefined;
   const org = orgId ? pulse?.data.organizations.find((o) => o.id === orgId) : undefined;
   const summit = summitId ? pulse?.data.summits.find((x) => x.id === summitId) : undefined;
+  const choke = chokeId ? chokepoints.items.find((x) => x.id === chokeId) : undefined;
   const nameOf = (iso3: string) => countries.find((c) => c.iso3 === iso3)?.name ?? iso3;
   const mode = useGlobe((s) => s.mode);
   const side = useGlobe((s) => s.sidePanel);
   const compareIso3 = useGlobe((s) => s.compareIso3);
   const other = compareIso3 ? countries.find((c) => c.iso3 === compareIso3) : undefined;
-  const key = side ? `side-${side}` : conflict ? `c-${conflict.id}` : org ? `o-${org.id}` : summit ? `s-${summit.id}` : country ? `k-${country.iso3}` : null;
-  const label = (side === "brief" ? "Daily Brief" : side === "stories" ? "Stories" : null) ?? conflict?.name ?? org?.name ?? summit?.name ?? country?.name ?? "";
+  const key = side ? `side-${side}` : conflict ? `c-${conflict.id}` : org ? `o-${org.id}` : summit ? `s-${summit.id}` : choke ? `ch-${choke.id}` : country ? `k-${country.iso3}` : null;
+  const label = (side === "brief" ? "Daily Brief" : side === "stories" ? "Stories" : null) ?? conflict?.name ?? org?.name ?? summit?.name ?? choke?.name ?? country?.name ?? "";
 
   const close = () => useGlobe.getState().closePanel();
 
@@ -447,13 +483,15 @@ export function PanelHost() {
               <ConflictPanel c={conflict} />
             ) : org ? (
               <BlocPanel org={org} countryName={nameOf} />
+            ) : choke ? (
+              <ChokePanel choke={choke} />
             ) : summit ? (
               <SummitPanel summit={summit} />
             ) : country && mode === "home" && pulse ? (
               <RelationsPanel country={country} pulse={pulse.data} countryName={nameOf} />
-            ) : country && other && (mode === "economy" || mode === "defense") ? (
+            ) : country && other && isChoroplethMode(mode) ? (
               <ComparePanel a={country} b={other} />
-            ) : country && (mode === "economy" || mode === "defense") ? (
+            ) : country && isChoroplethMode(mode) ? (
               <CountryModePanel country={country} countryName={nameOf} />
             ) : country ? (
               <CountryShell country={country} />

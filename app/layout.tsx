@@ -32,7 +32,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`${manrope.variable} ${fraunces.variable} h-full antialiased`}>
       <body className="min-h-full">
         <Providers>{children}</Providers>
-        <Analytics />
+        {/* Vercel serves the analytics script; elsewhere it would only 404. */}
+        {process.env.VERCEL && <Analytics />}
       </body>
     </html>
   );

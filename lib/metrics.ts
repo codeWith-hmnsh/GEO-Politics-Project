@@ -1,6 +1,10 @@
 // Mode metrics (docs/PRD.md §9.4–9.5): one metric colours the globe at a time.
 import type { Mode } from "@/lib/store";
 
+/** Modes whose globe is a choropleth of one metric at a time. */
+export type ChoroplethMode = "economy" | "defense" | "energy";
+export const isChoroplethMode = (m: Mode): m is ChoroplethMode => m === "economy" || m === "defense" || m === "energy";
+
 export type MetricId =
   | "growth"
   | "inflation"
@@ -13,11 +17,15 @@ export type MetricId =
   | "personnel"
   | "armsImports"
   | "nuclear"
-  | "capability";
+  | "capability"
+  | "clean"
+  | "oilgas"
+  | "imports"
+  | "minerals";
 
 export type MetricDef = {
   id: MetricId;
-  mode: Exclude<Mode, "home">;
+  mode: ChoroplethMode;
   label: string;
   /** Long label for panels. */
   title: string;
@@ -97,9 +105,30 @@ export const METRICS: MetricDef[] = [
     format: (v) => `${v.toFixed(1)} / 10`,
     meaning: () => "Average of the Air, Land and Sea size estimates. Not a ranking of who would win a war.",
   },
+  {
+    id: "clean", mode: "energy", term: "renewable-share", label: "Clean %", title: "Renewable share of electricity", source: "Our World in Data (Ember, Energy Institute)",
+    format: pct,
+    meaning: (v) => `${Math.round(v)}% of its electricity comes from renewables such as hydro, wind and solar.`,
+  },
+  {
+    id: "oilgas", mode: "energy", label: "Oil & Gas", title: "Oil and gas production", source: "Our World in Data (Energy Institute)", log: true,
+    format: (v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k TWh` : `${Math.round(v)} TWh`),
+    meaning: () => "Energy in the oil and gas it produces in a year. One TWh is about 590,000 barrels of oil.",
+  },
+  {
+    id: "imports", mode: "energy", term: "energy-dependence", label: "Imports", title: "Oil and gas import dependence", source: "Our World in Data (Energy Institute)",
+    format: (v) => (v < 0 ? "Net exporter" : `${Math.round(v)}% imported`),
+    meaning: (v) =>
+      v < 0 ? "It produces more oil and gas than it uses and sells the rest abroad." : `It buys about ${Math.round(v)}% of the oil and gas it uses from other countries.`,
+  },
+  {
+    id: "minerals", mode: "energy", term: "critical-minerals", label: "Minerals", title: "Critical minerals (largest world share)", source: "USGS Mineral Commodity Summaries 2025",
+    format: (v) => `${Math.round(v)}% of world`,
+    meaning: () => "Its biggest share of world mine output among lithium, cobalt, rare earths and nickel.",
+  },
 ];
 
-export const metricsFor = (mode: Exclude<Mode, "home">) => METRICS.filter((m) => m.mode === mode);
+export const metricsFor = (mode: ChoroplethMode) => METRICS.filter((m) => m.mode === mode);
 export const metricById = (id: MetricId) => METRICS.find((m) => m.id === id)!;
 
 export const MODE_SCALES: Record<"economy" | "defense" | "energy" | "diplomacy", string[]> = {

@@ -5,7 +5,7 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useIndicators, usePulse } from "@/lib/api";
 import type { IndexedCountry } from "@/lib/geo/countries";
-import { MODE_SCALES, metricById, scaleColor, scaleDomain, scaleT } from "@/lib/metrics";
+import { MODE_SCALES, isChoroplethMode, metricById, scaleColor, scaleDomain, scaleT } from "@/lib/metrics";
 import { REL_COLORS, relationsFor } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
 
@@ -22,7 +22,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
   const compareIso3 = useGlobe((s) => s.compareIso3);
   const mode = useGlobe((s) => s.mode);
   const homeMode = mode === "home";
-  const metricId = useGlobe((s) => (s.mode === "economy" || s.mode === "defense" ? s.modeMetric[s.mode] : null));
+  const metricId = useGlobe((s) => (isChoroplethMode(s.mode) ? s.modeMetric[s.mode] : null));
   const { data: indicators } = useIndicators(mode);
   const relVisible = useGlobe((s) => s.layers.rel && s.mode === "home");
 
@@ -78,7 +78,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
 
     // Choropleth for the active metric (Economy / Defense): one metric colours the globe at a time.
     const metric = metricId ? indicators?.data[metricId] : undefined;
-    if (metricId && metric && (mode === "economy" || mode === "defense")) {
+    if (metricId && metric && isChoroplethMode(mode)) {
       const def = metricById(metricId);
       const domain = scaleDomain(Object.values(metric.values).map((v) => v.value), def.log);
       for (const c of countries) {

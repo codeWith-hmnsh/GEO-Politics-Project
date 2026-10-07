@@ -7,10 +7,11 @@ import { TRADE_COLORS } from "@/components/globe/layers/TradeLayer";
 import { timeAgo, useCountryFacts, useIndicators, useNews } from "@/lib/api";
 import { CAPABILITY_FORMULA, CAPABILITY_WHAT, capabilityScores } from "@/lib/capability";
 import type { IndexedCountry } from "@/lib/geo/countries";
-import { MODE_COPY, metricsFor } from "@/lib/metrics";
+import { MODE_COPY, metricsFor, type ChoroplethMode } from "@/lib/metrics";
 import { useGlobe } from "@/lib/store";
 import { CompareButton } from "./ComparePanel";
 import { CountryFacts } from "./CountryFacts";
+import { EnergySections } from "./EnergySections";
 import { Term } from "@/components/learn/Term";
 import { Flag } from "./Flag";
 import { Sparkline } from "./Sparkline";
@@ -21,7 +22,7 @@ const usd = (v: number) => (v >= 1e12 ? `$${(v / 1e12).toFixed(2)}T` : v >= 1e9 
 
 /** Country panel in Economy / Defense: core numbers, trend, meaning, source and the country's news (PRD §9.4–9.5). */
 export function CountryModePanel({ country, countryName }: { country: IndexedCountry; countryName: (iso3: string) => string }) {
-  const mode = useGlobe((s) => s.mode) as "economy" | "defense";
+  const mode = useGlobe((s) => s.mode) as ChoroplethMode;
   const { data, isPending } = useIndicators(mode);
   const news = useNews({ section: mode, country: country.iso3, limit: 3 });
   const facts = useCountryFacts(country.iso3);
@@ -29,7 +30,7 @@ export function CountryModePanel({ country, countryName }: { country: IndexedCou
   const creditors = mode === "economy" ? facts.data?.data.creditors : null;
   const year = new Date().getUTCFullYear();
   const rows = metricsFor(mode)
-    .filter((m) => m.id !== "capability" && m.id !== "nuclear")
+    .filter((m) => m.id !== "capability" && m.id !== "nuclear" && m.id !== "minerals")
     .map((m) => ({ def: m, data: data?.data[m.id] }))
     .map(({ def, data }) => ({ def, value: data?.values[country.iso3], series: data?.series[country.iso3] ?? [] }));
 
@@ -74,7 +75,7 @@ export function CountryModePanel({ country, countryName }: { country: IndexedCou
               <Sparkline
                 points={series}
                 lastActual={def.source.startsWith("IMF") ? year - 1 : undefined}
-                color={mode === "economy" ? "#c8891a" : "#3f63d8"}
+                color={mode === "economy" ? "#c8891a" : mode === "energy" ? "#3fa765" : "#3f63d8"}
                 label={`${def.title} trend for ${country.name}`}
               />
             </div>
@@ -82,6 +83,8 @@ export function CountryModePanel({ country, countryName }: { country: IndexedCou
           </li>
         ))}
       </ul>
+
+      {mode === "energy" && <EnergySections iso3={country.iso3} name={country.name} facts={facts.data?.data} countryName={countryName} />}
 
       {trade && (
         <section className="mt-5 border-t border-border pt-4">

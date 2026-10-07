@@ -1,0 +1,80 @@
+{
+  "reviewedAt": "2026-10-07",
+  "needsEditorialReview": true,
+  "source": "US Energy Information Administration (EIA), World Oil Transit Chokepoints and Today in Energy notes (2023–2025 flows). Approximate figures; an editor must check them before launch.",
+  "items": [
+    {
+      "id": "hormuz",
+      "name": "Strait of Hormuz",
+      "at": [26.57, 56.25],
+      "flow": "About 20 million barrels of oil a day (2024), roughly a fifth of world oil use, plus about a fifth of world LNG trade.",
+      "why": [
+        "No other route can carry most of the Gulf's oil and gas exports.",
+        "Asian buyers such as China, India, Japan and South Korea depend on it most.",
+        "Tension with Iran quickly raises world oil prices."
+      ],
+      "terms": ["Hormuz", "Gulf", "Iran", "tanker"],
+      "tour": "hormuz"
+    },
+    {
+      "id": "malacca",
+      "name": "Strait of Malacca",
+      "at": [2.5, 101.0],
+      "flow": "About 23 million barrels of oil a day (2024), the largest oil flow of any chokepoint.",
+      "why": [
+        "The shortest sea route between the Indian Ocean and East Asia.",
+        "Most oil bound for China, Japan and South Korea passes through it.",
+        "At its narrowest it is under 3 km wide (the Phillips Channel near Singapore)."
+      ],
+      "terms": ["Malacca", "Singapore Strait"]
+    },
+    {
+      "id": "suez",
+      "name": "Suez Canal",
+      "at": [30.5, 32.35],
+      "flow": "About 4–5 million barrels of oil a day in 2024, around half of 2023 levels after attacks on Red Sea shipping.",
+      "why": [
+        "The shortest route between Europe and Asia.",
+        "Canal fees are a major source of foreign currency for Egypt.",
+        "When ships avoid it they sail around Africa, adding 10 days or more."
+      ],
+      "terms": ["Suez", "Red Sea", "Egypt canal"]
+    },
+    {
+      "id": "bab-el-mandeb",
+      "name": "Bab-el-Mandeb",
+      "at": [12.6, 43.3],
+      "flow": "About 4 million barrels of oil a day in 2024, down from about 9 million in 2023.",
+      "why": [
+        "The southern gate of the Red Sea, between Yemen and Djibouti.",
+        "Houthi attacks on ships since late 2023 cut traffic sharply.",
+        "Its closure diverts trade around the Cape of Good Hope."
+      ],
+      "terms": ["Bab el-Mandeb", "Bab-el-Mandeb", "Red Sea", "Houthi"]
+    },
+    {
+      "id": "bosporus",
+      "name": "Turkish Straits (Bosporus)",
+      "at": [41.12, 29.07],
+      "flow": "About 3 million barrels of oil a day, mostly from Russia and the Caspian region.",
+      "why": [
+        "The only sea link between the Black Sea and the Mediterranean.",
+        "Türkiye controls passage of warships under the 1936 Montreux Convention.",
+        "Ukraine's and Russia's grain exports also pass through it."
+      ],
+      "terms": ["Bosporus", "Bosphorus", "Turkish Straits", "Black Sea"]
+    },
+    {
+      "id": "panama",
+      "name": "Panama Canal",
+      "at": [9.08, -79.68],
+      "flow": "Around 1–2 million barrels of oil and fuel a day, plus US LNG shipped to Asia.",
+      "why": [
+        "Links the Atlantic and Pacific without the long trip around South America.",
+        "Droughts in 2023–24 lowered water levels and limited ship crossings.",
+        "About two-thirds of its traffic goes to or from the United States."
+      ],
+      "terms": ["Panama Canal"]
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import capability from "@/data/curated/capability.json";
 import { useIndicators } from "@/lib/api";
 import { capabilityScores } from "@/lib/capability";
 import type { IndexedCountry } from "@/lib/geo/countries";
-import { MODE_COPY, metricsFor } from "@/lib/metrics";
+import { MODE_COPY, metricsFor, type ChoroplethMode } from "@/lib/metrics";
 import { useGlobe } from "@/lib/store";
 import { Flag } from "./Flag";
 
@@ -66,7 +66,7 @@ function Pair({ label, a, b, format }: { label: string; a?: number | null; b?: n
 
 /** Two countries side by side: paired bars in neutral colours, never a "winner" (PRD §8 Compare). */
 export function ComparePanel({ a, b }: { a: IndexedCountry; b: IndexedCountry }) {
-  const mode = useGlobe((s) => s.mode) as "economy" | "defense";
+  const mode = useGlobe((s) => s.mode) as ChoroplethMode;
   const { data } = useIndicators(mode);
 
   useEffect(() => {
