@@ -20,6 +20,7 @@ import { isChoroplethMode } from "@/lib/metrics";
 import chokepoints from "@/data/curated/chokepoints.json";
 import { matchesTour, tourForConflict } from "@/lib/tours";
 import { ComparePanel } from "./ComparePanel";
+import { CountryDiploPanel } from "./CountryDiploPanel";
 import { CountryModePanel } from "./CountryModePanel";
 import { Term, termById } from "@/components/learn/Term";
 import { Flag } from "./Flag";
@@ -489,6 +490,8 @@ export function PanelHost() {
               <SummitPanel summit={summit} />
             ) : country && mode === "home" && pulse ? (
               <RelationsPanel country={country} pulse={pulse.data} countryName={nameOf} />
+            ) : country && mode === "diplomacy" ? (
+              <CountryDiploPanel country={country} countryName={nameOf} />
             ) : country && other && isChoroplethMode(mode) ? (
               <ComparePanel a={country} b={other} />
             ) : country && isChoroplethMode(mode) ? (

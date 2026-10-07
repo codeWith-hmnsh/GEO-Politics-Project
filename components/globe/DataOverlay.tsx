@@ -3,7 +3,7 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { useIndicators, usePulse } from "@/lib/api";
+import { useIndicators, usePulse, useUnVotes } from "@/lib/api";
 import type { IndexedCountry } from "@/lib/geo/countries";
 import { MODE_SCALES, isChoroplethMode, metricById, scaleColor, scaleDomain, scaleT } from "@/lib/metrics";
 import { REL_COLORS, relationsFor } from "@/lib/relations";
@@ -25,6 +25,11 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
   const metricId = useGlobe((s) => (isChoroplethMode(s.mode) ? s.modeMetric[s.mode] : null));
   const { data: indicators } = useIndicators(mode);
   const relVisible = useGlobe((s) => s.layers.rel && s.mode === "home");
+  const diploView = useGlobe((s) => (s.mode === "diplomacy" ? s.diplo.view : null));
+  const diploBloc = useGlobe((s) => s.diplo.bloc);
+  const { data: votes } = useUnVotes(diploView === "unvotes" ? selectedIso3 : null);
+  // Relation colours show on Home and in Diplomacy's Relations view.
+  const relationsOn = homeMode || diploView === "relations";
 
   const { canvas, texture } = useMemo(() => {
     const c = document.createElement("canvas");
@@ -94,7 +99,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
     }
 
     // Relations of the selected country (Home): green / red / amber / blue (UI-DESIGN §4.3).
-    if (selectedIso3 && homeMode && data) {
+    if (selectedIso3 && relationsOn && data) {
       const rel = relationsFor(selectedIso3, data.data.relations, data.data.organizations);
       const hasData = rel.size > 0;
       const alpha = { ally: "9e", hostile: "a8", mixed: "9e", neutral: "6b" } as const;
@@ -110,6 +115,34 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
         path(c);
         ctx.fill("evenodd");
       }
+    }
+
+    // Diplomacy → Blocs: members of the chosen bloc in its colour.
+    const bloc = diploView === "blocs" ? data?.data.organizations.find((o) => o.id === diploBloc) : undefined;
+    if (bloc) {
+      const members = new Set(bloc.members);
+      ctx.fillStyle = `${bloc.color}a6`;
+      for (const c of countries) {
+        if (!members.has(c.iso3)) continue;
+        path(c);
+        ctx.fill("evenodd");
+      }
+    }
+
+    // Diplomacy → UN votes: everyone coloured by how often they voted with the selected country.
+    const agree = diploView === "unvotes" && selectedIso3 ? votes?.data?.agree : undefined;
+    if (agree && selectedIso3) {
+      const domain = scaleDomain(Object.values(agree));
+      for (const c of countries) {
+        const v = agree[c.iso3];
+        if (c.iso3 === selectedIso3) ctx.fillStyle = "rgba(255,255,255,.9)";
+        else if (v === undefined) continue;
+        else ctx.fillStyle = scaleColor(MODE_SCALES.diplomacy, scaleT(v, domain));
+        ctx.globalAlpha = 0.85;
+        path(c);
+        ctx.fill("evenodd");
+      }
+      ctx.globalAlpha = 1;
     }
 
     if (relVisible && !selectedIso3 && data) {
@@ -137,7 +170,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       }
     }
     texture.needsUpdate = true;
-  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators, highlight, compareIso3]);
+  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators, highlight, compareIso3, relationsOn, diploView, diploBloc, votes]);
 
   return (
     <mesh renderOrder={1}>

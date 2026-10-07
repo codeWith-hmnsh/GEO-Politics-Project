@@ -2,6 +2,7 @@ import { Header } from "@/components/chrome/Header";
 import { Intro } from "@/components/chrome/Intro";
 import { MapControls } from "@/components/chrome/MapControls";
 import { MarketsNewsCard } from "@/components/chrome/MarketsNewsCard";
+import { DiplomacyCardHost } from "@/components/chrome/DiplomacyCardHost";
 import { ModeCard } from "@/components/chrome/ModeCard";
 import { ModeDock } from "@/components/chrome/ModeDock";
 import { PanelHost } from "@/components/chrome/PanelHost";
@@ -29,6 +30,7 @@ export default function Home() {
       <HideDuringTour>
         <PulseCard />
         <ModeCard />
+        <DiplomacyCardHost />
         <MapControls />
         <ModeDock />
         <MarketsNewsCard />

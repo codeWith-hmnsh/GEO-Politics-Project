@@ -1,0 +1,28 @@
+{
+  "reviewedAt": "2026-10-07",
+  "needsEditorialReview": true,
+  "note": "Major sanctions programmes only, from the UN Security Council, the EU Sanctions Map, the UK and the US Treasury (OFAC) programme list. Draft: an editor must confirm each row and its status before launch.",
+  "issuers": {
+    "UN": { "name": "UN Security Council", "at": [40.749, -73.968] },
+    "EU": { "name": "European Union", "at": [50.85, 4.35] },
+    "USA": { "name": "United States" },
+    "GBR": { "name": "United Kingdom" },
+    "CAN": { "name": "Canada" },
+    "JPN": { "name": "Japan" },
+    "AUS": { "name": "Australia" },
+    "CHE": { "name": "Switzerland" },
+    "KOR": { "name": "South Korea" }
+  },
+  "items": [
+    { "target": "RUS", "by": ["EU", "USA", "GBR", "CAN", "JPN", "AUS", "CHE"], "since": 2014, "what": "Wide trade, finance and energy sanctions, greatly expanded after the 2022 invasion of Ukraine." },
+    { "target": "BLR", "by": ["EU", "USA", "GBR", "CAN"], "since": 2020, "what": "Sanctions over the disputed 2020 election and support for Russia's war." },
+    { "target": "IRN", "by": ["USA", "EU", "GBR", "UN"], "since": 1979, "what": "Measures over the nuclear programme, missiles and human rights; UN sanctions were reimposed in 2025." },
+    { "target": "PRK", "by": ["UN", "USA", "EU", "JPN", "KOR"], "since": 2006, "what": "UN Security Council sanctions over nuclear tests and missile launches, plus national measures." },
+    { "target": "VEN", "by": ["USA", "EU", "CAN"], "since": 2015, "what": "Targeted and oil-sector sanctions over democracy and human rights." },
+    { "target": "CUB", "by": ["USA"], "since": 1962, "what": "A US trade embargo in place since the early 1960s." },
+    { "target": "MMR", "by": ["EU", "USA", "GBR", "CAN"], "since": 2021, "what": "Targeted sanctions on the military after the 2021 coup." },
+    { "target": "AFG", "by": ["UN"], "since": 1999, "what": "UN targeted sanctions on Taliban leaders and entities." },
+    { "target": "CHN", "by": ["USA"], "since": 2022, "what": "US export controls on advanced chips and chip-making tools, plus targeted sanctions on companies." },
+    { "target": "NIC", "by": ["USA", "EU"], "since": 2018, "what": "Targeted sanctions on officials over the crackdown on protests and opposition." }
+  ]
+}

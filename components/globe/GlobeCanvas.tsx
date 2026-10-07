@@ -12,6 +12,7 @@ import { Earth } from "./Earth";
 import { DataOverlay } from "./DataOverlay";
 import { EconomyLayer } from "./layers/EconomyLayer";
 import { RelationsLayer } from "./layers/RelationsLayer";
+import { SanctionsLayer } from "./layers/SanctionsLayer";
 import { TradeLayer } from "./layers/TradeLayer";
 import { WarsLayer } from "./layers/WarsLayer";
 import { MarkerProjector } from "./MarkerProjector";
@@ -54,6 +55,7 @@ export default function GlobeCanvas() {
           <AdminBorders countries={countries} />
           <RelationsLayer countries={countries} />
           <TradeLayer countries={countries} />
+          <SanctionsLayer countries={countries} />
         </>
       )}
       <WarsLayer />

@@ -10,6 +10,7 @@ import { ConflictMarkers } from "./ConflictMarkers";
 import { Fallback2D } from "./Fallback2D";
 import { HomeMarkers } from "./HomeMarkers";
 import { MapLabels } from "./MapLabels";
+import { ActivityMarkers } from "./ActivityMarkers";
 import { ChokepointMarkers } from "./ChokepointMarkers";
 import { NuclearMarkers } from "./NuclearMarkers";
 import { RelationsAnchor } from "./RelationsAnchor";
@@ -71,6 +72,7 @@ export function GlobeClient() {
       <RelationsAnchor />
       <NuclearMarkers />
       <ChokepointMarkers />
+      <ActivityMarkers />
       <HoverTooltip />
     </>
   );

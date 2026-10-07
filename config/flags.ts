@@ -9,7 +9,7 @@ export const flags = {
   defenseMode: true,
   /** Energy and Diplomacy modes (M4). */
   energyMode: true,
-  diplomacyMode: false,
+  diplomacyMode: true,
   /** Optional conflict data sources, once access tokens are granted. */
   ucdp: false,
   acled: false,

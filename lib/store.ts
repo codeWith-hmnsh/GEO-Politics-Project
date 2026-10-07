@@ -1,6 +1,7 @@
 // App state (docs/ARCHITECTURE.md §3.2). Grows milestone by milestone.
 import { create } from "zustand";
 import type { CameraState } from "@/lib/camera/fly";
+import type { DiploView } from "@/lib/diplomacy";
 import type { ChoroplethMode, MetricId } from "@/lib/metrics";
 
 export type FlyRequest = { lat: number; lng: number; dist?: number; durationMs?: number; id: number };
@@ -51,6 +52,9 @@ type GlobeState = {
   adminLabels: Record<string, AdminLabel[]>;
   modeMetric: Record<ChoroplethMode, MetricId>;
   setModeMetric: (mode: ChoroplethMode, id: MetricId) => void;
+  /** Diplomacy mode: which chip is active and, for Blocs, which bloc is shown. */
+  diplo: { view: DiploView; bloc: string };
+  setDiplo: (patch: Partial<{ view: DiploView; bloc: string }>) => void;
   setHover: (iso3: string | null, name: string | null, x: number, y: number, latLng?: [number, number] | null) => void;
   select: (iso3: string | null) => void;
   selectConflict: (id: string | null) => void;
@@ -115,6 +119,8 @@ export const useGlobe = create<GlobeState>((set) => ({
   pulseOpen: true,
   adminLabels: {},
   modeMetric: { economy: "growth", defense: "milPct", energy: "clean" },
+  diplo: { view: "relations", bloc: "NATO" },
+  setDiplo: (patch) => set((s) => ({ diplo: { ...s.diplo, ...patch } })),
   setModeMetric: (mode, id) => set((s) => ({ modeMetric: { ...s.modeMetric, [mode]: id } })),
   setHover: (iso3, name, x, y, latLng = null) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y }, hoverLatLng: latLng }),
   // One panel at a time: each selection clears the others.

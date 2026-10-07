@@ -67,3 +67,10 @@ test("energy indicators include clean power, imports and minerals", async ({ req
   expect(ind.data.mix.coal).toBeGreaterThan(0);
   expect(ind.data.crude.suppliers.length).toBeGreaterThan(0);
 });
+
+test("UN votes API returns alignment for a country", async ({ request }) => {
+  const body = await (await request.get("/api/unvotes?iso3=IND")).json();
+  expect(body.data.year).toBeGreaterThanOrEqual(2024);
+  expect(body.data.agree.USA).toEqual(expect.any(Number));
+  expect((await request.get("/api/unvotes?iso3=1")).status()).toBe(400);
+});
