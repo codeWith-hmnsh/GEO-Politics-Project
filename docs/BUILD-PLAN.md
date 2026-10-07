@@ -57,11 +57,11 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - **Check:** 60 fps on desktop, ≥ 30 fps on a mid-range Android; side-by-side screenshot with the Google 3D Maps demo at planet distance looks comparable (atmosphere rim, night lights, smooth motion).
 
 ### M1.2 Intro + chrome (week 2–3)
-- [ ] Intro per UI-DESIGN §5.1 (camera 6.5 R → home view, "The world, explained." over the globe). Skippable.
-- [ ] Header (logo, nav, search, date chip, bell, avatar), Global Pulse card with 4 layer switches, map controls, mode dock (Economy/Defense/Energy/Diplomacy disabled with "Coming soon" until M2/M4), Markets/News card.
-- [ ] DOM `MarkerOverlay` (projection each frame, hide behind globe / under header) and zoom-level labels (UI-DESIGN §4.4).
-- [ ] PanelHost (right panel desktop, bottom sheet mobile) with Motion spring and stagger.
-- [ ] Skeleton, empty and stale states for cards and panels.
+- [x] Intro per UI-DESIGN §5.1 (camera flies in, "The world, explained." over the globe). Any input skips it.
+- [x] Header (logo, nav with "Coming soon" items, country search `/` or `Ctrl+K`, date chip, bell), Global Pulse card with 4 layer switches (closed by default on phones), map controls (compass, zoom, reset, layers), mode dock (other modes disabled until their milestone), Markets/News card with empty states. Avatar left out until accounts exist.
+- [x] DOM marker registry + `MarkerProjector` (projection each frame, hidden behind the globe and under the header) and zoom-level labels: big countries, medium countries, seas, cities, state names (`data/curated/places.json`).
+- [x] PanelHost (right panel desktop, bottom sheet mobile) with Motion spring; country shell with skeletons until data arrives; `Esc` closes.
+- [x] Skeleton and empty states for cards and panels (stale state comes with data in M1.3).
 - **Check:** Intro → Home in ≤ 4 s; skip works by click, tap, key; desktop and mobile match `v3-01-landing.png` and `v3-07-mobile.png`.
 
 ### M1.3 Data backbone (week 3)

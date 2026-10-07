@@ -52,6 +52,12 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
       if (s.fly && s.fly !== prev.fly) {
         startFly({ lat: s.fly.lat, lng: s.fly.lng, dist: s.fly.dist ?? target.current.dist }, s.fly.durationMs);
       }
+      if (s.zoom && s.zoom !== prev.zoom) {
+        fly.current = null;
+        lastInput.current = performance.now();
+        const t = target.current;
+        t.dist = clampCamera({ ...t, dist: t.dist * s.zoom.factor }).dist;
+      }
     });
   }, [startFly, home]);
 

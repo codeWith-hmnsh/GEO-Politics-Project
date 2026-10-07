@@ -3,6 +3,10 @@ import { create } from "zustand";
 import type { CameraState } from "@/lib/camera/fly";
 
 export type FlyRequest = { lat: number; lng: number; dist?: number; durationMs?: number; id: number };
+export type ZoomRequest = { factor: number; id: number };
+export type Mode = "home" | "economy" | "defense" | "energy" | "diplomacy";
+export type LayerId = "wars" | "orgs" | "econ" | "rel";
+export type AdminLabel = { name: string; label: [number, number] };
 
 type GlobeState = {
   /** Live camera, written by the rig every frame (read with getState, do not subscribe). */
@@ -12,14 +16,24 @@ type GlobeState = {
   pointer: { x: number; y: number };
   selectedIso3: string | null;
   fly: FlyRequest | null;
+  zoom: ZoomRequest | null;
   introDone: boolean;
+  mode: Mode;
+  layers: Record<LayerId, boolean>;
+  pulseOpen: boolean;
+  adminLabels: Record<string, AdminLabel[]>;
   setHover: (iso3: string | null, name: string | null, x: number, y: number) => void;
   select: (iso3: string | null) => void;
   flyTo: (req: Omit<FlyRequest, "id">) => void;
+  zoomBy: (factor: number) => void;
   finishIntro: () => void;
+  setMode: (mode: Mode) => void;
+  toggleLayer: (id: LayerId) => void;
+  setPulseOpen: (open: boolean) => void;
+  addAdminLabels: (iso3: string, labels: AdminLabel[]) => void;
 };
 
-let flyId = 0;
+let requestId = 0;
 
 export const HOME_VIEW: CameraState = { lat: 25, lng: 70, dist: 3.05 };
 
@@ -37,9 +51,19 @@ export const useGlobe = create<GlobeState>((set) => ({
   pointer: { x: 0, y: 0 },
   selectedIso3: null,
   fly: null,
+  zoom: null,
   introDone: false,
+  mode: "home",
+  layers: { wars: true, orgs: true, econ: true, rel: true },
+  pulseOpen: true,
+  adminLabels: {},
   setHover: (iso3, name, x, y) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y } }),
   select: (iso3) => set({ selectedIso3: iso3 }),
-  flyTo: (req) => set({ fly: { ...req, id: ++flyId } }),
+  flyTo: (req) => set({ fly: { ...req, id: ++requestId } }),
+  zoomBy: (factor) => set({ zoom: { factor, id: ++requestId } }),
   finishIntro: () => set({ introDone: true }),
+  setMode: (mode) => set((s) => ({ mode: s.mode === mode && mode !== "home" ? "home" : mode })),
+  toggleLayer: (id) => set((s) => ({ layers: { ...s.layers, [id]: !s.layers[id] } })),
+  setPulseOpen: (open) => set({ pulseOpen: open }),
+  addAdminLabels: (iso3, labels) => set((s) => ({ adminLabels: { ...s.adminLabels, [iso3]: labels } })),
 }));

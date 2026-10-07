@@ -1,6 +1,13 @@
+import { Header } from "@/components/chrome/Header";
+import { Intro } from "@/components/chrome/Intro";
+import { MapControls } from "@/components/chrome/MapControls";
+import { MarketsNewsCard } from "@/components/chrome/MarketsNewsCard";
+import { ModeDock } from "@/components/chrome/ModeDock";
+import { PanelHost } from "@/components/chrome/PanelHost";
+import { PulseCard } from "@/components/chrome/PulseCard";
 import { GlobeClient } from "@/components/globe/GlobeClient";
 
-// M1.1: satellite globe with camera, borders and states. Cards, layers and data arrive in M1.2+ (docs/BUILD-PLAN.md).
+// Landing screen (docs/UI-DESIGN.md §2). Layers and live data are added in M1.3–M1.7.
 export default function Home() {
   return (
     <main className="relative min-h-dvh overflow-hidden bg-paper">
@@ -13,18 +20,13 @@ export default function Home() {
         }}
       />
       <GlobeClient />
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex h-[72px] items-center gap-3 px-6">
-        <span className="grid size-[42px] place-items-center rounded-full bg-[var(--ink-strong)]">
-          <span className="relative block h-4 w-[26px]">
-            <span className="absolute left-0 top-0 size-4 rounded-full bg-gold" />
-            <span className="absolute right-0 top-0 size-4 rounded-full border-[2.5px] border-white" />
-          </span>
-        </span>
-        <span>
-          <b className="block text-[22px] leading-none font-bold tracking-tight">GeoPolitics</b>
-          <small className="mt-1 block text-[12.5px] text-ink-2">The world, explained</small>
-        </span>
-      </header>
+      <Intro />
+      <Header />
+      <PulseCard />
+      <MapControls />
+      <ModeDock />
+      <MarketsNewsCard />
+      <PanelHost />
       <h1 className="sr-only">GeoPolitics: the world, explained</h1>
     </main>
   );

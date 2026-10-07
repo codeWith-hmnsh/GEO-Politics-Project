@@ -8,6 +8,7 @@ import { AdminBorders, CountryBorders, CountryOutlines } from "./Borders";
 import { CameraRig } from "./CameraRig";
 import { Clouds } from "./Clouds";
 import { Earth } from "./Earth";
+import { MarkerProjector } from "./MarkerProjector";
 
 /** The WebGL globe. Mounted once; layers are added on top in later milestones. */
 export default function GlobeCanvas() {
@@ -45,6 +46,7 @@ export default function GlobeCanvas() {
         </>
       )}
       <CameraRig countries={countries} />
+      <MarkerProjector />
     </Canvas>
   );
 }

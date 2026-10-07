@@ -13,6 +13,16 @@ test.describe("visual reference", () => {
     await page.screenshot({ path: `test-results/visual/${info.project.name}-landing.png` });
   });
 
+  test("country selected", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    await page.goto("/");
+    await page.waitForTimeout(5000);
+    const box = (await page.locator("canvas").boundingBox())!;
+    await page.mouse.click(box.width * 0.56, box.height * 0.6);
+    await page.waitForTimeout(3500);
+    await page.screenshot({ path: `test-results/visual/${info.project.name}-selected.png` });
+  });
+
   test("zoom to states", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop");
     await page.goto("/");

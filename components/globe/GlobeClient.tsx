@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useGlobe } from "@/lib/store";
+import { MapLabels } from "./MapLabels";
 
 // WebGL only runs in the browser; keep the globe out of server prerendering.
 const GlobeCanvas = dynamic(() => import("./GlobeCanvas"), { ssr: false });
@@ -25,6 +26,7 @@ export function GlobeClient() {
   return (
     <>
       <GlobeCanvas />
+      <MapLabels />
       <HoverTooltip />
     </>
   );
