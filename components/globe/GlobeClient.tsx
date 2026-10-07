@@ -5,6 +5,7 @@ import { useGlobe } from "@/lib/store";
 import { ConflictMarkers } from "./ConflictMarkers";
 import { HomeMarkers } from "./HomeMarkers";
 import { MapLabels } from "./MapLabels";
+import { RelationsAnchor } from "./RelationsAnchor";
 
 // WebGL only runs in the browser; keep the globe out of server prerendering.
 const GlobeCanvas = dynamic(() => import("./GlobeCanvas"), { ssr: false });
@@ -31,6 +32,7 @@ export function GlobeClient() {
       <MapLabels />
       <HomeMarkers />
       <ConflictMarkers />
+      <RelationsAnchor />
       <HoverTooltip />
     </>
   );

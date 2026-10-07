@@ -19,6 +19,7 @@ export function PulseCard() {
   const toggle = useGlobe((s) => s.toggleLayer);
   const open = useGlobe((s) => s.pulseOpen);
   const setOpen = useGlobe((s) => s.setPulseOpen);
+  const countrySelected = useGlobe((s) => s.selectedIso3 !== null);
   // Phones start with the card closed so the globe is visible; desktop follows the store flag.
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -68,9 +69,27 @@ export function PulseCard() {
                 <small className="col-start-2 text-xs text-ink-3">{hint}</small>
               </label>
             ))}
-            <p className="mt-2.5 text-xs leading-relaxed text-ink-3">
-              Tap a country to see its friends and rivals. Scroll to zoom toward any place.
-            </p>
+            {countrySelected ? (
+              <div className="mt-2 grid grid-cols-2 gap-x-2.5 gap-y-1.5 text-xs text-ink-2">
+                {(
+                  [
+                    ["Ally / partner", "var(--ally)"],
+                    ["Hostile", "var(--conflict)"],
+                    ["Mixed", "var(--mixed)"],
+                    ["Neutral", "var(--neutral)"],
+                  ] as const
+                ).map(([label, color]) => (
+                  <span key={label} className="flex items-center gap-2">
+                    <i className="size-3 rounded-[3px]" style={{ background: color }} aria-hidden />
+                    {label}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-2.5 text-xs leading-relaxed text-ink-3">
+                Tap a country to see its friends and rivals. Scroll to zoom toward any place.
+              </p>
+            )}
             <button type="button" onClick={() => setMobileOpen(false)} className="mt-3 text-xs font-semibold text-ink-2 underline md:hidden">
               Hide layers
             </button>

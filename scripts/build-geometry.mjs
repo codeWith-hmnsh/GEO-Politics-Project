@@ -112,6 +112,13 @@ function buildCountries() {
     const centroid = CENTROID_FIX[iso3] ?? [round((best[1] + best[3]) / 2), round((best[0] + best[2]) / 2)];
     list.push({ iso3, name, centroid, area: round(bestArea), polygons });
   }
+  // Some territories share a numeric code with their country (e.g. Ashmore and Cartier Is. → AUS).
+  // The largest shape keeps the ISO code; the others get a stable "X.." code.
+  const byIso = new Map();
+  for (const c of [...list].sort((a, b) => b.area - a.area)) {
+    if (byIso.has(c.iso3)) c.iso3 = "X" + c.name.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase();
+    byIso.set(c.iso3, c);
+  }
   list.sort((a, b) => a.name.localeCompare(b.name));
   writeFileSync(join(OUT, "countries.json"), JSON.stringify(list));
   console.log(`countries.json: ${list.length} countries`);

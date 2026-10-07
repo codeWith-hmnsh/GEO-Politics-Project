@@ -11,6 +11,7 @@ import { timeAgo, useNews, usePulse } from "@/lib/api";
 import type { Pulse, PulseConflict } from "@/lib/data/pulse";
 import type { NewsCluster } from "@/lib/schemas/news";
 import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
+import { REL_LABEL, relationsFor, type RelStatus } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
 import { Flag } from "./Flag";
 
@@ -23,6 +24,11 @@ const STATUS: Record<string, { label: string; cls: string }> = {
   frozen: { label: "Frozen", cls: "bg-ink/10 text-ink-2" },
 };
 const INTENSITY = ["", "Low", "Medium", "High"];
+const ORDER: Record<RelStatus, number> = { hostile: 0, ally: 1, mixed: 2, neutral: 3 };
+
+/** Centroid lookup filled by PanelHost once countries load. */
+let centroidOf = new Map<string, [number, number]>();
+const pulseCountry = (iso3: string) => centroidOf.get(iso3);
 
 function ConflictPanel({ c }: { c: PulseConflict }) {
   const status = STATUS[c.status] ?? STATUS.active;
@@ -205,6 +211,112 @@ function SummitPanel({ summit }: { summit: Pulse["summits"][number] }) {
   );
 }
 
+const FILTERS: { id: "all" | RelStatus; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "ally", label: "Allies" },
+  { id: "hostile", label: "Rivals" },
+  { id: "mixed", label: "Mixed" },
+];
+
+function RelDot({ status }: { status: RelStatus }) {
+  const style: Record<RelStatus, string> = {
+    ally: "bg-ally",
+    hostile: "border-2 border-conflict bg-[radial-gradient(circle,var(--conflict)_0_3px,transparent_3.5px)]",
+    mixed: "border-2 border-mixed bg-[linear-gradient(90deg,var(--mixed)_50%,transparent_50%)]",
+    neutral: "border-2 border-neutral-rel",
+  };
+  return <span aria-hidden className={`mt-[3px] block size-[13px] rounded-full ${style[status]}`} />;
+}
+
+function RelationsPanel({ country, pulse, countryName }: { country: IndexedCountry; pulse: Pulse; countryName: (iso3: string) => string }) {
+  const [filter, setFilter] = useState<"all" | RelStatus>("all");
+  const news = useNews({ country: country.iso3, limit: 3 });
+  const rows = [...relationsFor(country.iso3, pulse.relations, pulse.organizations).values()].sort(
+    (a, b) => ORDER[a.status] - ORDER[b.status] || Number(b.source === "curated") - Number(a.source === "curated"),
+  );
+  const count = (s: RelStatus) => rows.filter((r) => r.status === s).length;
+  const blocs = pulse.organizations.filter((o) => o.members.includes(country.iso3));
+  const shown = rows.filter((r) => filter === "all" || r.status === filter);
+  const fly = (iso3: string) => {
+    const c = useGlobe.getState();
+    const target = pulseCountry(iso3);
+    if (target) c.flyTo({ lat: target[0], lng: target[1] });
+  };
+  return (
+    <>
+      <div className={kicker}>Relations</div>
+      <h2 className="mr-11 flex items-center gap-2.5 text-[26px] leading-tight font-bold tracking-tight">
+        <Flag iso3={country.iso3} className="h-[19px] w-7" />
+        {country.name}
+      </h2>
+      {blocs.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {blocs.map((b) => (
+            <span key={b.id} className="rounded-full bg-paper px-2.5 py-1 text-xs font-semibold">
+              {b.id}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="my-4 grid grid-cols-2 gap-2.5">
+        <div className="rounded-2xl bg-paper p-3.5">
+          <div className="text-[26px] leading-none font-bold text-ally tabular-nums">
+            <CountUp to={count("ally")} duration={0.8} />
+          </div>
+          <div className="mt-1.5 text-xs text-ink-2">allies and partners</div>
+        </div>
+        <div className="rounded-2xl bg-paper p-3.5">
+          <div className="text-[26px] leading-none font-bold text-conflict tabular-nums">
+            <CountUp to={count("hostile")} duration={0.8} />
+          </div>
+          <div className="mt-1.5 text-xs text-ink-2">hostile relations</div>
+        </div>
+      </div>
+      <div role="group" aria-label="Filter relations" className="mb-2 flex flex-wrap gap-1.5">
+        {FILTERS.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            aria-pressed={filter === f.id}
+            onClick={() => setFilter(f.id)}
+            className="rounded-full border border-border bg-white px-3 py-1.5 text-xs font-semibold text-ink-2 aria-pressed:border-transparent aria-pressed:bg-[var(--ink-strong)] aria-pressed:text-white"
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+      {shown.length ? (
+        <ul>
+          {shown.map((r) => (
+            <li key={r.iso3}>
+              <button type="button" onClick={() => fly(r.iso3)} className="grid w-full grid-cols-[18px_1fr] gap-x-2.5 gap-y-0.5 rounded-xl px-2 py-2.5 text-left hover:bg-paper">
+                <RelDot status={r.status} />
+                <b className="flex items-center gap-2 font-semibold">
+                  <Flag iso3={r.iso3} className="h-[11px] w-4" />
+                  {countryName(r.iso3)}
+                </b>
+                <small className="col-start-2 text-xs leading-snug text-ink-2">
+                  {REL_LABEL[r.status]} · {r.basis}
+                </small>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-ink-2">No reviewed relations for {country.name} yet. Other countries show as neutral (blue).</p>
+      )}
+      <p className="mt-3 text-xs leading-relaxed text-ink-3">
+        Every other country shows as neutral (blue). Relations come from a reviewed baseline plus bloc membership; each row shows its
+        basis.
+      </p>
+      <section className="mt-5 border-t border-border pt-4">
+        <h3 className={sectTitle}>Latest news about {country.name}</h3>
+        <NewsList items={news.data?.data ?? []} empty={`No headlines about ${country.name} from trusted outlets in the last 48 hours.`} />
+      </section>
+    </>
+  );
+}
+
 function CountryShell({ country }: { country: IndexedCountry }) {
   return (
     <>
@@ -241,7 +353,12 @@ export function PanelHost() {
   const [countries, setCountries] = useState<IndexedCountry[]>([]);
 
   useEffect(() => {
-    loadCountries().then(setCountries).catch(() => setCountries([]));
+    loadCountries()
+      .then((list) => {
+        centroidOf = new Map(list.map((c) => [c.iso3, c.centroid]));
+        setCountries(list);
+      })
+      .catch(() => setCountries([]));
   }, []);
 
   useEffect(() => {
@@ -258,6 +375,7 @@ export function PanelHost() {
   const org = orgId ? pulse?.data.organizations.find((o) => o.id === orgId) : undefined;
   const summit = summitId ? pulse?.data.summits.find((x) => x.id === summitId) : undefined;
   const nameOf = (iso3: string) => countries.find((c) => c.iso3 === iso3)?.name ?? iso3;
+  const mode = useGlobe((s) => s.mode);
   const key = conflict ? `c-${conflict.id}` : org ? `o-${org.id}` : summit ? `s-${summit.id}` : country ? `k-${country.iso3}` : null;
   const label = conflict?.name ?? org?.name ?? summit?.name ?? country?.name ?? "";
 
@@ -291,6 +409,8 @@ export function PanelHost() {
               <BlocPanel org={org} countryName={nameOf} />
             ) : summit ? (
               <SummitPanel summit={summit} />
+            ) : country && mode === "home" && pulse ? (
+              <RelationsPanel country={country} pulse={pulse.data} countryName={nameOf} />
             ) : country ? (
               <CountryShell country={country} />
             ) : null}

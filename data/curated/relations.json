@@ -1,0 +1,751 @@
+{
+ "reviewedAt": "2026-10-07",
+ "needsEditorialReview": true,
+ "note": "Draft baseline. Each row is from the point of view of `a`. Countries not listed fall back to rules: shared NATO/EU membership = ally, active war parties = hostile, otherwise neutral.",
+ "items": [
+  {
+   "a": "IND",
+   "b": "RUS",
+   "status": "ally",
+   "basis": "Long-time defence supplier; strategic partnership since 2000"
+  },
+  {
+   "a": "IND",
+   "b": "FRA",
+   "status": "ally",
+   "basis": "Defence partner (Rafale jets) and nuclear energy partner"
+  },
+  {
+   "a": "IND",
+   "b": "JPN",
+   "status": "ally",
+   "basis": "Quad partner and major investor"
+  },
+  {
+   "a": "IND",
+   "b": "AUS",
+   "status": "ally",
+   "basis": "Quad partner"
+  },
+  {
+   "a": "IND",
+   "b": "ARE",
+   "status": "ally",
+   "basis": "Top trade and energy partner"
+  },
+  {
+   "a": "IND",
+   "b": "ISR",
+   "status": "ally",
+   "basis": "Defence and technology partner"
+  },
+  {
+   "a": "IND",
+   "b": "SAU",
+   "status": "ally",
+   "basis": "Major oil supplier and strategic partner"
+  },
+  {
+   "a": "IND",
+   "b": "BTN",
+   "status": "ally",
+   "basis": "Close neighbour; hydropower cooperation"
+  },
+  {
+   "a": "IND",
+   "b": "VNM",
+   "status": "ally",
+   "basis": "Indo-Pacific security partner"
+  },
+  {
+   "a": "IND",
+   "b": "USA",
+   "status": "mixed",
+   "basis": "Quad and defence partner; trade tensions since 2025"
+  },
+  {
+   "a": "IND",
+   "b": "PAK",
+   "status": "hostile",
+   "basis": "Kashmir dispute along the Line of Control; wars in 1947, 1965, 1971 and 1999"
+  },
+  {
+   "a": "IND",
+   "b": "CHN",
+   "status": "mixed",
+   "basis": "Large trade partner; border dispute along the Line of Actual Control"
+  },
+  {
+   "a": "IND",
+   "b": "TUR",
+   "status": "mixed",
+   "basis": "Trade ties; Turkey backs Pakistan on Kashmir"
+  },
+  {
+   "a": "IND",
+   "b": "BGD",
+   "status": "mixed",
+   "basis": "Close neighbour; ties shifting since 2024"
+  },
+  {
+   "a": "IND",
+   "b": "AFG",
+   "status": "mixed",
+   "basis": "Engagement without formal recognition of the government"
+  },
+  {
+   "a": "USA",
+   "b": "POL",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "DEU",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "FRA",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "GBR",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "EST",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "LVA",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "LTU",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "FIN",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "SWE",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "DNK",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "NLD",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "BEL",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "CZE",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "ROU",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "NOR",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "ITA",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "ESP",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "CAN",
+   "status": "ally",
+   "basis": "NATO ally"
+  },
+  {
+   "a": "USA",
+   "b": "JPN",
+   "status": "ally",
+   "basis": "Treaty ally"
+  },
+  {
+   "a": "USA",
+   "b": "AUS",
+   "status": "ally",
+   "basis": "Treaty ally; Quad partner"
+  },
+  {
+   "a": "USA",
+   "b": "KOR",
+   "status": "ally",
+   "basis": "Treaty ally"
+  },
+  {
+   "a": "USA",
+   "b": "PHL",
+   "status": "ally",
+   "basis": "Treaty ally"
+  },
+  {
+   "a": "USA",
+   "b": "ISR",
+   "status": "ally",
+   "basis": "Major security partner"
+  },
+  {
+   "a": "USA",
+   "b": "MEX",
+   "status": "ally",
+   "basis": "Top trade partner (USMCA)"
+  },
+  {
+   "a": "USA",
+   "b": "RUS",
+   "status": "hostile",
+   "basis": "Sanctions; opposing sides over the war in Ukraine"
+  },
+  {
+   "a": "USA",
+   "b": "IRN",
+   "status": "hostile",
+   "basis": "No diplomatic relations; sanctions"
+  },
+  {
+   "a": "USA",
+   "b": "PRK",
+   "status": "hostile",
+   "basis": "Nuclear standoff; no diplomatic relations"
+  },
+  {
+   "a": "USA",
+   "b": "CUB",
+   "status": "hostile",
+   "basis": "Embargo"
+  },
+  {
+   "a": "USA",
+   "b": "VEN",
+   "status": "hostile",
+   "basis": "Sanctions; no ambassadors"
+  },
+  {
+   "a": "USA",
+   "b": "CHN",
+   "status": "mixed",
+   "basis": "Strategic rival and one of the largest trade partners"
+  },
+  {
+   "a": "USA",
+   "b": "TUR",
+   "status": "mixed",
+   "basis": "NATO ally with frequent disputes"
+  },
+  {
+   "a": "USA",
+   "b": "SAU",
+   "status": "mixed",
+   "basis": "Security partner with policy differences"
+  },
+  {
+   "a": "RUS",
+   "b": "BLR",
+   "status": "ally",
+   "basis": "Union State"
+  },
+  {
+   "a": "RUS",
+   "b": "CHN",
+   "status": "ally",
+   "basis": "\"No limits\" strategic partnership"
+  },
+  {
+   "a": "RUS",
+   "b": "PRK",
+   "status": "ally",
+   "basis": "Mutual defence treaty (2024)"
+  },
+  {
+   "a": "RUS",
+   "b": "IRN",
+   "status": "ally",
+   "basis": "Strategic partnership treaty"
+  },
+  {
+   "a": "RUS",
+   "b": "KAZ",
+   "status": "ally",
+   "basis": "CSTO and Eurasian Economic Union partner"
+  },
+  {
+   "a": "RUS",
+   "b": "TJK",
+   "status": "ally",
+   "basis": "CSTO partner"
+  },
+  {
+   "a": "RUS",
+   "b": "KGZ",
+   "status": "ally",
+   "basis": "CSTO partner"
+  },
+  {
+   "a": "RUS",
+   "b": "UKR",
+   "status": "hostile",
+   "basis": "At war since 2022"
+  },
+  {
+   "a": "RUS",
+   "b": "POL",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "DEU",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "FRA",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "GBR",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "EST",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "LVA",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "LTU",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "FIN",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "SWE",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "DNK",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "NLD",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "BEL",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "CZE",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "ROU",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "NOR",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "ITA",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "ESP",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "CAN",
+   "status": "hostile",
+   "basis": "Sanctions; supports Ukraine"
+  },
+  {
+   "a": "RUS",
+   "b": "JPN",
+   "status": "hostile",
+   "basis": "Sanctions; territorial dispute over the Kuril Islands"
+  },
+  {
+   "a": "RUS",
+   "b": "TUR",
+   "status": "mixed",
+   "basis": "Trade and energy ties; NATO member"
+  },
+  {
+   "a": "RUS",
+   "b": "ARM",
+   "status": "mixed",
+   "basis": "Treaty ally drifting away"
+  },
+  {
+   "a": "RUS",
+   "b": "AZE",
+   "status": "mixed",
+   "basis": "Trade partner; ties tense since 2024"
+  },
+  {
+   "a": "PAK",
+   "b": "CHN",
+   "status": "ally",
+   "basis": "\"All-weather\" partner; China–Pakistan Economic Corridor"
+  },
+  {
+   "a": "PAK",
+   "b": "SAU",
+   "status": "ally",
+   "basis": "Mutual defence pact (2025) and financial support"
+  },
+  {
+   "a": "PAK",
+   "b": "TUR",
+   "status": "ally",
+   "basis": "Close political and defence ties"
+  },
+  {
+   "a": "PAK",
+   "b": "AZE",
+   "status": "ally",
+   "basis": "Close partner"
+  },
+  {
+   "a": "PAK",
+   "b": "ARE",
+   "status": "ally",
+   "basis": "Remittances and financial support"
+  },
+  {
+   "a": "PAK",
+   "b": "USA",
+   "status": "mixed",
+   "basis": "On-off security partner; ties warmed in 2025"
+  },
+  {
+   "a": "PAK",
+   "b": "AFG",
+   "status": "mixed",
+   "basis": "Deadly border clashes and refugee disputes"
+  },
+  {
+   "a": "PAK",
+   "b": "IRN",
+   "status": "mixed",
+   "basis": "Neighbour; border tensions"
+  },
+  {
+   "a": "UKR",
+   "b": "POL",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "DEU",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "FRA",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "GBR",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "EST",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "LVA",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "LTU",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "FIN",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "SWE",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "DNK",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "NLD",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "BEL",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "CZE",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "ROU",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "NOR",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "ITA",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "ESP",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "CAN",
+   "status": "ally",
+   "basis": "Military or financial support"
+  },
+  {
+   "a": "UKR",
+   "b": "BLR",
+   "status": "hostile",
+   "basis": "Allowed Russian forces to attack from its territory"
+  },
+  {
+   "a": "UKR",
+   "b": "HUN",
+   "status": "mixed",
+   "basis": "EU member that blocks some aid"
+  },
+  {
+   "a": "UKR",
+   "b": "TUR",
+   "status": "mixed",
+   "basis": "Mediator that trades with both sides"
+  },
+  {
+   "a": "CHN",
+   "b": "KHM",
+   "status": "ally",
+   "basis": "Close partner"
+  },
+  {
+   "a": "CHN",
+   "b": "LAO",
+   "status": "ally",
+   "basis": "Close partner"
+  },
+  {
+   "a": "CHN",
+   "b": "SRB",
+   "status": "ally",
+   "basis": "Strategic partner"
+  },
+  {
+   "a": "CHN",
+   "b": "IRN",
+   "status": "ally",
+   "basis": "Major oil buyer; 25-year cooperation deal"
+  },
+  {
+   "a": "CHN",
+   "b": "JPN",
+   "status": "mixed",
+   "basis": "Large trade partner; island dispute"
+  },
+  {
+   "a": "CHN",
+   "b": "PHL",
+   "status": "mixed",
+   "basis": "South China Sea disputes"
+  },
+  {
+   "a": "CHN",
+   "b": "VNM",
+   "status": "mixed",
+   "basis": "Trade partner; South China Sea disputes"
+  },
+  {
+   "a": "CHN",
+   "b": "AUS",
+   "status": "mixed",
+   "basis": "Trade partner; security rival"
+  },
+  {
+   "a": "CHN",
+   "b": "KOR",
+   "status": "mixed",
+   "basis": "Trade partner; US treaty ally"
+  },
+  {
+   "a": "CHN",
+   "b": "TWN",
+   "status": "hostile",
+   "basis": "Claims Taiwan; military pressure across the Taiwan Strait"
+  },
+  {
+   "a": "ISR",
+   "b": "IRN",
+   "status": "hostile",
+   "basis": "Direct strikes on each other in 2024 and 2025"
+  },
+  {
+   "a": "ISR",
+   "b": "PSE",
+   "status": "hostile",
+   "basis": "War in Gaza since 2023; occupation of the West Bank"
+  },
+  {
+   "a": "ISR",
+   "b": "LBN",
+   "status": "hostile",
+   "basis": "Conflict with Hezbollah"
+  },
+  {
+   "a": "ISR",
+   "b": "ARE",
+   "status": "ally",
+   "basis": "Abraham Accords (2020)"
+  },
+  {
+   "a": "ISR",
+   "b": "EGY",
+   "status": "mixed",
+   "basis": "Peace treaty (1979); strained by the Gaza war"
+  },
+  {
+   "a": "IRN",
+   "b": "SAU",
+   "status": "mixed",
+   "basis": "Rivals that restored ties in 2023"
+  },
+  {
+   "a": "PRK",
+   "b": "KOR",
+   "status": "hostile",
+   "basis": "Divided peninsula; armistice since 1953"
+  },
+  {
+   "a": "ARM",
+   "b": "AZE",
+   "status": "mixed",
+   "basis": "Decades of conflict; peace framework agreed in 2025"
+  }
+ ]
+}

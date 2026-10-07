@@ -5,6 +5,7 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { usePulse } from "@/lib/api";
 import type { IndexedCountry } from "@/lib/geo/countries";
+import { REL_COLORS, relationsFor } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
 
 /**
@@ -15,6 +16,8 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
   const { gl } = useThree();
   const { data } = usePulse();
   const selectedOrg = useGlobe((s) => s.selectedOrg);
+  const selectedIso3 = useGlobe((s) => s.selectedIso3);
+  const homeMode = useGlobe((s) => s.mode === "home");
   const relVisible = useGlobe((s) => s.layers.rel && s.mode === "home");
 
   const { canvas, texture } = useMemo(() => {
@@ -57,7 +60,26 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       }
     }
 
-    if (relVisible && data) {
+    // Relations of the selected country (Home): green / red / amber / blue (UI-DESIGN §4.3).
+    if (selectedIso3 && homeMode && data) {
+      const rel = relationsFor(selectedIso3, data.data.relations, data.data.organizations);
+      const hasData = rel.size > 0;
+      const alpha = { ally: "9e", hostile: "a8", mixed: "9e", neutral: "6b" } as const;
+      for (const c of countries) {
+        if (c.iso3 === selectedIso3) {
+          ctx.fillStyle = "#f2b33db8";
+        } else {
+          const r = rel.get(c.iso3);
+          const status = r ? r.status : "neutral";
+          if (!r && !hasData) continue;
+          ctx.fillStyle = REL_COLORS[status] + alpha[status];
+        }
+        path(c);
+        ctx.fill("evenodd");
+      }
+    }
+
+    if (relVisible && !selectedIso3 && data) {
       const p = document.createElement("canvas");
       p.width = p.height = 18;
       const pg = p.getContext("2d")!;
@@ -82,7 +104,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       }
     }
     texture.needsUpdate = true;
-  }, [canvas, texture, gl, countries, data, selectedOrg, relVisible]);
+  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible]);
 
   return (
     <mesh renderOrder={1}>

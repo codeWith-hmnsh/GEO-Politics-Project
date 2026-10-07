@@ -3,6 +3,7 @@ import bordersData from "@/data/curated/borders.json";
 import conflictsData from "@/data/curated/conflicts.json";
 import crisesData from "@/data/curated/crises.json";
 import orgsData from "@/data/curated/organizations.json";
+import relationsData from "@/data/curated/relations.json";
 import summitsData from "@/data/curated/summits.json";
 import type { ApiEnvelope, NewsCluster } from "@/lib/schemas/news";
 import { getNewsSnapshot } from "./news";
@@ -24,6 +25,7 @@ export type Pulse = {
   summits: typeof summitsData.items;
   borders: { hostile: typeof bordersData.hostile; disputed: typeof bordersData.disputed };
   crises: typeof crisesData.items;
+  relations: typeof relationsData.items;
   editorialReviewPending: boolean;
 };
 
@@ -59,7 +61,8 @@ export async function getPulse(): Promise<ApiEnvelope<Pulse>> {
       summits: summitsData.items,
       borders: { hostile: bordersData.hostile, disputed: bordersData.disputed },
       crises: crisesData.items,
-      editorialReviewPending: [conflictsData, orgsData, summitsData, bordersData, crisesData].some((d) => d.needsEditorialReview),
+      relations: relationsData.items,
+      editorialReviewPending: [conflictsData, orgsData, summitsData, bordersData, crisesData, relationsData].some((d) => d.needsEditorialReview),
     },
     asOf: snap?.asOf ?? null,
     stale: !snap || snap.origin === "seed",

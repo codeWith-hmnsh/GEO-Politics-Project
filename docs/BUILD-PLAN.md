@@ -87,9 +87,10 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - **Check:** With no badge selected the globe shows no bloc tint (clean default); matches `v3-01-landing.png`.
 
 ### M1.6 Home layer 4 — Relations (week 5)
-- [ ] Hostile borders as red glowing tubes, front lines dashed; disputed areas hatched with a tooltip naming claimants.
-- [ ] Relation scoring job (ARCHITECTURE §5) + review queue script; `/api/relations/[iso3]`.
-- [ ] Country tap → flyTo, Home layers fade, relation fills (green / red / blue / amber), arcs to top 8 partners + top 3 rivals, anchored dark quick-facts card, Relations panel with filters and basis lines (match `v3-02-india-relations.png`).
+- [x] Hostile borders as red glowing tubes, front lines dashed; disputed areas hatched on the overlay (claimant tooltip still to add).
+- [x] MVP relations: curated baseline `data/curated/relations.json` (draft, needs editorial review) + bloc rule (NATO/EU co-members = ally); computed in `lib/relations.ts` and served inside `/api/pulse`.
+- [ ] Full relation scoring (UN votes, news tone, trade) and the review queue — needs UN voting data and GDELT events (later).
+- [x] Country tap → flyTo, Home layers fade, relation fills (green / red / blue / amber), arcs to top 8 partners + 3 rivals + 3 mixed, anchored dark quick-facts card, Relations panel with filters, flags, basis lines and country news (matches `v3-02-india-relations.png`).
 - **Check:** India, USA, China, Russia, Pakistan, Brazil, Nigeria relation maps reviewed manually against baseline; no unexplained status.
 
 ### M1.7 Landing polish + release (week 5)
