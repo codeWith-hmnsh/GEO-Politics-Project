@@ -15,6 +15,7 @@ import { REL_LABEL, relationsFor, type RelStatus } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
 import { CountryFacts } from "./CountryFacts";
 import { CountryModePanel } from "./CountryModePanel";
+import { Term, termById } from "@/components/learn/Term";
 import { Flag } from "./Flag";
 
 const kicker = "mb-2.5 text-[11px] font-bold tracking-[.16em] text-ink-3 uppercase";
@@ -256,7 +257,7 @@ function RelationsPanel({ country, pulse, countryName }: { country: IndexedCount
         <div className="mt-2 flex flex-wrap gap-1.5">
           {blocs.map((b) => (
             <span key={b.id} className="rounded-full bg-paper px-2.5 py-1 text-xs font-semibold">
-              {b.id}
+              {termById(b.id.toLowerCase()) ? <Term id={b.id.toLowerCase()}>{b.id}</Term> : b.id}
             </span>
           ))}
         </div>

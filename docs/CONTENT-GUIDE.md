@@ -96,6 +96,17 @@ Round to 1 decimal. Landlocked countries show Sea = "—", not 0.
 
 Inputs live in `data/curated/capability.json` with one source URL and year per number. The modal lists the inputs for the selected country.
 
+**MVP subset (built, M2).** Until the full inventory table exists, the app uses only the counts it has, with the same n(x):
+
+```
+Air  = 10 × n(combat aircraft)
+Land = 10 × ( 0.5·n(active personnel) + 0.5·n(main battle tanks) )
+Sea  = 10 × ( 0.6·n(warships + submarines) + 0.4·n(aircraft carriers ×3) )   // "—" with no navy
+Overall = mean of the available domains
+```
+
+Personnel comes from the World Bank; the other counts are draft figures in `capability.json` (`needsEditorialReview: true`).
+
 ## 5. Story Tours
 
 ### 5.1 Script format (`data/tours/<id>.json`)

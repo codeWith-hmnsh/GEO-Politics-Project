@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { timeAgo, useIndicators, useNews } from "@/lib/api";
 import { MODE_COPY, MODE_SCALES, metricById, metricsFor, scaleDomain } from "@/lib/metrics";
+import { Term } from "@/components/learn/Term";
 import { useGlobe } from "@/lib/store";
 
 /** Left card in Economy / Defense: question, metric chips, colour scale and the mode's news (UI-DESIGN §6). */
@@ -51,7 +52,7 @@ export function ModeCard() {
         {def && (
           <div className="mt-4">
             <div className="flex items-baseline justify-between gap-2">
-              <b className="text-sm font-semibold">{def.title}</b>
+              <b className="text-sm font-semibold">{def.term ? <Term id={def.term}>{def.title}</Term> : def.title}</b>
               {metric?.latestYear && (
                 <small className="text-xs text-ink-3">
                   {metric.latestYear}

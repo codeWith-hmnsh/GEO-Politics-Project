@@ -20,6 +20,9 @@ type GlobeState = {
   selectedConflict: string | null;
   selectedOrg: string | null;
   selectedSummit: string | null;
+  /** Countries lit by a glossary "See on globe" (cleared by any selection). */
+  highlight: string[];
+  setHighlight: (iso3s: string[]) => void;
   fly: FlyRequest | null;
   zoom: ZoomRequest | null;
   introDone: boolean;
@@ -46,7 +49,7 @@ type GlobeState = {
 
 let requestId = 0;
 
-const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null };
+const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null, highlight: [] as string[] };
 
 /** True when any detail panel is open. */
 export const panelOpenSelector = (s: { selectedIso3: string | null; selectedConflict: string | null; selectedOrg: string | null; selectedSummit: string | null }) =>
@@ -71,6 +74,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   selectedConflict: null,
   selectedOrg: null,
   selectedSummit: null,
+  highlight: [],
   fly: null,
   zoom: null,
   introDone: false,
@@ -82,6 +86,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   setModeMetric: (mode, id) => set((s) => ({ modeMetric: { ...s.modeMetric, [mode]: id } })),
   setHover: (iso3, name, x, y, latLng = null) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y }, hoverLatLng: latLng }),
   // One panel at a time: each selection clears the others.
+  setHighlight: (iso3s) => set({ ...NONE, highlight: iso3s }),
   select: (iso3) => set({ ...NONE, selectedIso3: iso3 }),
   selectConflict: (id) => set({ ...NONE, selectedConflict: id }),
   selectOrg: (id) => set({ ...NONE, selectedOrg: id }),

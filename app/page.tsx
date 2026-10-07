@@ -7,6 +7,7 @@ import { ModeDock } from "@/components/chrome/ModeDock";
 import { PanelHost } from "@/components/chrome/PanelHost";
 import { PulseCard } from "@/components/chrome/PulseCard";
 import { GlobeClient } from "@/components/globe/GlobeClient";
+import { TermFromUrl } from "@/components/learn/TermFromUrl";
 
 // Landing screen (docs/UI-DESIGN.md §2). Layers and live data are added in M1.3–M1.7.
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
       <ModeDock />
       <MarketsNewsCard />
       <PanelHost />
+      <TermFromUrl />
       <h1 className="sr-only">GeoPolitics: the world, explained</h1>
     </main>
   );

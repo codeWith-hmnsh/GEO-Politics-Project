@@ -17,6 +17,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
   const { gl } = useThree();
   const { data } = usePulse();
   const selectedOrg = useGlobe((s) => s.selectedOrg);
+  const highlight = useGlobe((s) => s.highlight);
   const selectedIso3 = useGlobe((s) => s.selectedIso3);
   const mode = useGlobe((s) => s.mode);
   const homeMode = mode === "home";
@@ -52,6 +53,16 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
         }
       }
     };
+
+    if (highlight.length) {
+      const lit = new Set(highlight);
+      ctx.fillStyle = "#f2b33da6";
+      for (const c of countries) {
+        if (!lit.has(c.iso3)) continue;
+        path(c);
+        ctx.fill("evenodd");
+      }
+    }
 
     const org = selectedOrg ? data?.data.organizations.find((o) => o.id === selectedOrg) : undefined;
     if (org) {
@@ -124,7 +135,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       }
     }
     texture.needsUpdate = true;
-  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators]);
+  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators, highlight]);
 
   return (
     <mesh renderOrder={1}>

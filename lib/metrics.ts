@@ -21,6 +21,8 @@ export type MetricDef = {
   /** Long label for panels. */
   title: string;
   source: string;
+  /** Glossary term id for the title chip. */
+  term?: string;
   /** Use a log scale for skewed totals (GDP, budgets, troops). */
   log?: boolean;
   format: (v: number) => string;
@@ -35,27 +37,27 @@ const count = (v: number) => (v >= 1e6 ? `${(v / 1e6).toFixed(2)}M` : v >= 1e3 ?
 
 export const METRICS: MetricDef[] = [
   {
-    id: "growth", mode: "economy", label: "Growth", title: "GDP growth", source: "IMF World Economic Outlook",
+    id: "growth", mode: "economy", term: "gdp-growth", label: "Growth", title: "GDP growth", source: "IMF World Economic Outlook",
     format: pct,
     meaning: (v) => `The economy grew ${v.toFixed(1)}% in a year. Above 5% is fast for a large economy; below 0 means it shrank.`,
   },
   {
-    id: "inflation", mode: "economy", label: "Inflation", title: "Inflation", source: "IMF World Economic Outlook",
+    id: "inflation", mode: "economy", term: "inflation", label: "Inflation", title: "Inflation", source: "IMF World Economic Outlook",
     format: pct,
     meaning: (v) => `Prices rise about ${v.toFixed(0)}% a year. Many central banks aim for 2–4%.`,
   },
   {
-    id: "unemployment", mode: "economy", label: "Jobs", title: "Unemployment", source: "IMF World Economic Outlook",
+    id: "unemployment", mode: "economy", term: "unemployment", label: "Jobs", title: "Unemployment", source: "IMF World Economic Outlook",
     format: pct,
     meaning: (v) => `About ${Math.round(v)} in 100 people who want work cannot find it.`,
   },
   {
-    id: "debt", mode: "economy", label: "Debt", title: "Government debt", source: "IMF World Economic Outlook",
+    id: "debt", mode: "economy", term: "debt-to-gdp", label: "Debt", title: "Government debt", source: "IMF World Economic Outlook",
     format: (v) => `${Math.round(v)}% of GDP`,
     meaning: (v) => `The government owes ${Math.round(v)}% of one year's economic output.`,
   },
   {
-    id: "gdp", mode: "economy", label: "GDP size", title: "GDP (US dollars)", source: "IMF World Economic Outlook", log: true,
+    id: "gdp", mode: "economy", term: "gdp", label: "GDP size", title: "GDP (US dollars)", source: "IMF World Economic Outlook", log: true,
     format: usd,
     meaning: () => "The total value of goods and services the country produces in a year.",
   },
@@ -85,9 +87,9 @@ export const METRICS: MetricDef[] = [
     meaning: () => "Estimated nuclear warheads. Exact numbers are secret; these are expert estimates.",
   },
   {
-    id: "capability", mode: "defense", label: "Capability", title: "Capability Index (estimate)", source: "GeoPolitics estimate from IISS, SIPRI and World Bank inputs",
+    id: "capability", mode: "defense", label: "Capability", title: "Capability Index (estimate)", source: "GeoPolitics estimate from IISS and World Bank counts",
     format: (v) => `${v.toFixed(1)} / 10`,
-    meaning: () => "Average of the Air, Land and Sea estimates. Not a ranking of who would win a war.",
+    meaning: () => "Average of the Air, Land and Sea size estimates. Not a ranking of who would win a war.",
   },
 ];
 

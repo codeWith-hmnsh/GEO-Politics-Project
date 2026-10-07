@@ -120,7 +120,7 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - [x] **Defense** (draft data, needs editorial review): World Bank SIPRI indicators + SIPRI latest year + arms transfers import; `nuclear.json`; `capability.json` + index calc + "How we calculate" dialog. Chips: Spending, Personnel, Nuclear, Capability, Arms.
 - [x] Mode news in the mode card and country panel (section filter, + country filter on selection).
 - [ ] Compare for Economy + Defense (fitBounds, paired bars, no winner highlight).
-- [ ] Glossary chips (40 terms) wired into panels and cards.
+- [x] Glossary: 40 terms (`data/curated/glossary.json`, draft for review), `/glossary` page, underlined chips in mode card, country panel and bloc chips, related terms, "See on globe" (bloc tint, member highlight or fly-to); deep link `/?term=<id>`.
 - [ ] E2E: Home → Economy (Home layers gone) → Defense → Home (Home layers back, news refreshed).
 
 ### Done when

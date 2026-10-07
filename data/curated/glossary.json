@@ -1,0 +1,463 @@
+{
+  "reviewedAt": "2026-10-07",
+  "needsEditorialReview": true,
+  "terms": [
+    {
+      "id": "nato",
+      "term": "NATO",
+      "group": "Organisations",
+      "def": "A military alliance of 32 countries in North America and Europe. Members promise to defend each other if one is attacked (Article 5).",
+      "org": "NATO",
+      "related": [
+        "military-alliance",
+        "deterrence"
+      ]
+    },
+    {
+      "id": "eu",
+      "term": "EU",
+      "group": "Organisations",
+      "def": "The European Union: 27 European countries that share a single market, many common laws and, for 20 of them, the euro.",
+      "org": "EU",
+      "related": [
+        "tariff",
+        "sanctions"
+      ]
+    },
+    {
+      "id": "un",
+      "term": "UN",
+      "group": "Organisations",
+      "def": "The United Nations: 193 member countries that meet to discuss peace, development and human rights. Its General Assembly gives every country one vote.",
+      "place": [
+        40.749,
+        -73.968
+      ],
+      "related": [
+        "unsc"
+      ]
+    },
+    {
+      "id": "unsc",
+      "term": "UN Security Council",
+      "group": "Organisations",
+      "def": "The UN body for peace and security. Its 5 permanent members (China, France, Russia, UK, US) can each veto a decision.",
+      "members": [
+        "CHN",
+        "FRA",
+        "RUS",
+        "GBR",
+        "USA"
+      ],
+      "related": [
+        "un",
+        "sanctions"
+      ]
+    },
+    {
+      "id": "brics",
+      "term": "BRICS",
+      "group": "Organisations",
+      "def": "A group of large emerging economies, first Brazil, Russia, India, China and South Africa, now expanded. It meets yearly to coordinate on trade and finance.",
+      "org": "BRICS",
+      "related": [
+        "g20"
+      ]
+    },
+    {
+      "id": "g7",
+      "term": "G7",
+      "group": "Organisations",
+      "def": "Seven large advanced economies (Canada, France, Germany, Italy, Japan, UK, US) whose leaders meet each year. The EU also attends.",
+      "related": [
+        "g20"
+      ],
+      "org": "G7"
+    },
+    {
+      "id": "g20",
+      "term": "G20",
+      "group": "Organisations",
+      "def": "19 major economies plus the EU and the African Union. Together they make up most of the world's economy and trade.",
+      "org": "G20",
+      "related": [
+        "g7",
+        "brics"
+      ]
+    },
+    {
+      "id": "quad",
+      "term": "QUAD",
+      "group": "Organisations",
+      "def": "An informal partnership of Australia, India, Japan and the US focused on a free and open Indo-Pacific. It is not a military alliance.",
+      "org": "QUAD",
+      "related": [
+        "military-alliance"
+      ]
+    },
+    {
+      "id": "asean",
+      "term": "ASEAN",
+      "group": "Organisations",
+      "def": "The Association of Southeast Asian Nations: 11 countries that cooperate on trade, security and diplomacy in Southeast Asia.",
+      "related": [
+        "tariff"
+      ],
+      "org": "ASEAN"
+    },
+    {
+      "id": "sco",
+      "term": "SCO",
+      "group": "Organisations",
+      "def": "The Shanghai Cooperation Organisation: China, Russia, India, Pakistan, Iran, Central Asian states and others cooperating on security and trade.",
+      "org": "SCO",
+      "related": [
+        "brics"
+      ]
+    },
+    {
+      "id": "au",
+      "term": "African Union",
+      "group": "Organisations",
+      "def": "A union of 55 African countries that works on peace, integration and development across the continent. It is a full member of the G20.",
+      "place": [
+        9.0,
+        38.75
+      ],
+      "related": [
+        "g20"
+      ]
+    },
+    {
+      "id": "opec-plus",
+      "term": "OPEC+",
+      "group": "Organisations",
+      "def": "Oil-exporting countries, led by Saudi Arabia and Russia, that agree how much oil to produce to influence world prices.",
+      "members": [
+        "SAU",
+        "RUS",
+        "IRQ",
+        "ARE",
+        "KWT",
+        "IRN",
+        "VEN",
+        "NGA",
+        "DZA",
+        "LBY",
+        "KAZ",
+        "OMN",
+        "AZE",
+        "MEX"
+      ],
+      "related": [
+        "chokepoint",
+        "lng"
+      ]
+    },
+    {
+      "id": "csto",
+      "term": "CSTO",
+      "group": "Organisations",
+      "def": "The Collective Security Treaty Organization: a Russia-led military alliance with several former Soviet states. Armenia has frozen its participation.",
+      "members": [
+        "RUS",
+        "BLR",
+        "KAZ",
+        "KGZ",
+        "TJK",
+        "ARM"
+      ],
+      "related": [
+        "military-alliance",
+        "nato"
+      ]
+    },
+    {
+      "id": "imf",
+      "term": "IMF",
+      "group": "Organisations",
+      "def": "The International Monetary Fund lends to countries in financial trouble and tracks the health of the world economy.",
+      "place": [
+        38.899,
+        -77.044
+      ],
+      "related": [
+        "imf-bailout",
+        "world-bank"
+      ]
+    },
+    {
+      "id": "world-bank",
+      "term": "World Bank",
+      "group": "Organisations",
+      "def": "A global lender that funds long-term development projects such as roads, schools and power in poorer countries.",
+      "place": [
+        38.899,
+        -77.042
+      ],
+      "related": [
+        "imf"
+      ]
+    },
+    {
+      "id": "nuclear-triad",
+      "term": "Nuclear triad",
+      "group": "Security",
+      "def": "Being able to launch nuclear weapons from land (missiles), sea (submarines) and air (bombers), so no single attack can remove them all.",
+      "related": [
+        "deterrence",
+        "npt"
+      ]
+    },
+    {
+      "id": "npt",
+      "term": "NPT",
+      "group": "Security",
+      "def": "The Nuclear Non-Proliferation Treaty: most countries promise not to build nuclear weapons; five recognised nuclear states promise to work towards disarmament.",
+      "members": [
+        "USA",
+        "RUS",
+        "CHN",
+        "FRA",
+        "GBR"
+      ],
+      "related": [
+        "nuclear-triad",
+        "deterrence"
+      ]
+    },
+    {
+      "id": "deterrence",
+      "term": "Deterrence",
+      "group": "Security",
+      "def": "Preventing an attack by making sure the attacker expects the cost to be greater than any gain.",
+      "related": [
+        "nuclear-triad",
+        "military-alliance"
+      ]
+    },
+    {
+      "id": "ceasefire",
+      "term": "Ceasefire",
+      "group": "Security",
+      "def": "An agreement to stop fighting, often temporary. It is not the same as a peace deal, which settles the dispute.",
+      "related": [
+        "proxy-war"
+      ]
+    },
+    {
+      "id": "loc",
+      "term": "Line of Control",
+      "group": "Security",
+      "def": "The military line dividing the parts of Kashmir held by India and Pakistan. It is not an agreed international border.",
+      "place": [
+        34.3,
+        74.3
+      ],
+      "related": [
+        "ceasefire",
+        "annexation"
+      ]
+    },
+    {
+      "id": "proxy-war",
+      "term": "Proxy war",
+      "group": "Security",
+      "def": "A war in which outside powers support opposite sides with money, weapons or advisers instead of fighting each other directly.",
+      "related": [
+        "arms-embargo"
+      ]
+    },
+    {
+      "id": "arms-embargo",
+      "term": "Arms embargo",
+      "group": "Security",
+      "def": "A ban on selling or sending weapons to a country or group, set by the UN, a bloc or a single government.",
+      "related": [
+        "sanctions",
+        "unsc"
+      ]
+    },
+    {
+      "id": "military-alliance",
+      "term": "Military alliance",
+      "group": "Security",
+      "def": "A formal agreement in which countries promise to help defend each other, such as NATO.",
+      "related": [
+        "nato",
+        "csto"
+      ]
+    },
+    {
+      "id": "annexation",
+      "term": "Annexation",
+      "group": "Security",
+      "def": "When a state declares another country's territory to be its own, usually by force. Most countries refuse to recognise annexations made by force.",
+      "related": [
+        "loc",
+        "sanctions"
+      ]
+    },
+    {
+      "id": "gdp",
+      "term": "GDP",
+      "group": "Economy",
+      "def": "Gross domestic product: the total value of goods and services a country produces in a year. The usual measure of an economy's size.",
+      "related": [
+        "gdp-growth",
+        "recession"
+      ]
+    },
+    {
+      "id": "gdp-growth",
+      "term": "GDP growth",
+      "group": "Economy",
+      "def": "How much GDP rose or fell compared with the year before, after removing price changes. Negative growth means the economy shrank.",
+      "related": [
+        "gdp",
+        "recession"
+      ]
+    },
+    {
+      "id": "inflation",
+      "term": "Inflation",
+      "group": "Economy",
+      "def": "How fast prices rise. 5% inflation means something that cost 100 a year ago now costs about 105.",
+      "related": [
+        "gdp-growth",
+        "unemployment"
+      ]
+    },
+    {
+      "id": "unemployment",
+      "term": "Unemployment",
+      "group": "Economy",
+      "def": "The share of people who want a job and are looking for one but cannot find work.",
+      "related": [
+        "recession"
+      ]
+    },
+    {
+      "id": "trade-balance",
+      "term": "Trade balance",
+      "group": "Economy",
+      "def": "Exports minus imports. A surplus means a country sells more abroad than it buys; a deficit means the opposite.",
+      "related": [
+        "tariff"
+      ]
+    },
+    {
+      "id": "tariff",
+      "term": "Tariff",
+      "group": "Economy",
+      "def": "A tax on goods coming in from another country. It makes imports dearer and is often used in trade disputes.",
+      "related": [
+        "trade-balance",
+        "sanctions"
+      ]
+    },
+    {
+      "id": "debt-to-gdp",
+      "term": "Debt-to-GDP",
+      "group": "Economy",
+      "def": "Government debt compared with one year of the country's output. 100% means the debt equals a whole year of GDP.",
+      "related": [
+        "imf-bailout"
+      ]
+    },
+    {
+      "id": "imf-bailout",
+      "term": "IMF bailout",
+      "group": "Economy",
+      "def": "An emergency IMF loan to a country that cannot pay its bills, usually with conditions such as cutting spending or raising taxes.",
+      "related": [
+        "imf",
+        "debt-to-gdp"
+      ]
+    },
+    {
+      "id": "recession",
+      "term": "Recession",
+      "group": "Economy",
+      "def": "A period when the economy shrinks, often defined as two quarters in a row of falling GDP. Jobs and incomes usually fall too.",
+      "related": [
+        "gdp-growth",
+        "unemployment"
+      ]
+    },
+    {
+      "id": "sanctions",
+      "term": "Sanctions",
+      "group": "Economy",
+      "def": "Penalties such as trade bans or frozen assets that countries impose to pressure another government, company or person.",
+      "related": [
+        "arms-embargo",
+        "tariff"
+      ]
+    },
+    {
+      "id": "chokepoint",
+      "term": "Chokepoint",
+      "group": "Energy",
+      "def": "A narrow sea passage that much of the world's shipping must pass through, such as the Strait of Hormuz or the Suez Canal.",
+      "place": [
+        26.56,
+        56.25
+      ],
+      "related": [
+        "lng",
+        "energy-dependence"
+      ]
+    },
+    {
+      "id": "lng",
+      "term": "LNG",
+      "group": "Energy",
+      "def": "Liquefied natural gas: gas cooled into a liquid so it can be shipped by tanker instead of sent through a pipeline.",
+      "related": [
+        "chokepoint",
+        "energy-dependence"
+      ]
+    },
+    {
+      "id": "energy-dependence",
+      "term": "Energy import dependence",
+      "group": "Energy",
+      "def": "The share of a country's energy that it must buy from abroad. High dependence makes it sensitive to supply shocks and prices.",
+      "related": [
+        "lng",
+        "chokepoint"
+      ]
+    },
+    {
+      "id": "critical-minerals",
+      "term": "Critical minerals",
+      "group": "Energy",
+      "def": "Minerals such as lithium, cobalt and nickel that batteries, electronics and clean energy need, and whose supply is concentrated in few countries.",
+      "related": [
+        "rare-earths"
+      ]
+    },
+    {
+      "id": "rare-earths",
+      "term": "Rare earths",
+      "group": "Energy",
+      "def": "17 metals used in magnets, phones and weapons. China mines and processes most of the world's supply.",
+      "members": [
+        "CHN"
+      ],
+      "related": [
+        "critical-minerals"
+      ]
+    },
+    {
+      "id": "renewable-share",
+      "term": "Renewable share",
+      "group": "Energy",
+      "def": "The part of a country's energy or electricity that comes from sources such as solar, wind and hydropower.",
+      "related": [
+        "energy-dependence"
+      ]
+    }
+  ]
+}

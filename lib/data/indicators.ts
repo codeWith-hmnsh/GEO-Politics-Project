@@ -26,7 +26,6 @@ export async function getModeIndicators(mode: "economy" | "defense"): Promise<Ap
     const scores = capabilityScores(
       capability.items.map((r) => ({
         ...r,
-        budget: snap.payload.metrics.milUsd?.values[r.iso3]?.value,
         personnel: snap.payload.metrics.personnel?.values[r.iso3]?.value,
       })),
     );
