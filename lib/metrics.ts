@@ -7,6 +7,7 @@ export type MetricId =
   | "unemployment"
   | "debt"
   | "gdp"
+  | "trade"
   | "milPct"
   | "milUsd"
   | "personnel"
@@ -60,6 +61,11 @@ export const METRICS: MetricDef[] = [
     id: "gdp", mode: "economy", term: "gdp", label: "GDP size", title: "GDP (US dollars)", source: "IMF World Economic Outlook", log: true,
     format: usd,
     meaning: () => "The total value of goods and services the country produces in a year.",
+  },
+  {
+    id: "trade", mode: "economy", label: "Trade", title: "Trade (% of GDP)", source: "World Bank",
+    format: (v) => `${Math.round(v)}% of GDP`,
+    meaning: (v) => `Exports plus imports equal ${Math.round(v)}% of the economy. Higher means the country depends more on trade with the world.`,
   },
   {
     id: "milPct", mode: "defense", label: "Spending", title: "Military spending (% of GDP)", source: "SIPRI via World Bank",

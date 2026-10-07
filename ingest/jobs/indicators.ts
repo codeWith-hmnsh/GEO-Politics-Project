@@ -15,6 +15,7 @@ const IMF: Partial<Record<MetricId, string>> = {
   gdp: "NGDPD",
 };
 const WORLD_BANK: Partial<Record<MetricId, string>> = {
+  trade: "NE.TRD.GNFS.ZS",
   milPct: "MS.MIL.XPND.GD.ZS",
   milUsd: "MS.MIL.XPND.CD",
   personnel: "MS.MIL.TOTL.P1",
