@@ -69,17 +69,7 @@ function ConflictPanel({ c }: { c: PulseConflict }) {
           </span>
         ))}
       </div>
-      <section className="mt-5 border-t border-border pt-4">
-        <h3 className={sectTitle}>Why it matters</h3>
-        <ol className="grid gap-3">
-          {c.why.map((w, i) => (
-            <li key={w} className="grid grid-cols-[24px_1fr] gap-2.5 leading-relaxed">
-              <span className="grid size-6 place-items-center rounded-full bg-[var(--ink-strong)] text-xs font-bold text-white">{i + 1}</span>
-              {w}
-            </li>
-          ))}
-        </ol>
-      </section>
+      <WhyItMatters points={c.why} />
       <section className="mt-5 border-t border-border pt-4">
         <h3 className={sectTitle}>Latest verified news</h3>
         {c.news.length ? (
@@ -197,6 +187,7 @@ function SummitPanel({ summit }: { summit: Pulse["summits"][number] }) {
         {summit.host} · {when}
         {!summit.datesConfirmed && " (exact dates to be confirmed)"}
       </p>
+      <WhyItMatters points={summit.why} />
       <section className="mt-5 border-t border-border pt-4">
         <h3 className={sectTitle}>Expected agenda</h3>
         <ol className="grid gap-3">
@@ -223,6 +214,23 @@ const FILTERS: { id: "all" | RelStatus; label: string }[] = [
   { id: "mixed", label: "Mixed" },
 ];
 
+/** Numbered "Why it matters" block (PRD FR-E-01). */
+function WhyItMatters({ points, title = "Why it matters" }: { points: string[]; title?: string }) {
+  return (
+    <section className="mt-5 border-t border-border pt-4">
+      <h3 className={sectTitle}>{title}</h3>
+      <ol className="grid gap-3">
+        {points.map((w, i) => (
+          <li key={w} className="grid grid-cols-[24px_1fr] gap-2.5 leading-relaxed">
+            <span className="grid size-6 place-items-center rounded-full bg-[var(--ink-strong)] text-xs font-bold text-white">{i + 1}</span>
+            {w}
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 function RelDot({ status }: { status: RelStatus }) {
   const style: Record<RelStatus, string> = {
     ally: "bg-ally",
@@ -241,6 +249,7 @@ function RelationsPanel({ country, pulse, countryName }: { country: IndexedCount
   );
   const count = (s: RelStatus) => rows.filter((r) => r.status === s).length;
   const blocs = pulse.organizations.filter((o) => o.members.includes(country.iso3));
+  const crisis = pulse.crises.find((c) => c.iso3 === country.iso3);
   const shown = rows.filter((r) => filter === "all" || r.status === filter);
   const fly = (iso3: string) => {
     const c = useGlobe.getState();
@@ -262,6 +271,20 @@ function RelationsPanel({ country, pulse, countryName }: { country: IndexedCount
               {termById(b.id.toLowerCase()) ? <Term id={b.id.toLowerCase()}>{b.id}</Term> : b.id}
             </span>
           ))}
+        </div>
+      )}
+      {crisis && (
+        <div className="mt-4 rounded-2xl border border-mixed/40 bg-mixed/10 p-3.5">
+          <div className="text-xs font-bold tracking-[.12em] text-[#7a5200] uppercase">Economic crisis</div>
+          <p className="mt-1 text-sm leading-relaxed">{crisis.basis}</p>
+          <ol className="mt-2 grid gap-1.5 text-[13px] leading-relaxed text-ink-2">
+            {crisis.why.map((w) => (
+              <li key={w} className="flex gap-2">
+                <span aria-hidden>•</span>
+                {w}
+              </li>
+            ))}
+          </ol>
         </div>
       )}
       <div className="my-4 grid grid-cols-2 gap-2.5">

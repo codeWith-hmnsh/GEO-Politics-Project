@@ -5,19 +5,39 @@
  "items": [
   {
    "iso3": "ARG",
-   "basis": "IMF programme approved in 2025 after years of high inflation."
+   "basis": "IMF programme approved in 2025 after years of high inflation.",
+   "why": [
+    "Shows how years of high inflation erode wages and savings.",
+    "Argentina is the IMF's largest borrower, so its programme shapes policy at home.",
+    "Its recovery is watched across Latin America."
+   ]
   },
   {
    "iso3": "PAK",
-   "basis": "IMF Extended Fund Facility since 2024; tight public finances."
+   "basis": "IMF Extended Fund Facility since 2024; tight public finances.",
+   "why": [
+    "Repeated IMF programmes show a cycle of borrowing and reform.",
+    "Debt payments leave less money for schools and hospitals.",
+    "Stability matters in a nuclear-armed country of about 240 million people."
+   ]
   },
   {
    "iso3": "EGY",
-   "basis": "IMF programme and pressure on the currency."
+   "basis": "IMF programme and pressure on the currency.",
+   "why": [
+    "Egypt buys much of its food and fuel abroad, so a weak currency raises prices.",
+    "Suez Canal income fell when Red Sea shipping was disrupted.",
+    "Gulf states and the IMF have stepped in with large support."
+   ]
   },
   {
    "iso3": "LBN",
-   "basis": "Deep financial collapse since 2019."
+   "basis": "Deep financial collapse since 2019.",
+   "why": [
+    "The World Bank ranks it among the worst economic crises since the mid-1800s.",
+    "Many people lost access to their bank savings.",
+    "Political deadlock has slowed reforms."
+   ]
   }
  ]
 }
