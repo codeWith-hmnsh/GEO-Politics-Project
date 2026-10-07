@@ -15,6 +15,14 @@ function supabase() {
   return url && key ? { url: url.replace(/\/$/, ""), key } : null;
 }
 
+/**
+ * Auth headers for the Supabase REST API. New secret keys (`sb_secret_…`) go in `apikey` only;
+ * legacy service-role keys are JWTs and are also sent as a Bearer token.
+ */
+function authHeaders(key: string): Record<string, string> {
+  return key.startsWith("sb_") ? { apikey: key } : { apikey: key, authorization: `Bearer ${key}` };
+}
+
 async function readJson<T>(file: string): Promise<{ asOf: string; payload: T } | null> {
   try {
     return JSON.parse(await readFile(file, "utf8")) as { asOf: string; payload: T };
@@ -29,8 +37,7 @@ export async function writeSnapshot<T>(key: string, payload: T, asOf = new Date(
     const res = await fetch(`${sb.url}/rest/v1/snapshots?on_conflict=key`, {
       method: "POST",
       headers: {
-        apikey: sb.key,
-        authorization: `Bearer ${sb.key}`,
+        ...authHeaders(sb.key),
         "content-type": "application/json",
         prefer: "resolution=merge-duplicates,return=minimal",
       },
@@ -50,7 +57,7 @@ export async function readSnapshot<T>(key: string): Promise<Snapshot<T> | null> 
   if (sb) {
     try {
       const res = await fetch(`${sb.url}/rest/v1/snapshots?key=eq.${encodeURIComponent(key)}&select=payload,as_of`, {
-        headers: { apikey: sb.key, authorization: `Bearer ${sb.key}` },
+        headers: authHeaders(sb.key),
         signal: AbortSignal.timeout(8_000),
       });
       if (res.ok) {
