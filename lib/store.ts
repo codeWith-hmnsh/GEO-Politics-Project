@@ -27,6 +27,14 @@ type GlobeState = {
   selectedSummit: string | null;
   /** Learn panels opened from the header: Daily Brief or the Stories list. */
   sidePanel: "brief" | "stories" | null;
+  /** Story Tour in progress: which tour, which stop (stops.length = the live-news stop), playing or paused. */
+  tour: { id: string; step: number; playing: boolean } | null;
+  /** Slow camera orbit in degrees of longitude per second (Story Tours). */
+  orbit: number;
+  startTour: (id: string) => void;
+  setTour: (patch: Partial<{ step: number; playing: boolean }>) => void;
+  endTour: () => void;
+  setOrbit: (degPerSecond: number) => void;
   openSide: (panel: "brief" | "stories") => void;
   /** Countries lit by a glossary "See on globe" (cleared by any selection). */
   highlight: string[];
@@ -91,6 +99,8 @@ export const useGlobe = create<GlobeState>((set) => ({
   selectedOrg: null,
   selectedSummit: null,
   sidePanel: null,
+  tour: null,
+  orbit: 0,
   highlight: [],
   fly: null,
   zoom: null,
@@ -112,6 +122,11 @@ export const useGlobe = create<GlobeState>((set) => ({
         : { ...NONE, selectedIso3: iso3 },
     ),
   openSide: (panel) => set({ ...NONE, sidePanel: panel }),
+  // A tour starts on Home with every panel closed; ending it clears its highlight and orbit.
+  startTour: (id) => set({ ...NONE, mode: "home", tour: { id, step: 0, playing: true }, orbit: 0 }),
+  setTour: (patch) => set((s) => (s.tour ? { tour: { ...s.tour, ...patch } } : {})),
+  endTour: () => set({ ...NONE, tour: null, orbit: 0 }),
+  setOrbit: (degPerSecond) => set({ orbit: degPerSecond }),
   startCompare: () => set({ comparePicking: true, compareIso3: null }),
   selectConflict: (id) => set({ ...NONE, selectedConflict: id }),
   selectOrg: (id) => set({ ...NONE, selectedOrg: id }),

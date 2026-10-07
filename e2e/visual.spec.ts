@@ -96,6 +96,26 @@ test.describe("visual reference", () => {
     await page.screenshot({ path: `test-results/visual/${info.project.name}-brief.png` });
   });
 
+  test("story tour", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    await page.goto("/");
+    await page.waitForTimeout(4500);
+    await page.getByRole("navigation", { name: "Main" }).getByRole("button", { name: "Stories" }).click();
+    await page.getByRole("button", { name: /Why the Strait of Hormuz matters/ }).click();
+    const player = page.getByRole("region", { name: /Story: Why the Strait of Hormuz matters/ });
+    await expect(player.getByRole("heading", { name: "A 33 km gap" })).toBeVisible();
+    // Side cards step aside during a tour.
+    await expect(page.getByRole("complementary", { name: "Layers" })).toHaveCount(0);
+    await page.waitForTimeout(4000);
+    await page.screenshot({ path: `test-results/visual/${info.project.name}-tour.png` });
+    await player.getByRole("button", { name: "Pause" }).click();
+    await player.getByRole("button", { name: "What's happening now" }).click();
+    await expect(player.getByText("What's happening now")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(player).toHaveCount(0);
+    await expect(page.getByRole("complementary", { name: "Layers" })).toBeVisible();
+  });
+
   test("zoom to states", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop");
     await page.goto("/");

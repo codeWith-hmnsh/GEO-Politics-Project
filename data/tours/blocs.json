@@ -1,0 +1,91 @@
+{
+  "id": "blocs",
+  "title": "Blocs explained: NATO, BRICS, QUAD, SCO",
+  "summary": "Who is in which club, and why some countries sit in rival clubs at once.",
+  "duration_s": 79,
+  "reviewed": "2026-10-07",
+  "needsEditorialReview": true,
+  "sources": [
+    "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+    "https://www.cfr.org/backgrounder/what-brics-group"
+  ],
+  "stops": [
+    {
+      "camera": {
+        "lat": 50,
+        "lng": -30,
+        "altitude": 2.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "NATO",
+      "caption": "NATO is a military alliance of 32 countries in North America and Europe. An attack on one counts as an attack on all.",
+      "highlight_org": "NATO"
+    },
+    {
+      "camera": {
+        "lat": 10,
+        "lng": 40,
+        "altitude": 2.8
+      },
+      "orbit_deg": 20,
+      "caption_title": "BRICS",
+      "caption": "BRICS began with Brazil, Russia, India, China and South Africa and has since added members. It focuses on trade and finance.",
+      "highlight_org": "BRICS"
+    },
+    {
+      "camera": {
+        "lat": 5,
+        "lng": 120,
+        "altitude": 2.8
+      },
+      "orbit_deg": 20,
+      "caption_title": "QUAD",
+      "caption": "Australia, India, Japan and the United States work together in the QUAD on maritime security and technology.",
+      "highlight_org": "QUAD"
+    },
+    {
+      "camera": {
+        "lat": 45,
+        "lng": 75,
+        "altitude": 2.4
+      },
+      "orbit_deg": 20,
+      "caption_title": "SCO",
+      "caption": "The Shanghai Cooperation Organisation links China, Russia, India, Pakistan, Iran and Central Asian states on security.",
+      "highlight_org": "SCO"
+    },
+    {
+      "camera": {
+        "lat": 22,
+        "lng": 79,
+        "altitude": 2.0
+      },
+      "orbit_deg": 20,
+      "caption_title": "In rival clubs at once",
+      "caption": "India belongs to the QUAD and also to BRICS and the SCO, keeping ties open with rival powers.",
+      "highlight": [
+        "IND"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 35,
+        "lng": 30,
+        "altitude": 3.2
+      },
+      "orbit_deg": 20,
+      "caption_title": "Clubs, not camps",
+      "caption": "Blocs overlap. Being in the same club shows shared interests, not that members always agree."
+    }
+  ],
+  "live_query": {
+    "section": "diplomacy",
+    "terms": [
+      "NATO",
+      "BRICS",
+      "QUAD",
+      "SCO",
+      "summit"
+    ]
+  }
+}

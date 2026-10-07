@@ -1,0 +1,107 @@
+{
+  "id": "india-borders",
+  "title": "India's borders: Pakistan and China",
+  "summary": "Kashmir, the Line of Control and the Line of Actual Control, and why two borders shape India's foreign policy.",
+  "duration_s": 77,
+  "reviewed": "2026-10-07",
+  "needsEditorialReview": true,
+  "sources": [
+    "https://www.cfr.org/global-conflict-tracker/conflict/conflict-between-india-and-pakistan",
+    "https://www.cfr.org/global-conflict-tracker/conflict/china-india-border-tensions"
+  ],
+  "stops": [
+    {
+      "camera": {
+        "lat": 29,
+        "lng": 80,
+        "altitude": 2.0
+      },
+      "orbit_deg": 20,
+      "caption_title": "Two difficult borders",
+      "caption": "India shares long, contested borders with two nuclear-armed neighbours: Pakistan to the west and China to the north.",
+      "highlight": [
+        "IND",
+        "PAK",
+        "CHN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 34.3,
+        "lng": 74.3,
+        "altitude": 0.7
+      },
+      "orbit_deg": 20,
+      "caption_title": "Kashmir and the Line of Control",
+      "caption": "Since 1947 India and Pakistan have both claimed Kashmir. The Line of Control divides the parts each country holds.",
+      "highlight": [
+        "IND",
+        "PAK"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 33.5,
+        "lng": 73.5,
+        "altitude": 1.0
+      },
+      "orbit_deg": 20,
+      "caption_title": "Wars and crises",
+      "caption": "The two countries fought wars in 1947, 1965, 1971 and 1999, and militant attacks have repeatedly set off crises.",
+      "highlight": [
+        "IND",
+        "PAK"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 34.5,
+        "lng": 78.5,
+        "altitude": 0.7
+      },
+      "orbit_deg": 20,
+      "caption_title": "The Line of Actual Control",
+      "caption": "With China the border is an undefined Line of Actual Control. Troops clashed in Ladakh's Galwan Valley in 2020.",
+      "highlight": [
+        "IND",
+        "CHN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 28,
+        "lng": 94,
+        "altitude": 0.9
+      },
+      "orbit_deg": 20,
+      "caption_title": "Arunachal Pradesh",
+      "caption": "China claims most of the Indian state of Arunachal Pradesh, which it calls South Tibet.",
+      "highlight": [
+        "IND",
+        "CHN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 22,
+        "lng": 82,
+        "altitude": 2.2
+      },
+      "orbit_deg": 20,
+      "caption_title": "Shaping foreign policy",
+      "caption": "Two contested borders push India to build up its military and to deepen partnerships such as the QUAD.",
+      "highlight": [
+        "IND"
+      ]
+    }
+  ],
+  "live_query": {
+    "section": "all",
+    "terms": [
+      "India",
+      "Pakistan",
+      "Kashmir",
+      "Ladakh"
+    ]
+  }
+}

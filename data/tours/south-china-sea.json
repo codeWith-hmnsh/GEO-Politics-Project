@@ -1,0 +1,112 @@
+{
+  "id": "south-china-sea",
+  "title": "South China Sea and the Taiwan Strait",
+  "summary": "Competing claims, busy shipping lanes and the chips the world depends on.",
+  "duration_s": 78,
+  "reviewed": "2026-10-07",
+  "needsEditorialReview": true,
+  "sources": [
+    "https://pca-cpa.org/en/cases/7/",
+    "https://www.cfr.org/global-conflict-tracker/conflict/territorial-disputes-south-china-sea"
+  ],
+  "stops": [
+    {
+      "camera": {
+        "lat": 12,
+        "lng": 114,
+        "altitude": 1.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "A busy, disputed sea",
+      "caption": "Trillions of dollars of trade cross the South China Sea each year, and several countries claim parts of it.",
+      "highlight": [
+        "CHN",
+        "VNM",
+        "PHL",
+        "MYS",
+        "BRN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 10,
+        "lng": 114,
+        "altitude": 1.0
+      },
+      "orbit_deg": 20,
+      "caption_title": "Overlapping claims",
+      "caption": "China's \"nine-dash line\" covers most of the sea. Vietnam, the Philippines, Malaysia, Brunei and Taiwan claim parts too.",
+      "highlight": [
+        "CHN",
+        "VNM",
+        "PHL",
+        "MYS",
+        "BRN",
+        "TWN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 9.5,
+        "lng": 115,
+        "altitude": 0.7
+      },
+      "orbit_deg": 20,
+      "caption_title": "Islands built from reefs",
+      "caption": "In the Spratly Islands, China has built artificial islands with runways. Other claimants hold outposts too.",
+      "highlight": [
+        "CHN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 15,
+        "lng": 117,
+        "altitude": 1.0
+      },
+      "orbit_deg": 20,
+      "caption_title": "A court ruling",
+      "caption": "In 2016 an international tribunal ruled for the Philippines against China's broad claims. China rejects the ruling.",
+      "highlight": [
+        "PHL",
+        "CHN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 24,
+        "lng": 119.5,
+        "altitude": 0.8
+      },
+      "orbit_deg": 20,
+      "caption_title": "The Taiwan Strait",
+      "caption": "Taiwan is governed separately from mainland China, which claims it. The strait is roughly 130 km wide at its narrowest.",
+      "highlight": [
+        "TWN",
+        "CHN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 23.7,
+        "lng": 121,
+        "altitude": 0.9
+      },
+      "orbit_deg": 20,
+      "caption_title": "Why chips matter",
+      "caption": "Taiwan makes most of the world's most advanced computer chips, so any conflict would hit economies worldwide.",
+      "highlight": [
+        "TWN"
+      ]
+    }
+  ],
+  "live_query": {
+    "section": "all",
+    "terms": [
+      "Taiwan",
+      "South China Sea",
+      "Philippines",
+      "Spratly"
+    ]
+  }
+}

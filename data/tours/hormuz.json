@@ -1,0 +1,110 @@
+{
+  "id": "hormuz",
+  "title": "Why the Strait of Hormuz matters",
+  "summary": "The world's most important oil chokepoint, and who depends on it.",
+  "duration_s": 79,
+  "reviewed": "2026-10-07",
+  "needsEditorialReview": true,
+  "sources": [
+    "https://www.eia.gov/international/analysis/special-topics/World_Oil_Transit_Chokepoints"
+  ],
+  "stops": [
+    {
+      "camera": {
+        "lat": 26.5,
+        "lng": 56.3,
+        "altitude": 0.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "A 33 km gap",
+      "caption": "Between Iran and Oman lies the narrowest point of the world's most important oil route.",
+      "highlight": [
+        "IRN",
+        "OMN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 27,
+        "lng": 52,
+        "altitude": 1.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "A fifth of the world's oil",
+      "caption": "About a fifth of the oil the world uses passes through the strait every day, along with a lot of gas.",
+      "highlight": [
+        "SAU",
+        "IRQ",
+        "KWT",
+        "ARE",
+        "QAT",
+        "IRN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 25.3,
+        "lng": 51.2,
+        "altitude": 1.0
+      },
+      "orbit_deg": 20,
+      "caption_title": "Gas from Qatar",
+      "caption": "Qatar, one of the largest exporters of liquefied natural gas, ships almost all of it through Hormuz.",
+      "highlight": [
+        "QAT"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 25,
+        "lng": 100,
+        "altitude": 2.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "Who depends on it",
+      "caption": "Most of this oil goes to Asia. China, India, Japan and South Korea are the biggest buyers.",
+      "highlight": [
+        "CHN",
+        "IND",
+        "JPN",
+        "KOR"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 25,
+        "lng": 52,
+        "altitude": 1.4
+      },
+      "orbit_deg": 20,
+      "caption_title": "Pipelines around it",
+      "caption": "Saudi Arabia and the UAE have pipelines that bypass the strait, but they can carry only part of the oil.",
+      "highlight": [
+        "SAU",
+        "ARE"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 26.5,
+        "lng": 56.3,
+        "altitude": 0.8
+      },
+      "orbit_deg": 20,
+      "caption_title": "Why prices jump",
+      "caption": "Any threat to shipping here, often raised during tensions with Iran, quickly pushes up world oil prices.",
+      "highlight": [
+        "IRN"
+      ]
+    }
+  ],
+  "live_query": {
+    "section": "energy",
+    "terms": [
+      "Hormuz",
+      "oil",
+      "Iran",
+      "tanker"
+    ]
+  }
+}

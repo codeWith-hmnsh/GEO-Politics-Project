@@ -11,7 +11,7 @@ import { homeView, useGlobe } from "@/lib/store";
 const NAV = [
   { id: "home", label: "Home", ready: true },
   { id: "brief", label: "Daily Brief", ready: true, side: "brief" as const },
-  { id: "stories", label: "Stories", ready: false },
+  { id: "stories", label: "Stories", ready: true, side: "stories" as const },
   { id: "glossary", label: "Glossary", ready: true },
   { id: "sources", label: "Sources", ready: true },
 ] as const;

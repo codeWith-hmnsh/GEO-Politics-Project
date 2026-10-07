@@ -13,9 +13,9 @@ import { prefersReducedMotion } from "../shared";
 const GLOW_SIZE = [0, 0.09, 0.15, 0.24];
 const MAX_ARCS = 12;
 
-/** Is the Home layer visible right now (switch on, Home mode, no country in focus)? */
+/** Is the Home layer visible right now (switch on, Home mode, no country in focus, no Story Tour)? */
 export function useHomeLayerVisible(id: "wars" | "orgs" | "econ" | "rel") {
-  return useGlobe((s) => s.layers[id] && s.mode === "home" && s.selectedIso3 === null);
+  return useGlobe((s) => s.layers[id] && s.mode === "home" && s.selectedIso3 === null && s.tour === null);
 }
 
 function Hotspot({ c, index, fade }: { c: PulseConflict; index: number; fade: React.RefObject<number> }) {

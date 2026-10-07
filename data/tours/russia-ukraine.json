@@ -1,0 +1,109 @@
+{
+  "id": "russia-ukraine",
+  "title": "The Russia–Ukraine war",
+  "summary": "From Crimea in 2014 to today's front line, and why Europe, grain and gas prices care.",
+  "duration_s": 82,
+  "reviewed": "2026-10-07",
+  "needsEditorialReview": true,
+  "conflict": "ru-ua",
+  "sources": [
+    "https://www.cfr.org/global-conflict-tracker/conflict/conflict-ukraine",
+    "https://www.nato.int/cps/en/natohq/topics_52044.htm"
+  ],
+  "stops": [
+    {
+      "camera": {
+        "lat": 49,
+        "lng": 32,
+        "altitude": 1.4
+      },
+      "orbit_deg": 20,
+      "caption_title": "Europe's largest war since 1945",
+      "caption": "Russia launched a full-scale invasion of Ukraine in February 2022, the largest war in Europe since the Second World War.",
+      "highlight": [
+        "UKR",
+        "RUS"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 45,
+        "lng": 34.1,
+        "altitude": 0.8
+      },
+      "orbit_deg": 20,
+      "caption_title": "2014: Crimea",
+      "caption": "In 2014 Russia annexed Crimea, a move most UN members do not recognise, and fighting began in the eastern Donbas region.",
+      "highlight": [
+        "UKR",
+        "RUS"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 50.45,
+        "lng": 30.52,
+        "altitude": 0.7
+      },
+      "orbit_deg": 20,
+      "caption_title": "2022: the push on Kyiv",
+      "caption": "Russian forces advanced on the capital, Kyiv, in 2022 but withdrew from the north after weeks of fighting.",
+      "highlight": [
+        "UKR"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 48,
+        "lng": 37.8,
+        "altitude": 0.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "A long front line",
+      "caption": "Fighting runs along a front of about 1,000 km in the east and south; drones and missiles strike far beyond it.",
+      "highlight": [
+        "UKR",
+        "RUS"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 45.5,
+        "lng": 31,
+        "altitude": 1.4
+      },
+      "orbit_deg": 20,
+      "caption_title": "Grain and gas",
+      "caption": "Ukraine exports huge amounts of grain through Black Sea ports, so the war has moved world food and energy prices.",
+      "highlight": [
+        "UKR"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 52,
+        "lng": 18,
+        "altitude": 2.2
+      },
+      "orbit_deg": 20,
+      "caption_title": "Why Europe cares",
+      "caption": "European countries cut Russian gas imports, sent aid to Ukraine and raised defence spending. Finland and Sweden joined NATO.",
+      "highlight": [
+        "FIN",
+        "SWE",
+        "UKR",
+        "RUS"
+      ]
+    }
+  ],
+  "live_query": {
+    "section": "conflict",
+    "terms": [
+      "Ukraine",
+      "Russia",
+      "Kyiv",
+      "Zelensky",
+      "Putin"
+    ]
+  }
+}

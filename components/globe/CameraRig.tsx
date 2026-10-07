@@ -208,8 +208,11 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
       const damp = Math.pow(0.9, dt * 60);
       vel.current.lat *= damp;
       vel.current.lng *= damp;
-      const idle = now - lastInput.current > IDLE_MS && useGlobe.getState().selectedIso3 === null;
+      const st = useGlobe.getState();
+      const idle = now - lastInput.current > IDLE_MS && st.selectedIso3 === null && st.tour === null;
       if (!reduce && idle && t.dist > 2.2) t.lng -= dt * 2.2;
+      // Story Tour orbit: a slow pan around the current stop.
+      if (!reduce && st.orbit) t.lng += st.orbit * dt;
       const k = followFactor(dt);
       c.lat += (t.lat - c.lat) * k;
       c.lng += (t.lng - c.lng) * k;

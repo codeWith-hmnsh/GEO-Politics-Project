@@ -15,6 +15,8 @@ import { REL_LABEL, relationsFor, type RelStatus } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
 import { CountryFacts } from "./CountryFacts";
 import { BriefPanel } from "@/components/learn/BriefPanel";
+import { StoriesPanel } from "@/components/learn/StoriesPanel";
+import { tourForConflict } from "@/lib/tours";
 import { ComparePanel } from "./ComparePanel";
 import { CountryModePanel } from "./CountryModePanel";
 import { Term, termById } from "@/components/learn/Term";
@@ -36,6 +38,7 @@ let centroidOf = new Map<string, [number, number]>();
 const pulseCountry = (iso3: string) => centroidOf.get(iso3);
 
 function ConflictPanel({ c }: { c: PulseConflict }) {
+  const tour = tourForConflict(c.id);
   const status = STATUS[c.status] ?? STATUS.active;
   const days = daysSince(c.start);
   return (
@@ -92,16 +95,17 @@ function ConflictPanel({ c }: { c: PulseConflict }) {
           <p className="text-sm text-ink-2">No new reports from trusted outlets in the last 48 hours.</p>
         )}
       </section>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled
-          title="Story tours arrive in a later release"
-          className="inline-flex h-[42px] items-center gap-2 rounded-[11px] bg-[var(--ink-strong)] px-3.5 font-semibold text-white opacity-50"
-        >
-          <Play className="size-4" aria-hidden /> Watch the story
-        </button>
-      </div>
+      {tour && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => useGlobe.getState().startTour(tour.id)}
+            className="inline-flex h-[42px] items-center gap-2 rounded-[11px] bg-[var(--ink-strong)] px-3.5 font-semibold text-white"
+          >
+            <Play className="size-4" aria-hidden /> Watch the story
+          </button>
+        </div>
+      )}
       <p className="mt-3 text-xs leading-relaxed text-ink-3">
         Red arcs are symbolic: they appear only when two or more trusted outlets report strikes in the last 48 hours. They are not
         real flight paths.
@@ -437,6 +441,8 @@ export function PanelHost() {
           <div className="overflow-auto p-[22px]">
             {side === "brief" ? (
               <BriefPanel countryName={nameOf} />
+            ) : side === "stories" ? (
+              <StoriesPanel />
             ) : conflict ? (
               <ConflictPanel c={conflict} />
             ) : org ? (

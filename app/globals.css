@@ -117,6 +117,16 @@
   --sidebar-ring: var(--ink);
 }
 
+/* Story Tour stop timer: the bar's animation end advances the tour, so pausing it pauses the tour. */
+@keyframes tour-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

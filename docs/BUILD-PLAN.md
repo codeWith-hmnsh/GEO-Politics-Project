@@ -132,10 +132,11 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 ## M3 — Learn (weeks 9–10)
 
 - [x] Daily Brief: ranks clusters hourly (outlet tier × region diversity × recency, one story per lead country), editor pin/hide in `config/brief-pins.json`, `/api/brief`, staggered list panel from the header and bell, tap → flyTo.
-- [ ] Story Player: script loader, step dots, play/pause, caption BlurText, orbit, final live-news stop.
-- [ ] Write and review 6 tours (CONTENT-GUIDE §5.2).
-- [ ] Google photoreal close-up (`closeUp` flag): lazy `gmp-map-3d`, crossfade handoff from R3F, `flyCameraTo` + `flyCameraAround`, budget alert in Google Cloud, attribution.
-- [ ] Tour completion + brief click analytics events.
+- [x] Story Player: script loader, progress bar, step dots, play/pause, keyboard (Space, arrows, Esc), BlurText captions, slow orbit, highlights (countries or bloc members), final live-news stop; side cards hide during a tour; "Watch the story" on conflict cards.
+- [x] Write 6 tours (CONTENT-GUIDE §5.2) in `data/tours/`; rules checked by tests.
+- [ ] Editorial review of the 6 tours (marked `needsEditorialReview`).
+- [ ] (Blocked: needs a Google Maps Platform key) Google photoreal close-up (`closeUp` flag): lazy `gmp-map-3d`, crossfade handoff from R3F, `flyCameraTo` + `flyCameraAround`, budget alert in Google Cloud, attribution.
+- [x] Tour start / step / complete and brief click events (cookieless Vercel Web Analytics).
 
 ### Done when
 - Tour completion ≥ 50 % in a 10-person test; close-up cost tracked and inside free cap.

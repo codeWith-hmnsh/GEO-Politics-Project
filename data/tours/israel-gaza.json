@@ -1,0 +1,108 @@
+{
+  "id": "israel-gaza",
+  "title": "Israel, Gaza and the wider Middle East",
+  "summary": "The key actors, the borders, and how the war has drawn in the wider region.",
+  "duration_s": 78,
+  "reviewed": "2026-10-07",
+  "needsEditorialReview": true,
+  "conflict": "gaza",
+  "sources": [
+    "https://www.cfr.org/global-conflict-tracker/conflict/israeli-palestinian-conflict",
+    "https://www.ochaopt.org/"
+  ],
+  "stops": [
+    {
+      "camera": {
+        "lat": 31.4,
+        "lng": 34.4,
+        "altitude": 0.7
+      },
+      "orbit_deg": 20,
+      "caption_title": "A small, crowded strip",
+      "caption": "Gaza is a strip of land about 41 km long, home to around two million Palestinians, next to Israel and Egypt.",
+      "highlight": [
+        "ISR",
+        "PSE",
+        "EGY"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 31.3,
+        "lng": 34.6,
+        "altitude": 0.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "7 October 2023",
+      "caption": "Hamas-led attacks on southern Israel on 7 October 2023 killed about 1,200 people, and around 250 were taken hostage.",
+      "highlight": [
+        "ISR"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 31.45,
+        "lng": 34.4,
+        "altitude": 0.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "The war in Gaza",
+      "caption": "Israel's military campaign followed. Gaza's health ministry reports tens of thousands killed, and most residents have been displaced.",
+      "highlight": [
+        "PSE"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 33.3,
+        "lng": 35.5,
+        "altitude": 0.9
+      },
+      "orbit_deg": 20,
+      "caption_title": "Other fronts",
+      "caption": "Fighting spread to Israel's border with Lebanon, where Hezbollah is based, and drew in other Iran-aligned groups.",
+      "highlight": [
+        "LBN",
+        "ISR",
+        "IRN"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 15,
+        "lng": 42,
+        "altitude": 1.6
+      },
+      "orbit_deg": 20,
+      "caption_title": "Red Sea shipping",
+      "caption": "Yemen's Houthis attacked ships in the Red Sea, so many ships now sail around Africa, raising shipping costs.",
+      "highlight": [
+        "YEM"
+      ]
+    },
+    {
+      "camera": {
+        "lat": 28,
+        "lng": 40,
+        "altitude": 2.4
+      },
+      "orbit_deg": 20,
+      "caption_title": "The mediators",
+      "caption": "Egypt, Qatar and the United States have mediated talks on ceasefires and the release of hostages.",
+      "highlight": [
+        "EGY",
+        "QAT"
+      ]
+    }
+  ],
+  "live_query": {
+    "section": "conflict",
+    "terms": [
+      "Gaza",
+      "Israel",
+      "Hamas",
+      "Hezbollah",
+      "Houthi"
+    ]
+  }
+}
