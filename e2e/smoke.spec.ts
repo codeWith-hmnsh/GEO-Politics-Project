@@ -46,5 +46,7 @@ test("country API returns leaders and trade partners", async ({ request }) => {
   const body = await (await request.get("/api/country?iso3=IND")).json();
   expect(body.data.profile.capital).toBe("New Delhi");
   expect(body.data.trade.exports.length).toBeGreaterThan(0);
+  const pak = await (await request.get("/api/country?iso3=PAK")).json();
+  expect(pak.data.creditors.creditors.length).toBeGreaterThan(0);
   expect((await request.get("/api/country?iso3=12")).status()).toBe(400);
 });

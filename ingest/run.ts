@@ -1,7 +1,7 @@
-// Ingest CLI: `npm run ingest -- <news|indicators|profiles|trade> [--no-gdelt] [--seed]`
+// Ingest CLI: `npm run ingest -- <news|indicators|profiles|trade|creditors> [--no-gdelt] [--seed]`
 import { copyFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { runProfiles, runTrade } from "./jobs/country";
+import { runCreditors, runProfiles, runTrade } from "./jobs/country";
 import { runIndicators } from "./jobs/indicators";
 import { runNews } from "./jobs/news";
 
@@ -21,8 +21,11 @@ async function main() {
     case "trade":
       await runTrade();
       break;
+    case "creditors":
+      await runCreditors();
+      break;
     default:
-      console.error(`Unknown job "${job ?? ""}". Jobs: news, indicators, profiles, trade`);
+      console.error(`Unknown job "${job ?? ""}". Jobs: news, indicators, profiles, trade, creditors`);
       process.exit(1);
   }
   // Refresh the committed fallback snapshot from the local run.

@@ -10,6 +10,11 @@ export type Partner = { iso3: string; value: number };
 export type TradeRow = { year: number; exports: Partner[]; imports: Partner[]; exportsTotal: number; importsTotal: number };
 export type TradeSnapshot = { asOf: string; trade: Record<string, TradeRow> };
 
+/** A lender: a country (iso3) or an institution such as the World Bank or bondholders (name only). */
+export type Creditor = { name: string; iso3?: string; value: number };
+export type CreditorRow = { year: number; total: number; creditors: Creditor[] };
+export type CreditorsSnapshot = { asOf: string; creditors: Record<string, CreditorRow> };
+
 const UA = "GeoPoliticsBot/0.1 (education project; https://github.com/)";
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -124,5 +129,65 @@ export async function runTrade(log: (s: string) => void = console.log) {
   const snapshot: TradeSnapshot = { asOf: new Date().toISOString(), trade };
   const where = await writeSnapshot("trade", snapshot, snapshot.asOf);
   log(`trade: ${Object.keys(trade).length} countries → ${where}`);
+  return snapshot;
+}
+
+// World Bank International Debt Statistics names that i18n-iso-countries does not know.
+const IDS_ALIASES: Record<string, string> = {
+  "germany, fed. rep. of": "DEU",
+  "korea, republic of": "KOR",
+  turkiye: "TUR",
+  "iran, islamic rep.": "IRN",
+  "venezuela, r.b.": "VEN",
+  "egypt, arab rep.": "EGY",
+  "kuwait": "KWT",
+  "taiwan, china": "TWN",
+  "hong kong sar, china": "HKG",
+  "russian federation": "RUS",
+  "united arab emirates": "ARE",
+};
+
+const idsIso = (name: string) => IDS_ALIASES[name.toLowerCase()] ?? countries.getAlpha3Code(name, "en");
+
+type IdsCell = { variable: { concept: string; id: string; value: string }[]; value: number | null };
+
+async function idsCreditors(iso3: string, year: number): Promise<IdsCell[]> {
+  const url = `https://api.worldbank.org/v2/sources/6/country/${iso3}/series/DT.DOD.DPPG.CD/counterpart-area/all/time/YR${year}?format=json&per_page=400`;
+  const res = await fetch(url, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(60_000) });
+  if (!res.ok) throw new Error(String(res.status));
+  const json = (await res.json()) as { source?: { data?: IdsCell[] } };
+  return json.source?.data ?? [];
+}
+
+/** Who a country owes its public external debt to (World Bank IDS), top 6 lenders. */
+export async function runCreditors(log: (s: string) => void = console.log) {
+  const list = await fetch("https://api.worldbank.org/v2/sources/6/country?format=json&per_page=400", { signal: AbortSignal.timeout(60_000) });
+  const borrowers = ((await list.json()) as { source: { concept: { variable: { id: string }[] }[] }[] }).source[0].concept[0].variable.map((v) => v.id);
+  const thisYear = new Date().getUTCFullYear();
+  const creditors: Record<string, CreditorRow> = {};
+  for (const iso3 of borrowers) {
+    try {
+      for (let year = thisYear - 1; year >= thisYear - 3; year--) {
+        const cells = (await idsCreditors(iso3, year)).filter((c) => c.value);
+        if (!cells.length) continue;
+        const name = (c: IdsCell) => c.variable.find((v) => v.concept === "Counterpart-Area")!.value.trim();
+        const id = (c: IdsCell) => c.variable.find((v) => v.concept === "Counterpart-Area")!.id;
+        const total = cells.find((c) => id(c) === "WLD")?.value ?? 0;
+        const rows = cells
+          .filter((c) => id(c) !== "WLD" && !/multiple lenders/i.test(name(c)))
+          .map((c) => ({ name: name(c), iso3: idsIso(name(c)) || undefined, value: Math.round(c.value!) }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 6);
+        creditors[iso3] = { year, total: Math.round(total), creditors: rows };
+        break;
+      }
+    } catch (e) {
+      log(`creditors ${iso3} failed: ${(e as Error).message}`);
+    }
+    await sleep(300);
+  }
+  const snapshot: CreditorsSnapshot = { asOf: new Date().toISOString(), creditors };
+  const where = await writeSnapshot("creditors", snapshot, snapshot.asOf);
+  log(`creditors: ${Object.keys(creditors).length} countries → ${where}`);
   return snapshot;
 }

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { timeAgo, useIndicators, useNews } from "@/lib/api";
 import { MODE_COPY, MODE_SCALES, metricById, metricsFor, scaleDomain } from "@/lib/metrics";
+import { TRADE_COLORS } from "@/components/globe/layers/TradeLayer";
 import { Term } from "@/components/learn/Term";
 import { useGlobe } from "@/lib/store";
 
@@ -11,6 +12,7 @@ export function ModeCard() {
   const mode = useGlobe((s) => s.mode);
   const metricId = useGlobe((s) => (s.mode === "economy" || s.mode === "defense" ? s.modeMetric[s.mode] : null));
   const setMetric = useGlobe((s) => s.setModeMetric);
+  const countrySelected = useGlobe((s) => s.selectedIso3 !== null);
   const { data, isPending } = useIndicators(mode);
   const news = useNews({ section: mode === "economy" ? "economy" : "defense", limit: 3 });
 
@@ -68,6 +70,22 @@ export function ModeCard() {
             <p className="mt-2 text-xs leading-relaxed text-ink-3">
               Source: {def.source}. Countries without data stay uncoloured. Tap a country for its numbers.
             </p>
+          </div>
+        )}
+        {mode === "economy" && countrySelected && (
+          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-2" aria-label="Arc colours">
+            {(
+              [
+                ["Exports", TRADE_COLORS.exports],
+                ["Imports", TRADE_COLORS.imports],
+                ["Lenders", TRADE_COLORS.creditors],
+              ] as const
+            ).map(([label, color]) => (
+              <span key={label} className="flex items-center gap-1.5">
+                <i className="h-0.5 w-4 rounded" style={{ background: color }} aria-hidden />
+                {label}
+              </span>
+            ))}
           </div>
         )}
         <section className="mt-4 border-t border-border pt-3">

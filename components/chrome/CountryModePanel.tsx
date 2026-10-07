@@ -26,6 +26,7 @@ export function CountryModePanel({ country, countryName }: { country: IndexedCou
   const news = useNews({ section: mode, country: country.iso3, limit: 3 });
   const facts = useCountryFacts(country.iso3);
   const trade = mode === "economy" ? facts.data?.data.trade : null;
+  const creditors = mode === "economy" ? facts.data?.data.creditors : null;
   const year = new Date().getUTCFullYear();
   const rows = metricsFor(mode)
     .filter((m) => m.id !== "capability" && m.id !== "nuclear")
@@ -117,6 +118,36 @@ export function CountryModePanel({ country, countryName }: { country: IndexedCou
             );
           })}
           <p className="text-xs text-ink-3">Goods only, as reported by {country.name}. Source: UN Comtrade.</p>
+        </section>
+      )}
+
+      {creditors && creditors.creditors.length > 0 && (
+        <section className="mt-5 border-t border-border pt-4">
+          <h3 className={sectTitle}>Who it owes · {creditors.year}</h3>
+          <p className="mb-2 text-xs text-ink-2">
+            Public external debt: {usd(creditors.total)}. Largest lenders:
+          </p>
+          <ul className="grid gap-1">
+            {creditors.creditors.map((c) => {
+              const max = creditors.creditors[0].value || 1;
+              return (
+                <li key={c.name} className="grid grid-cols-[18px_1fr_64px] items-center gap-2 text-[13px]">
+                  {c.iso3 ? <Flag iso3={c.iso3} className="h-[11px] w-4" /> : <span aria-hidden className="mx-auto size-2 rounded-full bg-ink-3" />}
+                  <span className="relative h-5 overflow-hidden rounded bg-paper">
+                    <span
+                      className="absolute inset-y-0 left-0 rounded"
+                      style={{ width: `${(c.value / max) * 100}%`, background: `${TRADE_COLORS.creditors}44` }}
+                    />
+                    <span className="relative px-1.5 leading-5">{c.iso3 ? countryName(c.iso3) : c.name}</span>
+                  </span>
+                  <span className="text-right tabular-nums">{usd(c.value)}</span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-1.5 text-xs text-ink-3">
+            Bondholders are private investors. Source: World Bank International Debt Statistics (low- and middle-income countries only).
+          </p>
         </section>
       )}
 
