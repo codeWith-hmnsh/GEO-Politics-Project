@@ -36,6 +36,16 @@ test.describe("visual reference", () => {
     await page.screenshot({ path: `test-results/visual/${info.project.name}-conflict.png` });
   });
 
+  test("bloc panel", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    await page.goto("/");
+    await page.waitForTimeout(5000);
+    await page.getByRole("button", { name: /BRICS: show members/ }).click({ force: true });
+    await page.waitForTimeout(3500);
+    await expect(page.getByRole("heading", { name: "BRICS" })).toBeVisible();
+    await page.screenshot({ path: `test-results/visual/${info.project.name}-bloc.png` });
+  });
+
   test("zoom to states", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop");
     await page.goto("/");

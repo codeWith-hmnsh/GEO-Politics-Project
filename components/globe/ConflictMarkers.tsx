@@ -29,7 +29,7 @@ export function ConflictMarkers() {
   const conflicts = data?.data.conflicts ?? [];
 
   return (
-    <div aria-label="Conflicts" className={`pointer-events-none fixed inset-0 z-[7] transition-opacity duration-500 ${visible ? "" : "invisible opacity-0"}`}>
+    <div aria-label="Conflicts" className={`pointer-events-none fixed inset-0 z-[7] transition-opacity duration-500 ${visible ? "" : "opacity-0"}`}>
       {conflicts.map((c) => (
         <Marker key={c.id} lat={c.at[0]} lng={c.at[1]} interactive={visible}>
           <button

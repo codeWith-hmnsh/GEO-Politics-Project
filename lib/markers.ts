@@ -11,8 +11,10 @@ export type MarkerEntry = {
   minDist?: number;
   /** Pixel offset from the projected point. */
   offset?: [number, number];
+  /** Mirror horizontally (ships sailing left). */
+  flip?: boolean;
   /** Last written screen position (skip DOM writes when nothing moved). */
-  last?: { x: number; y: number; o: number };
+  last?: { x: number; y: number; o: number; f?: boolean };
 };
 
 export const markerRegistry = new Map<string, MarkerEntry>();

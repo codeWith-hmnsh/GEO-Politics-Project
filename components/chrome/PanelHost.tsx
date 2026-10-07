@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 import CountUp from "@/components/bits/CountUp";
 import { Skeleton } from "@/components/ui/skeleton";
 import { daysSince } from "@/components/globe/ConflictMarkers";
-import { timeAgo, usePulse } from "@/lib/api";
-import type { PulseConflict } from "@/lib/data/pulse";
+import { Medal } from "@/components/globe/emblems";
+import { timeAgo, useNews, usePulse } from "@/lib/api";
+import type { Pulse, PulseConflict } from "@/lib/data/pulse";
+import type { NewsCluster } from "@/lib/schemas/news";
 import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
 import { useGlobe } from "@/lib/store";
 import { Flag } from "./Flag";
@@ -107,6 +109,102 @@ function ConflictPanel({ c }: { c: PulseConflict }) {
   );
 }
 
+function NewsList({ items, empty }: { items: NewsCluster[]; empty: string }) {
+  if (!items.length) return <p className="text-sm text-ink-2">{empty}</p>;
+  return (
+    <ul className="grid gap-2">
+      {items.map((n) => (
+        <li key={n.id} className="rounded-xl border border-border bg-white px-3 py-2.5">
+          <a href={n.url} target="_blank" rel="noreferrer" className="font-semibold leading-snug hover:underline">
+            {n.title}
+            <ExternalLink className="ml-1 inline size-3.5 text-ink-3" aria-hidden />
+          </a>
+          <span className="mt-1 flex items-center gap-1.5 text-xs text-ink-3">
+            {n.source} · {timeAgo(n.publishedAt)}
+            {n.sourceCount > 1 && <> · {n.sourceCount} sources</>}
+            {n.verified && <ShieldCheck className="size-3.5 text-ally" aria-label="Verified by 2+ trusted outlets" />}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const mentions = (n: NewsCluster, words: string[]) => words.some((w) => new RegExp(`\\b${escapeRe(w)}\\b`, "i").test(n.title));
+
+function BlocPanel({ org, countryName }: { org: Pulse["organizations"][number]; countryName: (iso3: string) => string }) {
+  const news = useNews({ limit: 100 });
+  const related = (news.data?.data ?? []).filter((n) => mentions(n, [org.id, org.name])).slice(0, 3);
+  return (
+    <>
+      <div className={kicker}>Alliance / organisation</div>
+      <h2 className="mr-11 flex items-center gap-3 text-[26px] leading-tight font-bold tracking-tight">
+        <Medal id={org.id} size={40} />
+        {org.name}
+      </h2>
+      <p className="mt-2 text-sm leading-relaxed text-ink-2">{org.purpose}</p>
+      <div className="my-4 grid grid-cols-2 gap-2.5">
+        <div className="rounded-2xl bg-paper p-3.5">
+          <div className="text-[26px] leading-none font-bold tabular-nums">
+            <CountUp to={org.members.length} duration={0.8} />
+          </div>
+          <div className="mt-1.5 text-xs text-ink-2">member countries</div>
+        </div>
+        <div className="rounded-2xl bg-paper p-3.5">
+          <div className="text-base leading-tight font-bold">{org.hq}</div>
+          <div className="mt-1.5 text-xs text-ink-2">headquarters</div>
+        </div>
+      </div>
+      <div className={kicker}>Members</div>
+      <div className="flex flex-wrap gap-1.5">
+        {org.members.map((m) => (
+          <span key={m} className="inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1.5 text-xs font-semibold">
+            <Flag iso3={m} className="h-[11px] w-4" />
+            {countryName(m)}
+          </span>
+        ))}
+      </div>
+      <section className="mt-5 border-t border-border pt-4">
+        <h3 className={sectTitle}>Latest news</h3>
+        <NewsList items={related} empty={`No ${org.id} headlines from trusted outlets in the last 48 hours.`} />
+      </section>
+    </>
+  );
+}
+
+function SummitPanel({ summit }: { summit: Pulse["summits"][number] }) {
+  const news = useNews({ limit: 100 });
+  const words = [summit.name.split(" ")[0], ...(summit.org ? [summit.org] : [])];
+  const related = (news.data?.data ?? []).filter((n) => mentions(n, words)).slice(0, 3);
+  const when = new Date(`${summit.month}-01T00:00:00Z`).toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+  return (
+    <>
+      <div className={kicker}>Summit · upcoming</div>
+      <h2 className="mr-11 text-[26px] leading-tight font-bold tracking-tight">{summit.name}</h2>
+      <p className="mt-1 text-sm text-ink-2">
+        {summit.host} · {when}
+        {!summit.datesConfirmed && " (exact dates to be confirmed)"}
+      </p>
+      <section className="mt-5 border-t border-border pt-4">
+        <h3 className={sectTitle}>Expected agenda</h3>
+        <ol className="grid gap-3">
+          {summit.agenda.map((a, i) => (
+            <li key={a} className="grid grid-cols-[24px_1fr] gap-2.5 leading-relaxed">
+              <span className="grid size-6 place-items-center rounded-full bg-[var(--ink-strong)] text-xs font-bold text-white">{i + 1}</span>
+              {a}
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section className="mt-5 border-t border-border pt-4">
+        <h3 className={sectTitle}>Latest news</h3>
+        <NewsList items={related} empty="No summit headlines from trusted outlets yet." />
+      </section>
+    </>
+  );
+}
+
 function CountryShell({ country }: { country: IndexedCountry }) {
   return (
     <>
@@ -137,6 +235,8 @@ function CountryShell({ country }: { country: IndexedCountry }) {
 export function PanelHost() {
   const iso3 = useGlobe((s) => s.selectedIso3);
   const conflictId = useGlobe((s) => s.selectedConflict);
+  const orgId = useGlobe((s) => s.selectedOrg);
+  const summitId = useGlobe((s) => s.selectedSummit);
   const { data: pulse } = usePulse();
   const [countries, setCountries] = useState<IndexedCountry[]>([]);
 
@@ -147,9 +247,7 @@ export function PanelHost() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      const s = useGlobe.getState();
-      s.select(null);
-      s.selectConflict(null);
+      useGlobe.getState().closePanel();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -157,13 +255,13 @@ export function PanelHost() {
 
   const conflict = conflictId ? pulse?.data.conflicts.find((c) => c.id === conflictId) : undefined;
   const country = iso3 ? countries.find((c) => c.iso3 === iso3) : undefined;
-  const key = conflict ? `c-${conflict.id}` : country ? `k-${country.iso3}` : null;
+  const org = orgId ? pulse?.data.organizations.find((o) => o.id === orgId) : undefined;
+  const summit = summitId ? pulse?.data.summits.find((x) => x.id === summitId) : undefined;
+  const nameOf = (iso3: string) => countries.find((c) => c.iso3 === iso3)?.name ?? iso3;
+  const key = conflict ? `c-${conflict.id}` : org ? `o-${org.id}` : summit ? `s-${summit.id}` : country ? `k-${country.iso3}` : null;
+  const label = conflict?.name ?? org?.name ?? summit?.name ?? country?.name ?? "";
 
-  const close = () => {
-    const s = useGlobe.getState();
-    s.select(null);
-    s.selectConflict(null);
-  };
+  const close = () => useGlobe.getState().closePanel();
 
   return (
     <AnimatePresence>
@@ -171,7 +269,7 @@ export function PanelHost() {
         <motion.aside
           key={key}
           aria-live="polite"
-          aria-label={conflict ? `${conflict.name} details` : `${country?.name} details`}
+          aria-label={`${label} details`}
           initial={{ opacity: 0, x: 28 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 28 }}
@@ -187,7 +285,15 @@ export function PanelHost() {
             <X className="size-[18px]" aria-hidden />
           </button>
           <div className="overflow-auto p-[22px]">
-            {conflict ? <ConflictPanel c={conflict} /> : country ? <CountryShell country={country} /> : null}
+            {conflict ? (
+              <ConflictPanel c={conflict} />
+            ) : org ? (
+              <BlocPanel org={org} countryName={nameOf} />
+            ) : summit ? (
+              <SummitPanel summit={summit} />
+            ) : country ? (
+              <CountryShell country={country} />
+            ) : null}
           </div>
         </motion.aside>
       )}

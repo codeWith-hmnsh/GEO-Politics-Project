@@ -16,6 +16,8 @@ type GlobeState = {
   pointer: { x: number; y: number };
   selectedIso3: string | null;
   selectedConflict: string | null;
+  selectedOrg: string | null;
+  selectedSummit: string | null;
   fly: FlyRequest | null;
   zoom: ZoomRequest | null;
   introDone: boolean;
@@ -26,6 +28,9 @@ type GlobeState = {
   setHover: (iso3: string | null, name: string | null, x: number, y: number) => void;
   select: (iso3: string | null) => void;
   selectConflict: (id: string | null) => void;
+  selectOrg: (id: string | null) => void;
+  selectSummit: (id: string | null) => void;
+  closePanel: () => void;
   flyTo: (req: Omit<FlyRequest, "id">) => void;
   zoomBy: (factor: number) => void;
   finishIntro: () => void;
@@ -36,6 +41,12 @@ type GlobeState = {
 };
 
 let requestId = 0;
+
+const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null };
+
+/** True when any detail panel is open. */
+export const panelOpenSelector = (s: { selectedIso3: string | null; selectedConflict: string | null; selectedOrg: string | null; selectedSummit: string | null }) =>
+  s.selectedIso3 !== null || s.selectedConflict !== null || s.selectedOrg !== null || s.selectedSummit !== null;
 
 export const HOME_VIEW: CameraState = { lat: 25, lng: 70, dist: 3.05 };
 
@@ -53,6 +64,8 @@ export const useGlobe = create<GlobeState>((set) => ({
   pointer: { x: 0, y: 0 },
   selectedIso3: null,
   selectedConflict: null,
+  selectedOrg: null,
+  selectedSummit: null,
   fly: null,
   zoom: null,
   introDone: false,
@@ -61,9 +74,12 @@ export const useGlobe = create<GlobeState>((set) => ({
   pulseOpen: true,
   adminLabels: {},
   setHover: (iso3, name, x, y) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y } }),
-  // One panel at a time: choosing a country clears a conflict and the other way round.
-  select: (iso3) => set({ selectedIso3: iso3, selectedConflict: null }),
-  selectConflict: (id) => set({ selectedConflict: id, selectedIso3: null }),
+  // One panel at a time: each selection clears the others.
+  select: (iso3) => set({ ...NONE, selectedIso3: iso3 }),
+  selectConflict: (id) => set({ ...NONE, selectedConflict: id }),
+  selectOrg: (id) => set({ ...NONE, selectedOrg: id }),
+  selectSummit: (id) => set({ ...NONE, selectedSummit: id }),
+  closePanel: () => set(NONE),
   flyTo: (req) => set({ fly: { ...req, id: ++requestId } }),
   zoomBy: (factor) => set({ zoom: { factor, id: ++requestId } }),
   finishIntro: () => set({ introDone: true }),

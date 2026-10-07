@@ -37,11 +37,11 @@ export function MarkerProjector() {
         continue;
       }
       const o = Math.min(1, (facing - 0.12) * 5);
-      if (m.last && Math.abs(m.last.x - x) < 0.1 && Math.abs(m.last.y - y) < 0.1 && Math.abs(m.last.o - o) < 0.01) continue;
-      m.last = { x, y, o };
+      if (m.last && m.last.f === m.flip && Math.abs(m.last.x - x) < 0.1 && Math.abs(m.last.y - y) < 0.1 && Math.abs(m.last.o - o) < 0.01) continue;
+      m.last = { x, y, o, f: m.flip };
       m.el.style.visibility = "visible";
       m.el.style.opacity = String(o);
-      m.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      m.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)${m.flip ? " scaleX(-1)" : ""}`;
     }
   });
 

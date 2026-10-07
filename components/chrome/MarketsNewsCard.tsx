@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { timeAgo, useNews } from "@/lib/api";
 import type { NewsCluster } from "@/lib/schemas/news";
-import { useGlobe } from "@/lib/store";
+import { panelOpenSelector, useGlobe } from "@/lib/store";
 
 const INDICES = ["S&P 500", "Nikkei 225", "DAX", "BSE Sensex"];
 
@@ -39,7 +39,7 @@ function NewsRow({ c }: { c: NewsCluster }) {
 
 /** Bottom-right card: Markets (default) and News tabs (UI-DESIGN §8). */
 export function MarketsNewsCard() {
-  const panelOpen = useGlobe((s) => s.selectedIso3 !== null || s.selectedConflict !== null);
+  const panelOpen = useGlobe(panelOpenSelector);
   const news = useNews({ limit: 8 });
 
   return (

@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useGlobe } from "@/lib/store";
 import { ConflictMarkers } from "./ConflictMarkers";
+import { HomeMarkers } from "./HomeMarkers";
 import { MapLabels } from "./MapLabels";
 
 // WebGL only runs in the browser; keep the globe out of server prerendering.
@@ -28,6 +29,7 @@ export function GlobeClient() {
     <>
       <GlobeCanvas />
       <MapLabels />
+      <HomeMarkers />
       <ConflictMarkers />
       <HoverTooltip />
     </>

@@ -8,6 +8,8 @@ import { AdminBorders, CountryBorders, CountryOutlines } from "./Borders";
 import { CameraRig } from "./CameraRig";
 import { Clouds } from "./Clouds";
 import { Earth } from "./Earth";
+import { DataOverlay } from "./DataOverlay";
+import { EconomyLayer } from "./layers/EconomyLayer";
 import { WarsLayer } from "./layers/WarsLayer";
 import { MarkerProjector } from "./MarkerProjector";
 
@@ -41,12 +43,14 @@ export default function GlobeCanvas() {
       <Atmosphere />
       {countries.length > 0 && (
         <>
+          <DataOverlay countries={countries} size={mobile ? 2048 : 4096} />
           <CountryBorders countries={countries} />
           <CountryOutlines countries={countries} />
           <AdminBorders countries={countries} />
         </>
       )}
       <WarsLayer />
+      <EconomyLayer />
       <CameraRig countries={countries} />
       <MarkerProjector />
     </Canvas>

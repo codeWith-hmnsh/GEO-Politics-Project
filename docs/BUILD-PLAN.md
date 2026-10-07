@@ -80,9 +80,10 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - **Check:** Every arc on screen maps to a cluster with ≥ 2 trusted sources (verify in a debug overlay).
 
 ### M1.5 Home layers 2–3 — Alliances, summits, economy pulse (week 4)
-- [ ] Bloc badges (NATO, EU, BRICS, SCO, QUAD) → member tint + bloc panel (purpose, members, live news).
-- [ ] Summit callout card for summits now / within 7 days; summit panel.
-- [ ] Market pills (6 cities) + Markets card (4 indices, sparklines) from the Stooq job; crisis ⚠ badges; golden dashed trade routes with moving ships.
+- [x] Bloc badges (NATO, EU, BRICS, SCO, QUAD) → member tint on the new `DataOverlay` canvas sphere + bloc panel (purpose, members with flags, HQ, live news).
+- [x] Summit callout cards for summits in the next 2 months ("dates to be confirmed" until an editor confirms); summit panel with agenda and news.
+- [x] Crisis ⚠ badges; golden dashed trade routes (`data/curated/lanes.json`) with moving ships that face their direction.
+- [ ] Market pills + Markets card values: blocked on a market-data provider key (Stooq added a bot check).
 - **Check:** With no badge selected the globe shows no bloc tint (clean default); matches `v3-01-landing.png`.
 
 ### M1.6 Home layer 4 — Relations (week 5)
