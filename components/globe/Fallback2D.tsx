@@ -15,6 +15,8 @@ export function Fallback2D() {
   const selected = useGlobe((s) => s.selectedIso3);
 
   useEffect(() => {
+    // No camera flight here, so end the intro straight away.
+    useGlobe.getState().finishIntro();
     loadCountries().then(setCountries).catch(() => setCountries([]));
     const onResize = () => setSize({ w: window.innerWidth, h: window.innerHeight });
     onResize();

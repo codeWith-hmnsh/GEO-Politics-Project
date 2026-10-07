@@ -68,7 +68,7 @@
   --ink: #11232b;
   --ink-strong: #0f1d24;
   --ink-2: #4a5a61;
-  --ink-3: #7d8a8f;
+  --ink-3: #5e6b70; /* 4.9:1 on white, AA for small text */
   --line: rgba(17, 35, 43, 0.1);
   --glass: rgba(255, 255, 255, 0.86);
   --night: rgba(16, 24, 30, 0.88);

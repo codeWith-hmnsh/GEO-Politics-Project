@@ -35,6 +35,7 @@ export default function GlobeCanvas() {
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
       camera={{ fov: 34, near: 0.005, far: 200, position: [0, 0, 6.5] }}
+      role="application"
       aria-label="Interactive 3D globe. Drag to rotate, scroll to zoom toward the cursor, tap a country to select it."
     >
       <Suspense fallback={null}>

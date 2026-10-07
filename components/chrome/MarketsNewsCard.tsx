@@ -51,10 +51,10 @@ export function MarketsNewsCard() {
     >
       <Tabs defaultValue="news">
         <TabsList className="mb-3">
-          <TabsTrigger value="news">
+          <TabsTrigger value="news" className="text-ink-2 data-active:text-ink">
             <Newspaper className="size-4" aria-hidden /> News
           </TabsTrigger>
-          <TabsTrigger value="markets">
+          <TabsTrigger value="markets" className="text-ink-2 data-active:text-ink">
             <TrendingUp className="size-4" aria-hidden /> Markets today
           </TabsTrigger>
         </TabsList>
