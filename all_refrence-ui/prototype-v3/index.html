@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Geo-Politics Landing Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: full-bleed satellite globe in a soft sky; glass cards float around it (pulse toggles left, controls right, mode dock bottom-left, markets bottom-right). Calm paper + ink, semantic colours only for data. */
+:root{
+  color-scheme: light;
+  --paper:#F3F1EC; --paper-2:#EAE7DF; --ink:#11232B; --ink-2:#4A5A61; --ink-3:#7D8A8F; --line:rgba(17,35,43,.10);
+  --card:rgba(255,255,255,.86); --night:rgba(16,24,30,.88);
+  --conflict:#E5484D; --ally:#2FA36B; --neutral:#4C74D9; --mixed:#E8A21C; --summit:#3F63D8; --nuclear:#E8C21C; --gold:#F2B33D; --navy:#14325C;
+  --f-display:"Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-ui:"Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --shadow:0 16px 44px rgba(17,35,43,.13), 0 2px 6px rgba(17,35,43,.06);
+}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-ui);font-size:14px;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.sky{position:fixed;inset:0;pointer-events:none;background:
+  radial-gradient(48% 62% at 50% 52%, #D7E3EA 0%, rgba(215,227,234,.6) 45%, rgba(243,241,236,0) 75%),
+  radial-gradient(35% 40% at 92% 12%, rgba(200,214,222,.7), rgba(243,241,236,0) 70%),
+  radial-gradient(30% 35% at 6% 92%, rgba(210,220,226,.7), rgba(243,241,236,0) 70%),
+  linear-gradient(180deg,#F6F4EF,#EFEDE7)}
+.cloud{position:fixed;pointer-events:none;border-radius:50%;filter:blur(30px);background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,0));animation:drift 30s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(40px,-14px,0) scale(1.06)}}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#gl.dragging{cursor:grabbing}
+#gl.hovering{cursor:pointer}
+
+.top{position:fixed;top:0;left:0;right:0;height:72px;padding:env(safe-area-inset-top,0px) 24px 0;display:flex;align-items:center;gap:36px;z-index:30}
+.logo{display:flex;align-items:center;gap:11px;color:var(--ink);cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.logo .orb{width:42px;height:42px;border-radius:50%;flex:none;background:#0F1D24;display:grid;place-items:center}
+.logo .orb i{width:26px;height:16px;position:relative;display:block}
+.logo .orb i::before,.logo .orb i::after{content:"";position:absolute;top:0;width:16px;height:16px;border-radius:50%}
+.logo .orb i::before{left:0;background:var(--gold)}
+.logo .orb i::after{right:0;border:2.5px solid #fff;box-sizing:border-box}
+.logo b{display:block;font:700 22px/1 var(--f-ui);letter-spacing:-.02em}
+.logo small{display:block;font-size:12.5px;color:var(--ink-2);margin-top:3px}
+.nav{display:flex;gap:30px}
+.nav button{background:none;border:0;padding:8px 0;cursor:pointer;color:var(--ink-2);font-weight:500;font-size:14.5px;position:relative}
+.nav button[aria-current="true"]{color:var(--ink);font-weight:700}
+.nav button[aria-current="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;border-radius:2px;background:var(--ink)}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:12px}
+.search{position:relative;display:block}
+.search input{width:286px;height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.85);padding:0 14px 0 40px;font:inherit;font-size:13px;color:var(--ink)}
+.search input::placeholder{color:var(--ink-3)}
+.search svg{position:absolute;left:13px;top:12px;z-index:1;color:var(--ink-2)}
+.chipbox{height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.85);display:flex;align-items:center;gap:10px;padding:0 13px;font-size:13px;line-height:1.2;white-space:nowrap;font-weight:600}
+.chipbox small{display:block;color:var(--ink-3);font-weight:500;font-size:11.5px}
+.iconbtn{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.85);display:grid;place-items:center;cursor:pointer;position:relative}
+.iconbtn .dot{position:absolute;top:9px;right:10px;width:7px;height:7px;border-radius:50%;background:#F08A24;box-shadow:0 0 0 2px #fff}
+.avatar{width:42px;height:42px;border-radius:50%;background:#1F5AA6;color:#fff;font-weight:700;font-size:16px;display:grid;place-items:center;border:0;cursor:pointer}
+
+.pulse{position:fixed;left:22px;top:80px;width:316px;z-index:22;padding:20px;border-radius:18px;background:var(--card);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow);max-height:calc(100% - 190px);overflow:auto;box-sizing:border-box;transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1)}
+.pulse .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pulse h3{font:700 22px/1.15 var(--f-ui);margin:0;letter-spacing:-.02em}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ally);background:rgba(47,163,107,.1);padding:5px 9px;border-radius:999px}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--ally);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.3}}
+.pulse .q{color:var(--ink-2);font-size:12.5px;margin:6px 0 10px}
+.lay{display:grid;grid-template-columns:44px 1fr auto;gap:2px 12px;align-items:center;padding:10px 0}
+.lay .ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;grid-row:span 2}
+.lay .ic svg.i{width:20px;height:20px}
+.lay b{font-weight:600;font-size:14px}
+.lay small{color:var(--ink-3);font-size:12px;grid-column:2}
+.sw{grid-row:span 2;grid-column:3;width:38px;height:22px;border-radius:999px;border:0;background:#CBD2D6;position:relative;cursor:pointer;transition:background .2s;padding:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .25s cubic-bezier(.3,1.4,.5,1)}
+.sw[aria-checked="true"]{background:var(--c)}
+.sw[aria-checked="true"]::after{transform:translateX(16px)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.chip{border:1px solid var(--line);background:#fff;color:var(--ink-2);border-radius:999px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.chip:hover{color:var(--ink);border-color:rgba(17,35,43,.3)}
+.chip[aria-pressed="true"]{color:#fff;background:var(--c,var(--ink));border-color:transparent}
+.scale .bar{height:10px;border-radius:999px;margin-top:10px}
+.scale .ends{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3);margin-top:6px;font-variant-numeric:tabular-nums}
+.note{font-size:12px;color:var(--ink-3);line-height:1.45;margin:10px 0 0}
+.relkey{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-top:8px;font-size:12px;color:var(--ink-2)}
+.relkey span{display:flex;align-items:center;gap:7px}
+.relkey i{width:12px;height:12px;border-radius:3px}
+
+#markers{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:6}
+.mk-layer{position:absolute;inset:0;transition:opacity .45s ease}
+.mk-layer.off{opacity:0}
+.mk-layer.off .mk{pointer-events:none!important}
+.mk{position:absolute;left:0;top:0;transform:translate(-9999px,-9999px);will-change:transform,opacity;pointer-events:auto;cursor:pointer;background:none;border:0;padding:0}
+.mk.hidden{opacity:0!important;pointer-events:none!important}
+.hit{width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%}
+.tag{position:absolute;left:20px;top:-12px;white-space:nowrap;font:600 12px/1 var(--f-ui);color:#fff;background:var(--night);padding:7px 10px;border-radius:8px;opacity:0;transform:translateX(-4px);transition:.15s;pointer-events:none}
+.mk:hover .tag,.mk:focus-visible .tag{opacity:1;transform:none}
+.callout{display:flex;align-items:center;gap:10px;padding:9px 12px 9px 10px;border-radius:10px;background:var(--night);color:#fff;border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 26px rgba(0,0,0,.28);white-space:nowrap;text-align:left}
+.callout .fl{display:flex;flex-direction:column;gap:3px}
+.callout .fl svg{display:block;border-radius:2px}
+.callout b{display:block;font-size:13px;font-weight:700}
+.callout small{display:block;font-size:11.5px;color:rgba(255,255,255,.72);margin-top:3px}
+.callout small i{color:#FF6B6F;font-style:normal;font-weight:700}
+.callout .chev{opacity:.6;margin-left:4px}
+.callout:hover{background:rgba(16,24,30,.96)}
+.medal{display:flex;flex-direction:column;align-items:center;gap:5px;margin:-24px 0 0 -24px;width:48px}
+.medal .m{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#2A5A9A,#102C55 70%);border:2px solid rgba(255,255,255,.9);box-shadow:0 6px 16px rgba(10,30,60,.45),0 0 0 4px rgba(255,255,255,.18);display:grid;place-items:center;box-sizing:border-box}
+.medal .m svg{width:26px;height:26px}
+.medal small{font:700 10px/1 var(--f-ui);letter-spacing:.06em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.medal[aria-pressed="true"] .m{box-shadow:0 6px 16px rgba(10,30,60,.45),0 0 0 4px var(--gold)}
+.pill{display:flex;align-items:center;gap:6px;padding:6px 11px 6px 9px;border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 4px 14px rgba(0,0,0,.22);font:600 12.5px/1 var(--f-ui);white-space:nowrap;color:var(--ink);margin:-14px 0 0 0}
+.pill svg.i{width:14px;height:14px;stroke-width:2.4}
+.pill .up{color:var(--ally);font-weight:700}.pill .dn{color:var(--conflict);font-weight:700}
+.ship{width:40px;height:16px;margin:-8px 0 0 -20px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));pointer-events:none!important}
+.crisis{width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:var(--mixed);border:2px solid #fff;display:grid;place-items:center;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.3);box-sizing:border-box}
+.crisis svg.i{width:12px;height:12px;stroke-width:2.4}
+.nuke{width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:var(--nuclear);border:2px solid #fff;display:grid;place-items:center;color:#2A2405;box-shadow:0 3px 10px rgba(0,0,0,.3);box-sizing:border-box}
+.choke{width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:var(--mixed);border:2px solid #fff;display:grid;place-items:center;color:#fff;box-shadow:0 0 0 6px rgba(232,162,28,.25),0 3px 10px rgba(0,0,0,.3);box-sizing:border-box}
+.lbl{font:500 13px/1 var(--f-display);letter-spacing:.3em;color:rgba(255,255,255,.96);text-shadow:0 1px 4px rgba(0,0,0,.75);white-space:nowrap;translate:-50% -50%;pointer-events:none!important}
+.lbl.sm{font-size:10.5px;letter-spacing:.22em}
+.lbl.sea{font-style:italic;letter-spacing:.2em;font-size:14px;color:rgba(225,240,250,.92)}
+.lbl.st{font:600 10px/1 var(--f-ui);letter-spacing:.04em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.lbl.city{font:600 11px/1 var(--f-ui);letter-spacing:0;translate:8px -50%}
+.lbl.city::before{content:"";position:absolute;left:-8px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#FFD27A;box-shadow:0 0 6px #FFB020}
+
+#anchor{position:fixed;left:0;top:0;z-index:12;min-width:216px;max-width:260px;background:var(--night);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:14px 16px;box-shadow:0 14px 40px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s}
+#anchor.on{opacity:1}
+#anchor .h{display:flex;align-items:center;gap:10px;font:700 17px/1.15 var(--f-ui);margin-bottom:10px}
+#anchor dl{display:grid;grid-template-columns:1fr auto;gap:7px 18px;margin:0;font-size:13px}
+#anchor dt{color:rgba(255,255,255,.75)} #anchor dd{margin:0;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+#anchor::before{content:"";position:absolute;left:-46px;top:26px;width:46px;border-top:1.5px dashed rgba(255,255,255,.85)}
+
+.ctrls{position:fixed;right:30px;top:50%;transform:translateY(-58%);z-index:20;display:flex;flex-direction:column;align-items:center;gap:12px;transition:right .45s cubic-bezier(.2,.8,.2,1)}
+.cbtn{width:44px;height:44px;border-radius:50%;background:#fff;border:0;box-shadow:var(--shadow);display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.cbtn.sq{border-radius:12px}
+.cbtn:hover{background:var(--paper)}
+.cgroup{display:flex;flex-direction:column;border-radius:12px;background:#fff;box-shadow:var(--shadow);overflow:hidden}
+.cgroup .cbtn{box-shadow:none;border-radius:0}
+.cgroup .cbtn+.cbtn{border-top:1px solid var(--line)}
+body.panel-open .ctrls{right:440px}
+
+.dock{position:fixed;left:22px;bottom:22px;z-index:22;display:flex;gap:4px;padding:8px;border-radius:16px;background:var(--card);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow);max-width:calc(100% - 44px);overflow-x:auto;scrollbar-width:none;box-sizing:border-box}
+.dock::-webkit-scrollbar{display:none}
+.dock button{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px;border-radius:12px;border:0;background:none;cursor:pointer;font-weight:500;font-size:14.5px;white-space:nowrap;color:var(--ink);transition:background .2s,color .2s}
+.dock button:hover{background:rgba(17,35,43,.06)}
+.dock button[aria-pressed="true"]{background:#0F1D24;color:#fff}
+
+.mkt{position:fixed;right:22px;bottom:22px;z-index:20;width:380px;padding:18px 20px;border-radius:16px;background:var(--card);backdrop-filter:blur(18px);box-shadow:var(--shadow);transition:opacity .3s;box-sizing:border-box}
+.mkt .t{display:flex;justify-content:space-between;align-items:baseline}
+.mkt .t b{font-size:16px;font-weight:700}
+.mkt .t button{background:none;border:0;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;padding:0}
+.mkt .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.mkt .ix small{display:block;font-size:12px;color:var(--ink-2);font-weight:600;white-space:nowrap}
+.mkt .ix b{display:flex;align-items:center;gap:4px;font-size:13px;margin-top:5px}
+.mkt .ix b.up{color:var(--ally)}.mkt .ix b.dn{color:var(--conflict)}
+.mkt .ix svg.sp{display:block;margin-top:6px;width:100%;height:26px}
+body.panel-open .mkt,body.panel-open .sample{opacity:0;pointer-events:none}
+
+.panel{position:fixed;right:22px;top:80px;width:400px;max-height:calc(100% - 104px);z-index:23;display:flex;flex-direction:column;border-radius:20px;background:rgba(255,255,255,.93);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--shadow);opacity:0;transform:translateX(28px);pointer-events:none;transition:opacity .3s,transform .5s cubic-bezier(.2,1.15,.4,1)}
+.panel.open{opacity:1;transform:none;pointer-events:auto}
+.panel .scroll{overflow:auto;padding:22px}
+.panel .close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;z-index:2}
+.stagger>*{animation:rise .45s cubic-bezier(.2,.9,.3,1) both}
+.stagger>*:nth-child(2){animation-delay:.05s}.stagger>*:nth-child(3){animation-delay:.1s}.stagger>*:nth-child(4){animation-delay:.15s}.stagger>*:nth-child(n+5){animation-delay:.2s}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+.kicker{font:700 11px/1 var(--f-ui);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.ptitle{font:700 26px/1.12 var(--f-ui);letter-spacing:-.025em;margin:0 44px 8px 0;text-wrap:balance}
+.psub{color:var(--ink-2);font-size:14px;line-height:1.5}
+.status{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:rgba(229,72,77,.1);color:var(--conflict)}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.kpi{padding:14px;border-radius:14px;background:var(--paper);min-width:0}
+.kpi .v{font:700 26px/1 var(--f-ui);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .l{font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.35}
+.sect{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.sect h4{margin:0 0 12px;font:700 11px/1 var(--f-ui);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.why{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.why li{display:grid;grid-template-columns:24px 1fr;gap:10px;line-height:1.5}
+.why li::before{content:attr(data-n);font:700 12px/24px var(--f-ui);text-align:center;background:#0F1D24;color:#fff;border-radius:50%;height:24px}
+.parties{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tagx{font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;background:var(--paper);display:inline-flex;align-items:center;gap:6px}
+.tagx svg{border-radius:2px}
+.news-mini{display:grid;gap:8px}
+.news-mini div{padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:#fff;line-height:1.4;font-weight:600}
+.news-mini small{display:block;color:var(--ink-3);font-size:12px;margin-top:4px;font-weight:500}
+.rel-filter{display:flex;gap:6px;margin:14px 0 8px;flex-wrap:wrap}
+.rel{display:grid;grid-template-columns:18px 1fr;gap:3px 10px;padding:10px 8px;border-radius:12px;cursor:pointer;border:0;background:none;text-align:left;width:100%}
+.rel:hover{background:var(--paper)}
+.rel b{font-weight:600}
+.rel small{grid-column:2;color:var(--ink-2);font-size:12px;line-height:1.4}
+.rdot{width:13px;height:13px;border-radius:50%;margin-top:3px;box-sizing:border-box}
+.rdot.ally{background:var(--ally)}
+.rdot.hostile{border:2px solid var(--conflict);background:radial-gradient(circle,var(--conflict) 0 3px,transparent 3.5px)}
+.rdot.mixed{border:2px solid var(--mixed);background:linear-gradient(90deg,var(--mixed) 50%,transparent 50%)}
+.metric{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.metric:last-child{border-bottom:0}
+.metric .ml{color:var(--ink-2);font-weight:600}
+.metric .mv{font:700 20px/1 var(--f-ui);text-align:right;font-variant-numeric:tabular-nums}
+.metric .mm{grid-column:1/3;font-size:13px;color:var(--ink-2);line-height:1.45;display:flex;gap:12px;align-items:flex-end;justify-content:space-between}
+.metric .src{display:block;font-size:11px;color:var(--ink-3);margin-top:3px}
+.est{display:inline-block;font:700 10px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:#8A5E00;background:rgba(242,179,61,.24);border-radius:999px;padding:4px 8px;margin-left:6px;vertical-align:1px}
+.cap{display:grid;grid-template-columns:44px 1fr 34px;gap:10px;align-items:center;margin:9px 0}
+.cap b{font-weight:600}
+.cap .track{height:10px;border-radius:999px;background:var(--paper-2);overflow:hidden}
+.cap .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#9DB4F0,#3F63D8);transform-origin:left;animation:grow .9s cubic-bezier(.2,.9,.3,1) both}
+@keyframes grow{from{transform:scaleX(0)}}
+.cap span{font:700 15px/1 var(--f-ui);text-align:right}
+details.how{margin-top:10px;font-size:13px;color:var(--ink-2);line-height:1.5}
+details.how summary{cursor:pointer;font-weight:600;color:var(--ink)}
+details.how pre{white-space:pre-wrap;font:12px/1.55 ui-monospace,Consolas,monospace;background:var(--paper);padding:12px;border-radius:10px;overflow-x:auto}
+.brief{display:grid;gap:8px;margin-top:14px}
+.brief button{display:grid;grid-template-columns:30px 1fr;gap:3px 12px;text-align:left;padding:13px;border-radius:14px;background:#fff;border:1px solid var(--line);cursor:pointer;animation:rise .45s both}
+.brief button:hover{box-shadow:0 6px 18px rgba(17,35,43,.1)}
+.brief .num{font:700 24px/1 var(--f-display);color:#C8891A;grid-row:span 2}
+.brief small{color:var(--ink-2);font-size:13px;line-height:1.4}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.btn{height:42px;border-radius:11px;border:1px solid rgba(17,35,43,.16);background:#fff;padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-weight:600;white-space:nowrap}
+.btn:hover{background:var(--paper)}
+.btn.dark{background:#0F1D24;border-color:transparent;color:#fff}
+.btn.dark:hover{background:#21323A}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.gl-term{padding:12px 0;border-top:1px solid var(--line)}
+.gl-term b{font:700 16px/1.2 var(--f-ui)}
+.gl-term p{margin:4px 0 0;color:var(--ink-2);line-height:1.5}
+.sample{position:fixed;right:22px;top:80px;z-index:19;font:700 11px/1 var(--f-ui);letter-spacing:.05em;color:#7A5300;background:rgba(242,179,61,.22);border:1px solid rgba(232,162,28,.35);padding:7px 11px;border-radius:999px;backdrop-filter:blur(8px)}
+.zoomhint{position:fixed;left:50%;bottom:96px;translate:-50% 0;z-index:19;font-size:12px;font-weight:600;color:#fff;background:rgba(16,24,30,.72);padding:7px 12px;border-radius:999px;opacity:0;transition:opacity .4s;pointer-events:none}
+.zoomhint.on{opacity:1}
+
+.tour{position:fixed;left:22px;bottom:102px;width:min(440px,calc(100% - 44px));z-index:26;padding:20px;border-radius:18px;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);box-shadow:var(--shadow);display:none;box-sizing:border-box}
+body.touring .tour{display:block}
+body.touring .pulse,body.touring .panel,body.touring .ctrls,body.touring #anchor,body.touring .mkt,body.touring .mtoggle{opacity:0!important;pointer-events:none!important}
+.tour .dots{display:flex;gap:6px;margin-bottom:14px}
+.tour .dots i{flex:1;height:4px;border-radius:999px;background:var(--paper-2);transition:.3s}
+.tour .dots i.on{background:var(--gold)}
+.tour h2{font:700 24px/1.1 var(--f-ui);margin:8px 0;letter-spacing:-.02em}
+.tour p{margin:0;line-height:1.55;color:var(--ink-2);font-size:15px;animation:blurIn .8s ease both}
+@keyframes blurIn{from{filter:blur(8px);opacity:0}}
+.tour .ctrl{display:flex;gap:8px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.tour .src{margin-left:auto;font-size:11px;color:var(--ink-3);text-align:right;line-height:1.35}
+.tip{position:fixed;z-index:50;pointer-events:none;font:600 12px/1 var(--f-ui);background:var(--night);color:#fff;padding:7px 10px;border-radius:8px;opacity:0;transition:opacity .12s}
+.intro{position:fixed;left:50%;top:44%;translate:-50% -50%;z-index:25;text-align:center;pointer-events:none;transition:opacity .9s ease,filter .9s ease;width:min(90vw,900px)}
+.intro h1{font:600 clamp(40px,6vw,84px)/1 var(--f-display);letter-spacing:-.03em;color:#fff;margin:0;text-shadow:0 4px 30px rgba(10,30,50,.55)}
+.intro h1 em{font-style:italic;font-weight:500}
+.intro p{color:rgba(255,255,255,.92);font-size:17px;margin:14px 0 0;text-shadow:0 2px 12px rgba(10,30,50,.6)}
+.intro.out{opacity:0;filter:blur(8px)}
+.mtoggle{display:none}
+
+@media (max-width:1280px){.nav{display:none}.search input{width:220px}}
+@media (max-width:1100px){.mkt{display:none}.chipbox{display:none}}
+@media (max-width:760px){
+  .top{height:60px;padding:0 14px;gap:10px}
+  .logo .orb{width:34px;height:34px}.logo b{font-size:18px}.logo small{display:none}
+  .search,.avatar{display:none}
+  .pulse{left:12px;right:12px;width:auto;top:64px;max-height:46%;opacity:0;pointer-events:none;transform:translateY(-8px)}
+  body.pulse-on .pulse{opacity:1;pointer-events:auto;transform:none}
+  .mtoggle{display:inline-flex;position:fixed;left:12px;top:66px;z-index:21}
+  body.pulse-on .mtoggle{display:none}
+  .ctrls{display:none}
+  .dock{left:12px;right:12px;bottom:12px;max-width:none;padding:6px}
+  .dock button{height:42px;padding:0 13px;font-size:13.5px}
+  .panel{left:0;right:0;bottom:0;top:auto;width:auto;max-height:62%;border-radius:20px 20px 0 0;transform:translateY(40px)}
+  .tour{left:12px;bottom:76px}
+  #anchor,.zoomhint{display:none}
+  .sample{top:auto;bottom:74px}
+  .callout{padding:7px 9px}.callout b{font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></symbol>
+  <symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 20v-6M10 20V9M15 20v-9M20 20V5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-swords" viewBox="0 0 24 24"><path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M14.5 6.5 18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-landmark" viewBox="0 0 24 24"><path d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2l8 5H4z"/></symbol>
+  <symbol id="i-ship" viewBox="0 0 24 24"><path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1s1.2 1 2.5 1c2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M19.4 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.9 5.3 2.8 7.8M19 13V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6M12 10v4M12 2v3"/></symbol>
+  <symbol id="i-rad" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="6" stroke-width="6" stroke-dasharray="6.28 6.28" transform="rotate(-30 12 12)"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M22 7 13.5 15.5 8.5 10.5 2 17M16 7h6v6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M22 17 13.5 8.5 8.5 13.5 2 7M16 17h6v-6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><path d="M12 2 15.5 12 12 22 8.5 12z" fill="currentColor" stroke="none"/><path d="M12 12 15.5 12 12 22 8.5 12z" fill="#fff" stroke="currentColor" stroke-width="1.2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+</svg>
+
+<div class="sky"></div>
+<div aria-hidden="true">
+  <div class="cloud" style="left:-4%;top:40%;width:520px;height:260px;opacity:.8"></div>
+  <div class="cloud" style="left:78%;top:2%;width:560px;height:260px;opacity:.8;animation-delay:-9s"></div>
+  <div class="cloud" style="left:84%;top:50%;width:420px;height:240px;opacity:.7;animation-delay:-15s"></div>
+  <div class="cloud" style="left:10%;top:-8%;width:420px;height:200px;opacity:.6;animation-delay:-20s"></div>
+</div>
+<canvas id="gl" aria-label="Interactive 3D globe. Drag to rotate, scroll to zoom toward the cursor, tap a country to see its relations."></canvas>
+<div aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:4">
+  <div class="cloud" style="left:72%;top:72%;width:520px;height:220px;opacity:.75;animation-delay:-4s"></div>
+  <div class="cloud" style="left:16%;top:80%;width:520px;height:200px;opacity:.6;animation-delay:-12s"></div>
+</div>
+<div id="markers">
+  <div class="mk-layer" id="mk-labels"></div>
+  <div class="mk-layer" id="mk-econ"></div>
+  <div class="mk-layer" id="mk-orgs"></div>
+  <div class="mk-layer" id="mk-wars"></div>
+  <div class="mk-layer off" id="mk-defense"></div>
+  <div class="mk-layer off" id="mk-energy"></div>
+</div>
+<div id="anchor" aria-hidden="true"></div>
+<div class="intro" id="intro"><h1>The world, <em>explained.</em></h1><p>Wars, alliances, money and power on one living globe.</p></div>
+
+<header class="top">
+  <button class="logo" id="logo" aria-label="GeoPolitics home"><span class="orb"><i></i></span><span><b>GeoPolitics</b><small>The world, explained</small></span></button>
+  <nav class="nav" aria-label="Main">
+    <button data-nav="home" aria-current="true">Home</button>
+    <button data-nav="brief">Daily Brief</button>
+    <button data-nav="stories">Stories</button>
+    <button data-nav="glossary">Glossary</button>
+    <button data-nav="sources">Sources</button>
+  </nav>
+  <div class="top-r">
+    <label class="search"><svg class="i"><use href="#i-search"/></svg><input id="q" list="countries" placeholder="Search countries, conflicts, organizations…" aria-label="Search countries, conflicts and organizations"></label>
+    <datalist id="countries"></datalist>
+    <div class="chipbox"><svg class="i"><use href="#i-cal"/></svg><span><span id="today"></span><small>Updated 12 min ago</small></span></div>
+    <button class="iconbtn" id="bell" aria-label="Open daily brief"><svg class="i"><use href="#i-bell"/></svg><span class="dot"></span></button>
+    <button class="avatar" aria-label="Profile (coming later)" title="Profile (coming later)">M</button>
+  </div>
+</header>
+
+<div class="sample">Prototype · sample data</div>
+<button class="btn mtoggle" id="mToggle"><svg class="i"><use href="#i-layers"/></svg> Layers</button>
+<aside class="pulse" id="pulse" aria-label="Layers"></aside>
+<aside class="panel" id="panel" aria-live="polite"><button class="close" id="closePanel" aria-label="Close panel"><svg class="i"><use href="#i-x"/></svg></button><div class="scroll" id="panelBody"></div></aside>
+
+<div class="ctrls">
+  <button class="cbtn" id="cNorth" aria-label="Reset north and tilt"><svg class="i"><use href="#i-compass"/></svg></button>
+  <div class="cgroup"><button class="cbtn" id="cIn" aria-label="Zoom in"><svg class="i"><use href="#i-plus"/></svg></button><button class="cbtn" id="cOut" aria-label="Zoom out"><svg class="i"><use href="#i-minus"/></svg></button></div>
+  <button class="cbtn" id="cHome" aria-label="Reset view"><svg class="i"><use href="#i-locate"/></svg></button>
+  <button class="cbtn sq" id="cLayers" aria-label="Show or hide layers card"><svg class="i"><use href="#i-layers"/></svg></button>
+</div>
+
+<nav class="dock" id="dock" aria-label="Mode">
+  <button data-mode="home" aria-pressed="true"><svg class="i"><use href="#i-globe"/></svg>Global Pulse</button>
+  <button data-mode="economy" aria-pressed="false"><svg class="i"><use href="#i-bars"/></svg>Economy</button>
+  <button data-mode="defense" aria-pressed="false"><svg class="i"><use href="#i-shield"/></svg>Defense</button>
+  <button data-mode="energy" aria-pressed="false"><svg class="i"><use href="#i-zap"/></svg>Energy</button>
+  <button data-mode="diplomacy" aria-pressed="false"><svg class="i"><use href="#i-users"/></svg>Diplomacy</button>
+</nav>
+<div class="mkt" id="mkt"></div>
+<div class="zoomhint" id="zoomhint">Zoom in to see states and cities</div>
+<section class="tour" id="tour" aria-live="polite"></section>
+<div class="tip" id="tip"></div>
+
+<script>window.echarts={registerMap:function(n,d){if(!window.__WORLD)window.__WORLD=d;else(window.__ADM=window.__ADM||[]).push({n:n,d:d});}};</script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MOBILE=matchMedia("(max-width: 760px)").matches;
+const $=s=>document.querySelector(s);
+const ic=id=>`<svg class="i"><use href="#i-${id}"/></svg>`;
+const body=document.body;
+$("#today").textContent=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+
+function star(cx,cy,r,f){let p="";for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.42:r;p+=(i?"L":"M")+(cx+rr*Math.cos(a)).toFixed(2)+","+(cy+rr*Math.sin(a)).toFixed(2);}return `<path d="${p}Z" fill="${f}"/>`;}
+const H3=(a,b,c)=>`<rect width="18" height="4" fill="${a}"/><rect y="4" width="18" height="4" fill="${b}"/><rect y="8" width="18" height="4" fill="${c}"/>`;
+const FLAGS={
+ RU:H3("#fff","#1C57A5","#D52B1E"),UA:`<rect width="18" height="6" fill="#0057B7"/><rect y="6" width="18" height="6" fill="#FFD700"/>`,
+ IL:`<rect width="18" height="12" fill="#fff"/><rect y="1.5" width="18" height="1.6" fill="#0038B8"/><rect y="8.9" width="18" height="1.6" fill="#0038B8"/><path d="M9 3.8 11 7.2H7zM9 8.2 7 4.8h4z" fill="none" stroke="#0038B8" stroke-width=".7"/>`,
+ PS:H3("#000","#fff","#149954")+`<path d="M0 0 7 6 0 12z" fill="#E4312B"/>`,SD:H3("#D21034","#fff","#000")+`<path d="M0 0 7 6 0 12z" fill="#007229"/>`,
+ MM:H3("#FECB00","#34B233","#EA2839")+star(9,6.4,4,"#fff"),CD:`<rect width="18" height="12" fill="#007FFF"/><path d="M0 10 15 0h3v2L3 12H0z" fill="#F7D618"/><path d="M0 11 16.5 0H18v1L1.5 12H0z" fill="#CE1021"/>`+star(3.6,3.2,2,"#F7D618"),
+ ML:`<rect width="6" height="12" fill="#14B53A"/><rect x="6" width="6" height="12" fill="#FCD116"/><rect x="12" width="6" height="12" fill="#CE1126"/>`,
+ YE:H3("#CE1126","#fff","#000"),HT:`<rect width="18" height="6" fill="#00209F"/><rect y="6" width="18" height="6" fill="#D21034"/>`,
+ IN:H3("#FF9933","#fff","#138808")+`<circle cx="9" cy="6" r="1.5" fill="none" stroke="#000080" stroke-width=".6"/>`,
+ US:`<rect width="18" height="12" fill="#B22234"/>${[1,3,5,7,9,11].map(y=>`<rect y="${(y*12/13).toFixed(2)}" width="18" height="${(12/13).toFixed(2)}" fill="#fff"/>`).join("")}<rect width="8" height="6.5" fill="#3C3B6E"/>`,
+ CN:`<rect width="18" height="12" fill="#EE1C25"/>`+star(3.6,3.4,2.2,"#FFFF00"),PK:`<rect width="18" height="12" fill="#01411C"/><rect width="4.5" height="12" fill="#fff"/><circle cx="11.5" cy="6" r="3.2" fill="#fff"/><circle cx="12.4" cy="5.4" r="2.8" fill="#01411C"/>`
+};
+const flag=(c,w)=>`<svg width="${w||18}" height="${((w||18)*2/3).toFixed(1)}" viewBox="0 0 18 12" aria-hidden="true">${FLAGS[c]||'<rect width="18" height="12" fill="#9AA5AB"/>'}</svg>`;
+
+function decodeRing(s,o){const r=[];let px=o[0],py=o[1];for(let i=0;i<s.length;i+=2){let x=s.charCodeAt(i)-64,y=s.charCodeAt(i+1)-64;x=(x>>1)^(-(x&1));y=(y>>1)^(-(y&1));x+=px;y+=py;px=x;py=y;r.push([x/1024,y/1024]);}return r;}
+function featureRings(f){const g=f.geometry;if(!g||!g.coordinates)return [];const out=[];
+  if(g.type==="Polygon"){const c=g.coordinates[0];if(c)out.push(typeof c==="string"?decodeRing(c,g.encodeOffsets[0]):c);}
+  else g.coordinates.forEach((p,j)=>{if(p&&p[0])out.push(typeof p[0]==="string"?decodeRing(p[0],g.encodeOffsets[j][0]):p[0]);});
+  return out.filter(r=>r&&r.length>2);}
+const COUNTRIES=[],BY={};
+(window.__WORLD?window.__WORLD.features:[]).forEach(f=>{const name=f.properties.name;if(!name)return;
+  const rings=[];let best=null,bestA=-1;
+  featureRings(f).forEach(ring=>{let mn,mx;const bb=pts=>{mn=[999,999];mx=[-999,-999];pts.forEach(q=>{mn[0]=Math.min(mn[0],q[0]);mn[1]=Math.min(mn[1],q[1]);mx[0]=Math.max(mx[0],q[0]);mx[1]=Math.max(mx[1],q[1]);});};
+    bb(ring);const wrap=mx[0]-mn[0]>180;let pts=ring;if(wrap){pts=ring.map(q=>[q[0]<0?q[0]+360:q[0],q[1]]);bb(pts);}
+    const a=(mx[0]-mn[0])*(mx[1]-mn[1]);const rr={raw:ring,pts,wrap,mn,mx};rings.push(rr);if(a>bestA){bestA=a;best=rr;}});
+  if(!best)return;const c={name,rings,best,centroid:[(best.mn[1]+best.mx[1])/2,((best.mn[0]+best.mx[0])/2+540)%360-180]};COUNTRIES.push(c);BY[name]=c;});
+Object.entries({"United States":[39,-98],"Russia":[60,90],"Canada":[58,-100],"France":[46.6,2.4],"Norway":[61,9],"Indonesia":[-2,117],"Japan":[36.5,138.5],"United Kingdom":[53,-1.8],"Chile":[-33,-71],"China":[34,104],"India":[22.5,79],"Israel":[31.3,34.9],"Malaysia":[3.8,102],"Denmark":[56,9.3],"Korea":[36.4,127.9],"Vietnam":[16,107.5],"Croatia":[45.3,16],"Greece":[39.3,22]}).forEach(([k,v])=>{if(BY[k])BY[k].centroid=v;});
+const dl=$("#countries");COUNTRIES.map(c=>c.name).sort().forEach(n=>{const o=document.createElement("option");o.value=n;dl.appendChild(o);});
+function pip(x,y,r){let ins=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+function countryAt(lat,lng){for(const c of COUNTRIES)for(const r of c.rings){const L=r.wrap&&lng<0?lng+360:lng;if(L<r.mn[0]||L>r.mx[0]||lat<r.mn[1]||lat>r.mx[1])continue;if(pip(L,lat,r.pts))return c;}return null;}
+
+const NOW=Date.now();
+const CONFLICTS=[
+ {id:"ru-ua",name:"Russia – Ukraine War",at:[48.4,37.6],i:3,start:"2022-02-24",fl:["RU","UA"],parties:["Russia","Ukraine"],status:"Active",callout:true,why:["Largest war in Europe since 1945, with heavy military and civilian losses.","Shook global grain, fertiliser and gas markets, which affects prices far away.","Sits at the centre of NATO–Russia tension and Western sanctions on Russia."]},
+ {id:"gaza",name:"Israel – Gaza Conflict",at:[31.4,34.4],i:3,start:"2023-10-07",fl:["IL","PS"],parties:["Israel","Hamas"],status:"Active",callout:true,why:["Very high civilian toll and humanitarian need in Gaza.","Draws in regional actors, from Lebanon to Yemen to Iran.","Affects Red Sea shipping and Middle East diplomacy."]},
+ {id:"sudan",name:"Sudan Civil War",at:[14.2,28.8],i:3,start:"2023-04-15",fl:["SD"],parties:["Sudanese Armed Forces","Rapid Support Forces"],status:"Active",callout:true,why:["One of the world's largest displacement crises.","Fighting spreads hunger across a country of nearly 50 million people.","Regional powers back different sides, which makes peace harder."]},
+ {id:"myanmar",name:"Myanmar Civil War",at:[21.5,95.9],i:2,start:"2021-02-01",fl:["MM"],parties:["Military government","Resistance and ethnic armed groups"],status:"Active",why:["Conflict since the 2021 military coup has split the country.","Borders India, China, Bangladesh and Thailand, with refugee flows.","Tests ASEAN's ability to manage a crisis among its members."]},
+ {id:"drc",name:"Eastern DR Congo",at:[-1.7,29.2],i:2,start:"2022-03-01",fl:["CD"],parties:["DR Congo","M23 rebels"],status:"Active",why:["Long-running war in a region rich in minerals used in electronics.","Millions displaced in North and South Kivu.","Strains relations between DR Congo and Rwanda."]},
+ {id:"sahel",name:"Sahel Insurgencies",at:[14.3,-1.6],i:2,start:"2012-01-17",fl:["ML"],parties:["Mali, Burkina Faso, Niger","Armed Islamist groups"],status:"Active",why:["Armed groups control wide rural areas across three countries.","Military governments have changed foreign partners in the region.","Instability pushes migration toward coastal West Africa and Europe."]},
+ {id:"yemen",name:"Yemen Conflict",at:[15.4,44.2],i:1,start:"2014-09-21",fl:["YE"],parties:["Houthis","Yemeni government and allies"],status:"Active",why:["Long civil war with a severe humanitarian crisis.","Attacks near the Red Sea have disrupted global shipping routes.","Linked to the wider Iran–Saudi and Middle East rivalry."]},
+ {id:"haiti",name:"Haiti Gang Violence",at:[18.55,-72.3],i:1,start:"2021-07-07",fl:["HT"],parties:["Armed gangs","Haitian state and international mission"],status:"Active",why:["Gangs control most of the capital, Port-au-Prince.","Hunger and displacement are rising.","An international security mission is trying to restore order."]}
+];
+const STRIKES=[[[47.2,39.7],[49.99,36.23]],[[50.6,36.6],[50.45,30.52]],[[45.0,34.1],[46.48,30.72]],[[47.2,39.7],[47.84,35.14]],[[50.4,30.5],[53.2,34.4]],[[49.4,32.0],[47.2,39.7]],[[15.4,44.2],[14.6,42.0]],[[15.4,44.2],[29.6,34.9]]];
+const EMB={
+ NATO:`<svg viewBox="0 0 26 26"><circle cx="13" cy="13" r="9.5" fill="none" stroke="#fff" stroke-width="1"/><path d="M13 2 15 11 24 13 15 15 13 24 11 15 2 13 11 11Z" fill="#fff"/><path d="M13 13 15 11 13 2Z M13 13 15 15 24 13Z" fill="#9FC0F0"/></svg>`,
+ EU:`<svg viewBox="0 0 26 26">${Array.from({length:12},(_,i)=>{const a=i*Math.PI/6;return star(13+8.5*Math.cos(a),13+8.5*Math.sin(a),2.1,"#FFD34D");}).join("")}</svg>`,
+ BRICS:`<svg viewBox="0 0 26 26">${["#009C3B","#D52B1E","#FF9933","#EE1C25","#FFB612"].map((c,i)=>{const a=-Math.PI/2+i*2*Math.PI/5;return `<circle cx="${(13+7*Math.cos(a)).toFixed(1)}" cy="${(13+7*Math.sin(a)).toFixed(1)}" r="3.6" fill="${c}" stroke="#fff" stroke-width=".8"/>`;}).join("")}</svg>`,
+ QUAD:`<svg viewBox="0 0 26 26">${[[13,6],[20,13],[13,20],[6,13]].map(p=>`<path d="M${p[0]} ${p[1]-4} ${p[0]+4} ${p[1]} ${p[0]} ${p[1]+4} ${p[0]-4} ${p[1]}Z" fill="#fff" opacity=".92"/>`).join("")}</svg>`,
+ ASEAN:`<svg viewBox="0 0 26 26"><circle cx="13" cy="13" r="10" fill="#D7263D"/><circle cx="13" cy="13" r="7" fill="#F5C518"/>${Array.from({length:10},(_,i)=>`<path d="M${(9.4+i*.8).toFixed(1)} 17 ${(10.5+i*.6).toFixed(1)} 8" stroke="#8A5A00" stroke-width=".7"/>`).join("")}</svg>`,
+ SCO:`<svg viewBox="0 0 26 26"><text x="13" y="16.5" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle" font-family="Manrope,sans-serif">SCO</text><circle cx="13" cy="13" r="10" fill="none" stroke="#fff" stroke-width="1"/></svg>`,
+ G7:`<svg viewBox="0 0 26 26"><text x="13" y="17" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" font-family="Manrope,sans-serif">G7</text></svg>`,
+ G20:`<svg viewBox="0 0 26 26"><text x="13" y="17" font-size="9.5" font-weight="700" fill="#fff" text-anchor="middle" font-family="Manrope,sans-serif">G20</text></svg>`
+};
+const ORGS={
+ NATO:{c:"#2F6FDB",pin:[58,16],purpose:"Military alliance. An attack on one member is treated as an attack on all (Article 5).",hq:"Brussels",m:["Albania","Belgium","Bulgaria","Canada","Croatia","Czech Rep.","Denmark","Estonia","Finland","France","Germany","Greece","Hungary","Iceland","Italy","Latvia","Lithuania","Luxembourg","Montenegro","Netherlands","Macedonia","Norway","Poland","Portugal","Romania","Slovakia","Slovenia","Spain","Sweden","Turkey","United Kingdom","United States"]},
+ EU:{c:"#4F5FE0",pin:[46,0],purpose:"Political and economic union with a single market; 20 members share the euro.",hq:"Brussels",m:["Austria","Belgium","Bulgaria","Croatia","Cyprus","Czech Rep.","Denmark","Estonia","Finland","France","Germany","Greece","Hungary","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Poland","Portugal","Romania","Slovakia","Slovenia","Spain","Sweden"]},
+ BRICS:{c:"#E39A1E",pin:[52,112],purpose:"Group of major emerging economies seeking more say in global finance.",hq:"NDB, Shanghai",m:["Brazil","Russia","India","China","South Africa","Egypt","Ethiopia","Iran","United Arab Emirates","Indonesia"]},
+ SCO:{c:"#C2416B",pin:[44,66],purpose:"Eurasian security and economic organisation led by China and Russia.",hq:"Beijing",m:["China","Russia","India","Pakistan","Kazakhstan","Kyrgyzstan","Tajikistan","Uzbekistan","Iran","Belarus"]},
+ QUAD:{c:"#0EA5C6",pin:[-4,134],purpose:"Strategic dialogue of four Indo-Pacific democracies.",hq:"No HQ",m:["India","United States","Japan","Australia"]},
+ ASEAN:{c:"#2FA36B",pin:[12,104],purpose:"Regional bloc of Southeast Asian nations for trade and stability.",hq:"Jakarta",m:["Brunei","Cambodia","Indonesia","Lao PDR","Malaysia","Myanmar","Philippines","Singapore","Thailand","Vietnam","Timor-Leste"]},
+ G7:{c:"#3A4A5A",pin:[47,-40],purpose:"Seven large advanced economies that coordinate on economy and security.",hq:"Rotating presidency",m:["United States","Canada","United Kingdom","France","Germany","Italy","Japan"]},
+ G20:{c:"#1F9E8F",pin:[-10,-30],purpose:"Forum of the largest economies, about 85% of world GDP.",hq:"Rotating presidency",m:["Argentina","Australia","Brazil","Canada","China","France","Germany","India","Indonesia","Italy","Japan","Mexico","Russia","Saudi Arabia","South Africa","Korea","Turkey","United Kingdom","United States"]}
+};
+const SUMMIT={name:"ASEAN Summit",at:[14.6,121.0],when:"Example dates · Oct 2026",host:"Example host city"};
+const MARKETS=[["Shanghai",31.23,121.47,-.8],["Mumbai",19.07,72.88,.7],["London",51.5,-0.12,-.3],["New York",40.71,-74.0,.4],["Tokyo",35.68,139.69,-.8],["Frankfurt",50.11,8.68,.6]];
+const INDICES=[["S&P 500",.4],["Nikkei 225",-.8],["DAX",.6],["BSE Sensex",.7]];
+const CRISES=["Lebanon","Argentina","Pakistan","Egypt"];
+const LANES=[[[31.2,122.5],[22,115],[10,109],[1.3,104],[5,96],[6,80],[12.5,52],[12.6,43.3],[20,38.5],[29.9,32.6],[33,28],[37,15],[36,-5.6],[44,-9.5],[49.5,-4],[51.9,3.8]],[[26.4,56.6],[24,60],[20,66],[15,73],[6,80]],[[22,114],[25,123],[33,131],[35,139.8]],[[31.2,122.5],[34,140],[40,170],[42,-150],[34,-120]],[[40.5,-73.5],[42,-50],[48,-20],[49.5,-4]],[[9.3,-79.9],[18,-75],[25,-80],[33,-77],[40.5,-73.5]],[[-34,18.4],[-20,0],[0,-15],[20,-20],[36,-8]],[[-33.9,151.2],[-20,155],[0,130],[1.3,104]],[[26.4,56.6],[12,58],[-5,60],[-34,18.4]]];
+const HOSTILE=[[[32.6,74.6],[33.2,74.0],[33.8,73.9],[34.4,73.9],[34.6,74.4],[34.7,75.6],[34.6,76.4],[35.0,77.0],[35.1,77.3]],[[37.75,126.1],[37.95,126.7],[38.3,127.2],[38.3,127.6],[38.62,128.36]],[[46.55,32.4],[46.8,33.6],[47.4,35.2],[47.7,36.6],[47.95,37.3],[48.6,37.9],[49.2,38.0],[49.8,37.7],[50.3,37.6]]];
+const DISPUTED=[[[32.5,74.0],[33.5,73.3],[34.5,73.2],[35.5,72.6],[36.6,72.6],[37.1,74.5],[36.6,76.0],[35.7,77.8],[35.6,80.2],[34.6,79.5],[32.6,78.4],[32.5,76.0]],[[46.2,33.4],[45.3,32.4],[44.4,33.6],[44.9,35.5],[45.4,36.6],[45.6,35.0],[46.1,34.8]]];
+const NUCLEAR={"Russia":5459,"United States":5177,"China":600,"France":290,"United Kingdom":225,"India":180,"Pakistan":170,"Israel":90,"Dem. Rep. Korea":50};
+const CHOKES=[["Strait of Hormuz",26.57,56.25,"About a fifth of the world's oil use passes here."],["Strait of Malacca",2.5,101.3,"Main route between the Indian Ocean and East Asia."],["Suez Canal",30.0,32.55,"Links Europe and Asia via the Red Sea."],["Bab-el-Mandeb",12.6,43.3,"Southern gate of the Red Sea."],["Bosporus",41.1,29.05,"Black Sea exports, including grain and oil."],["Panama Canal",9.08,-79.68,"Shortcut between the Atlantic and Pacific."]];
+const CITIES=[["New Delhi",28.61,77.21],["Mumbai",19.07,72.88],["Beijing",39.9,116.4],["Shanghai",31.23,121.47],["Tokyo",35.68,139.69],["Moscow",55.75,37.62],["London",51.5,-0.12],["Paris",48.86,2.35],["Berlin",52.52,13.4],["Washington",38.9,-77.04],["New York",40.71,-74.0],["Kyiv",50.45,30.52],["Tehran",35.69,51.39],["Riyadh",24.71,46.68],["Cairo",30.04,31.24],["Islamabad",33.68,73.05],["Dhaka",23.81,90.41],["Bangkok",13.75,100.5],["Jakarta",-6.2,106.82],["Singapore",1.35,103.82],["Seoul",37.57,126.98],["Sydney",-33.87,151.21],["Brasília",-15.79,-47.88],["Lagos",6.52,3.38],["Nairobi",-1.29,36.82],["Johannesburg",-26.2,28.05],["Istanbul",41.01,28.98],["Karachi",24.86,67.0],["Kolkata",22.57,88.36],["Chennai",13.08,80.27],["Bengaluru",12.97,77.59],["Kathmandu",27.72,85.32],["Kabul",34.53,69.17],["Baghdad",33.31,44.37],["Khartoum",15.5,32.56]];
+const EUN=["Poland","Germany","France","United Kingdom","Estonia","Latvia","Lithuania","Finland","Sweden","Denmark","Netherlands","Belgium","Czech Rep.","Romania","Norway","Canada","Italy","Spain","Japan","Australia"];
+const REL={
+ "India":{ally:{"Russia":"Defence supplier; strategic partnership since 2000","France":"Defence partner; Rafale jets, nuclear energy","United States":"Strategic partner; QUAD member","Japan":"QUAD partner; major investor","Australia":"QUAD partner","United Arab Emirates":"Top trade and energy partner","Israel":"Defence and technology partner","Saudi Arabia":"Major oil supplier","Bhutan":"Close neighbour; hydropower","Vietnam":"Indo-Pacific security partner"},hostile:{"Pakistan":"Line of Control disputes; wars in 1947, 1965, 1971, 1999"},mixed:{"China":"Big trade partner; border dispute on the LAC","Turkey":"Trade ties; close to Pakistan","Bangladesh":"Neighbour; ties shifting since 2024","Afghanistan":"Engagement without formal recognition"}},
+ "United States":{ally:Object.fromEntries(EUN.map(n=>[n,"NATO or treaty ally"]).concat([["Korea","Treaty ally"],["Israel","Major security partner"],["Philippines","Treaty ally"],["India","Strategic partner; QUAD"],["Mexico","Top trade partner (USMCA)"]])),hostile:{"Russia":"Sanctions; opposing sides on Ukraine","Iran":"No diplomatic relations; sanctions","Dem. Rep. Korea":"Nuclear standoff; no relations","Cuba":"Embargo","Venezuela":"Sanctions"},mixed:{"China":"Largest rival; also a huge trade partner","Turkey":"NATO ally with frequent disputes","Saudi Arabia":"Security partner with policy differences"}},
+ "Russia":{ally:{"Belarus":"Union State","China":"\"No limits\" partnership","Dem. Rep. Korea":"Mutual defence treaty (2024)","Iran":"Strategic partnership","India":"Long-time defence partner","Kazakhstan":"CSTO and economic union partner","Tajikistan":"CSTO partner","Kyrgyzstan":"CSTO partner"},hostile:Object.fromEntries(EUN.concat(["United States","Ukraine"]).map(n=>[n,n==="Ukraine"?"At war since 2022":"Sanctions; supports Ukraine"])),mixed:{"Turkey":"Trade and energy ties; NATO member","Armenia":"Treaty ally drifting away","Azerbaijan":"Trade partner; tense since 2024"}},
+ "Pakistan":{ally:{"China":"\"All-weather\" partner; CPEC","Saudi Arabia":"Financial support; defence ties","Turkey":"Close political and defence ties","Azerbaijan":"Close partner","United Arab Emirates":"Remittances and finance"},hostile:{"India":"Line of Control disputes; four wars"},mixed:{"United States":"On-off security partner","Afghanistan":"Border clashes; refugee issues","Iran":"Neighbour; border tensions"}},
+ "Ukraine":{ally:Object.fromEntries(EUN.concat(["United States"]).map(n=>[n,"Military or financial support"])),hostile:{"Russia":"At war since 2022","Belarus":"Allowed Russian forces on its territory"},mixed:{"Hungary":"EU member blocking some aid","Turkey":"Mediator; trades with both sides"}},
+ "China":{ally:{"Russia":"\"No limits\" partnership","Pakistan":"\"All-weather\" partner","Dem. Rep. Korea":"Treaty ally","Cambodia":"Close partner","Lao PDR":"Close partner","Iran":"Oil buyer; 25-year deal","Serbia":"Strategic partner"},hostile:{},mixed:{"United States":"Main rival; also huge trade partner","India":"Trade partner; border dispute","Japan":"Trade partner; island dispute","Philippines":"South China Sea disputes","Vietnam":"Trade partner; sea disputes","Australia":"Trade partner; security rival","Korea":"Trade partner; US ally"}}
+};
+function hsh(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return ((h>>>0)%10000)/10000;}
+const METRICS={
+ economy:[{id:"growth",label:"Growth",unit:"%",fn:n=>-2+10*hsh(n+"g"),dp:1,mean:v=>`The economy grew ${v.toFixed(1)}% last year. Above 5% is fast for a large economy.`,src:"IMF World Economic Outlook"},
+  {id:"inflation",label:"Inflation",unit:"%",fn:n=>1+28*Math.pow(hsh(n+"i"),3),dp:1,mean:v=>`Prices rise about ${v.toFixed(0)}% a year. Many central banks aim for 2–4%.`,src:"IMF World Economic Outlook"},
+  {id:"jobs",label:"Unemployment",unit:"%",fn:n=>2+20*Math.pow(hsh(n+"u"),1.6),dp:1,mean:v=>`About ${Math.round(v)} in 100 people who want work cannot find it.`,src:"IMF / World Bank"},
+  {id:"debt",label:"Debt",unit:"%",fn:n=>15+180*Math.pow(hsh(n+"d"),1.5),dp:0,mean:v=>`The government owes ${Math.round(v)}% of one year's economic output.`,src:"IMF World Economic Outlook"}],
+ defense:[{id:"spend",label:"Spending",unit:"%",fn:n=>.4+5*Math.pow(hsh(n+"s"),2),dp:1,mean:v=>`Spends ${v.toFixed(1)}% of GDP on defence. NATO's guideline was long 2%.`,src:"SIPRI via World Bank"},
+  {id:"personnel",label:"Personnel",unit:"k",fn:n=>5+1500*Math.pow(hsh(n+"p"),4),dp:0,mean:v=>`About ${Math.round(v).toLocaleString()} thousand active troops.`,src:"World Bank"},
+  {id:"capability",label:"Capability",unit:"/10",fn:n=>1+8.5*Math.pow(hsh(n+"c"),1.3),dp:1,mean:()=>"",src:"Curated estimate"},
+  {id:"nuclear",label:"Nuclear",unit:"",fn:n=>NUCLEAR[n]||0,dp:0,mean:()=>"",src:"FAS 2025 estimates"}],
+ energy:[{id:"clean",label:"Clean power",unit:"%",fn:n=>3+90*Math.pow(hsh(n+"r"),1.4),dp:0,mean:v=>`${Math.round(v)}% of electricity comes from low-carbon sources.`,src:"Ember / Our World in Data"},
+  {id:"import",label:"Imports",unit:"%",fn:n=>100*hsh(n+"m"),dp:0,mean:v=>`${Math.round(v)}% of the energy it uses is imported.`,src:"EIA / Our World in Data"}],
+ diplomacy:[{id:"blocs",label:"Blocs",unit:"",fn:n=>Object.values(ORGS).filter(o=>o.m.includes(n)).length,dp:0,mean:v=>`Member of ${v} of the 8 blocs shown here.`,src:"Wikidata"}]
+};
+const SCALES={economy:["#FFF1C7","#F6C25B","#E57A3A","#B3352C"],defense:["#E8ECFA","#9DB4F0","#3F63D8","#1B2F7A"],energy:["#E5F4D8","#A6D88C","#3FA765","#16613D"],diplomacy:["#F6E2EC","#E2A1BA","#C25A84","#7A2450"]};
+
+/* ---------- three.js ---------- */
+const canvas=$("#gl");
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputEncoding=THREE.sRGBEncoding;renderer.setClearColor(0x000000,0);
+const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.005,200);scene.add(camera);
+function ll2v(lat,lng,r){const p=(90-lat)*Math.PI/180,t=(lng+180)*Math.PI/180;return new THREE.Vector3(-r*Math.sin(p)*Math.cos(t),r*Math.cos(p),r*Math.sin(p)*Math.sin(t));}
+function v2ll(v){const r=v.length();const lat=90-Math.acos(v.y/r)*180/Math.PI;let lng=Math.atan2(v.z,-v.x)*180/Math.PI-180;if(lng<-180)lng+=360;return [lat,lng];}
+function slerp(a,b,t){const o=a.angleTo(b);if(o<1e-6)return a.clone();const s=Math.sin(o);return a.clone().multiplyScalar(Math.sin((1-t)*o)/s).add(b.clone().multiplyScalar(Math.sin(t*o)/s));}
+const loader=new THREE.TextureLoader();
+const loadTex=(u,srgb)=>{const t=loader.load(u);if(srgb)t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t;};
+const sunDir=new THREE.Vector3(0,0,1);
+
+const earthMat=new THREE.MeshPhongMaterial({map:loadTex("tex/earth-blue-marble.jpg",true),bumpMap:loadTex("tex/earth-topology.jpg"),bumpScale:.012,specularMap:loadTex("tex/earth-water.jpg"),specular:new THREE.Color(0x3a5a78),shininess:18,emissiveMap:loadTex("tex/earth-night-2k.jpg",true),emissive:new THREE.Color(0xffc87a),emissiveIntensity:.55});
+const globe=new THREE.Mesh(new THREE.SphereGeometry(1,MOBILE?128:200,MOBILE?96:140),earthMat);scene.add(globe);
+scene.add(new THREE.AmbientLight(0xffffff,.34));
+const sun=new THREE.DirectionalLight(0xfff6ea,1.08);sun.position.set(-2.6,2.0,3.0);camera.add(sun);sun.target.position.set(0,0,-1);camera.add(sun.target);
+
+const TW=MOBILE?2048:4096,TH=TW/2,K=TW/4096;
+const X=l=>(l+180)/360*TW,Y=l=>(90-l)/180*TH;
+const mkc=(w,h)=>{const c=document.createElement("canvas");c.width=w;c.height=h;return c;};
+const ocan=mkc(TW,TH),oc=ocan.getContext("2d");const otex=new THREE.CanvasTexture(ocan);otex.encoding=THREE.sRGBEncoding;otex.anisotropy=renderer.capabilities.getMaxAnisotropy();
+const overlay=new THREE.Mesh(new THREE.SphereGeometry(1.0009,MOBILE?128:200,MOBILE?96:140),new THREE.MeshLambertMaterial({map:otex,transparent:true,depthWrite:false}));overlay.renderOrder=1;scene.add(overlay);
+function ringPath(ctx,pts,off){ctx.moveTo(X(pts[0][0])+off,Y(pts[0][1]));for(let i=1;i<pts.length;i++)ctx.lineTo(X(pts[i][0])+off,Y(pts[i][1]));ctx.closePath();}
+function cPath(ctx,c){ctx.beginPath();c.rings.forEach(r=>{ringPath(ctx,r.pts,0);if(r.wrap)ringPath(ctx,r.pts,-TW);});}
+const hatch=(()=>{const p=mkc(18,18),g=p.getContext("2d");g.strokeStyle="rgba(255,226,150,.95)";g.lineWidth=2.6;g.beginPath();g.moveTo(-2,20);g.lineTo(20,-2);g.stroke();return oc.createPattern(p,"repeat");})();
+function lerpHex(a,b,t){const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);const r=(pa>>16)+((pb>>16)-(pa>>16))*t,g=((pa>>8)&255)+(((pb>>8)&255)-((pa>>8)&255))*t,bl=(pa&255)+((pb&255)-(pa&255))*t;return [r|0,g|0,bl|0];}
+function scaleRGBA(st,t,a){t=Math.max(0,Math.min(1,t));const s=t*(st.length-1),i=Math.min(st.length-2,Math.floor(s));const c=lerpHex(st[i],st[i+1],s-i);return `rgba(${c[0]},${c[1]},${c[2]},${a})`;}
+const hexA=(h,a)=>{const p=parseInt(h.slice(1),16);return `rgba(${p>>16},${(p>>8)&255},${p&255},${a})`;};
+function relOf(a,b){const R=REL[a];if(!R)return "neutral";if(R.ally[b])return "ally";if(R.hostile[b])return "hostile";if(R.mixed[b])return "mixed";const R2=REL[b];if(R2){if(R2.ally[a])return "ally";if(R2.hostile[a])return "hostile";if(R2.mixed[a])return "mixed";}return "neutral";}
+function paintOverlay(){oc.clearRect(0,0,TW,TH);const sel=state.selection&&state.selection.kind==="country"?state.selection.name:null;let fill=null;
+  if(state.tour){fill=c=>state.tourHl&&state.tourHl.includes(c.name)?"rgba(242,179,61,.55)":null;}
+  else if(state.mode==="home"){
+    if(sel)fill=c=>{if(c.name===sel)return "rgba(242,179,61,.72)";const s=relOf(sel,c.name);return s==="ally"?"rgba(47,163,107,.62)":s==="hostile"?"rgba(229,72,77,.66)":s==="mixed"?"rgba(232,162,28,.62)":REL[sel]?"rgba(76,116,217,.42)":null;};
+    else if(state.org&&layers.orgs){const o=ORGS[state.org];fill=c=>o.m.includes(c.name)?hexA(o.c,.55):null;}
+  } else if(state.mode==="diplomacy"&&state.org){const o=ORGS[state.org];fill=c=>o.m.includes(c.name)?hexA(o.c,.62):null;}
+  else{const m=curMetric(),st=SCALES[state.mode];const vals=COUNTRIES.map(c=>m.fn(c.name));const max=Math.max(...vals),min=Math.min(...vals);
+    fill=c=>{const v=m.fn(c.name);if(sel&&c.name===sel)return "rgba(255,255,255,.85)";if(m.id==="nuclear"&&!v)return null;const t=m.id==="nuclear"?Math.log(1+v)/Math.log(1+max):(v-min)/(max-min||1);return scaleRGBA(st,t,.8);};}
+  if(fill)COUNTRIES.forEach(c=>{const f=fill(c);if(f){cPath(oc,c);oc.fillStyle=f;oc.fill("evenodd");}});
+  if(state.mode==="home"&&!state.tour&&layers.rel){DISPUTED.forEach(d=>{oc.beginPath();d.forEach((p,i)=>i?oc.lineTo(X(p[1]),Y(p[0])):oc.moveTo(X(p[1]),Y(p[0])));oc.closePath();oc.fillStyle=hatch;oc.fill();oc.strokeStyle="rgba(255,226,150,.9)";oc.setLineDash([8*K,6*K]);oc.lineWidth=2*K;oc.stroke();oc.setLineDash([]);});}
+  otex.needsUpdate=true;}
+
+function ringsToSegs(rings,r){const pos=[];rings.forEach(ring=>{for(let i=0;i<ring.length;i++){const a=ring[i],b=ring[(i+1)%ring.length];if(Math.abs(a[0])>179.8&&Math.abs(b[0])>179.8)continue;if(Math.abs(a[0]-b[0])>180)continue;const va=ll2v(a[1],a[0],r),vb=ll2v(b[1],b[0],r);pos.push(va.x,va.y,va.z,vb.x,vb.y,vb.z);}});const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));return g;}
+const borderMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.55,depthWrite:false});
+const borders=new THREE.LineSegments(ringsToSegs([].concat(...COUNTRIES.map(c=>c.rings.map(r=>r.raw))),1.0016),borderMat);borders.renderOrder=2;scene.add(borders);
+const admMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false});
+const admGroup=new THREE.Group();scene.add(admGroup);
+const hoverLine=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.95,depthWrite:false}));hoverLine.renderOrder=3;scene.add(hoverLine);
+let hoverName=null;function setHover(c){const n=c?c.name:null;if(n===hoverName)return;hoverName=n;hoverLine.geometry.dispose();hoverLine.geometry=c?ringsToSegs(c.rings.map(r=>r.raw),1.0022):new THREE.BufferGeometry();}
+
+const cloudTex=loadTex("tex/clouds.jpg");cloudTex.wrapS=THREE.RepeatWrapping;
+function cloudMat(o){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{map:{value:cloudTex},uTime:{value:0},uSpeed:{value:o.speed},uOff:{value:o.off||0},uOpacity:{value:0},uSun:{value:sunDir},uShadow:{value:o.shadow?1:0}},
+  vertexShader:"varying vec2 vUv;varying vec3 vN;void main(){vUv=uv;vN=normalize((modelMatrix*vec4(normal,0.0)).xyz);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
+  fragmentShader:`uniform sampler2D map;uniform float uTime,uSpeed,uOff,uOpacity,uShadow;uniform vec3 uSun;varying vec2 vUv;varying vec3 vN;
+  void main(){vec2 uv=vec2(vUv.x+uOff+uTime*uSpeed,vUv.y);
+   uv+=0.0035*vec2(sin(uv.y*55.0+uTime*0.35),cos(uv.x*42.0+uTime*0.28));
+   float c=texture2D(map,uv).r;c=smoothstep(0.1,0.85,c);
+   float l=clamp(dot(normalize(vN),normalize(uSun))*0.75+0.45,0.25,1.08);
+   if(uShadow>0.5){gl_FragColor=vec4(0.02,0.05,0.08,c*uOpacity);}else{gl_FragColor=vec4(vec3(l),c*uOpacity);}}`});}
+const cloudsA=new THREE.Mesh(new THREE.SphereGeometry(1.011,128,96),cloudMat({speed:.0016}));cloudsA.renderOrder=6;
+const cloudsB=new THREE.Mesh(new THREE.SphereGeometry(1.026,96,72),cloudMat({speed:.0034,off:.37}));cloudsB.renderOrder=7;cloudsB.rotation.x=.08;
+const cloudShadow=new THREE.Mesh(new THREE.SphereGeometry(1.0028,128,96),cloudMat({speed:.0016,off:.0025,shadow:true}));cloudShadow.renderOrder=1;
+scene.add(cloudShadow,cloudsA,cloudsB);
+const cloudState={target:1,v:0};
+
+const atmo=new THREE.Mesh(new THREE.SphereGeometry(1,64,48),new THREE.ShaderMaterial({vertexShader:"varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
+  fragmentShader:"varying vec3 vN;void main(){float i=pow(max(0.0,0.76-dot(vN,vec3(0.0,0.0,1.0))),2.2);gl_FragColor=vec4(0.72,0.86,1.0,clamp(i*1.7,0.0,1.0));}",side:THREE.BackSide,transparent:true,depthWrite:false}));
+atmo.scale.setScalar(1.085);scene.add(atmo);
+const rim=new THREE.Mesh(new THREE.SphereGeometry(1.03,96,72),new THREE.ShaderMaterial({vertexShader:"varying vec3 vN;varying vec3 vV;void main(){vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.0);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}",
+  fragmentShader:"varying vec3 vN;varying vec3 vV;void main(){float f=pow(1.0-max(dot(vN,vV),0.0),2.4);gl_FragColor=vec4(0.75,0.88,1.0,f*0.9);}",transparent:true,depthWrite:false}));rim.renderOrder=8;scene.add(rim);
+
+const glowTex=(()=>{const c=mkc(128,128),g=c.getContext("2d");const gr=g.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,"rgba(255,255,255,1)");gr.addColorStop(.18,"rgba(255,255,255,.75)");gr.addColorStop(.45,"rgba(255,255,255,.22)");gr.addColorStop(1,"rgba(255,255,255,0)");g.fillStyle=gr;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);})();
+const ringTex=(()=>{const c=mkc(128,128),g=c.getContext("2d");g.strokeStyle="#fff";g.lineWidth=7;g.beginPath();g.arc(64,64,54,0,Math.PI*2);g.stroke();return new THREE.CanvasTexture(c);})();
+function grp(v){const g=new THREE.Group();g.userData.fade=v?1:0;g.userData.target=v?1:0;scene.add(g);return g;}
+const G={wars:grp(true),econ:grp(true),rel:grp(true),sel:grp(false),tour:grp(false)};
+const reg=(m,b)=>{m.userData.base=b;return m;};
+
+function arcMaterial(o){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:o.additive?THREE.AdditiveBlending:THREE.NormalBlending,
+  uniforms:{uColor:{value:new THREE.Color(o.color)},uTime:{value:0},uPeriod:{value:o.period||2.6},uOff:{value:o.off||0},uTrail:{value:o.trail||.35},uBase:{value:o.base==null?.16:o.base},uFade:{value:1},uDash:{value:o.dash?1:0},uDashN:{value:o.dashN||60},uSpeed:{value:o.speed||1}},
+  vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
+  fragmentShader:`uniform vec3 uColor;uniform float uTime,uPeriod,uOff,uTrail,uBase,uFade,uDash,uDashN,uSpeed;varying vec2 vUv;
+  void main(){float x=vUv.x;vec3 col=uColor;float a;
+   if(uDash>0.5){float d=step(0.45,fract(x*uDashN-uTime*uSpeed));a=d*uBase;}
+   else{float head=fract((uTime+uOff)/uPeriod)*1.3;float d=head-x;float t=(d>0.0&&d<uTrail)?pow(1.0-d/uTrail,1.8):0.0;a=max(uBase,t);col=mix(uColor,vec3(1.0,0.96,0.9),t*t*0.7);}
+   gl_FragColor=vec4(col,a*uFade);}`});}
+function arcCurve(a,b,lift,r0){const va=ll2v(a[0],a[1],1),vb=ll2v(b[0],b[1],1);const ang=va.angleTo(vb);const h=lift==null?Math.min(.38,.03+ang*.3):lift;const pts=[];const n=Math.max(24,Math.round(ang*90));
+  for(let i=0;i<=n;i++){const t=i/n;pts.push(slerp(va,vb,t).multiplyScalar((r0||1.004)+h*Math.sin(Math.PI*t)));}return new THREE.CatmullRomCurve3(pts);}
+class Arc{constructor(group,a,b,o){this.curve=arcCurve(a,b,o.lift,o.r0);this.mat=arcMaterial(o);this.o=o;
+    this.mesh=new THREE.Mesh(new THREE.TubeGeometry(this.curve,Math.max(40,this.curve.points.length*2),o.radius||.0026,6,false),this.mat);this.mesh.renderOrder=o.ro||5;group.add(this.mesh);
+    if(o.head){this.head=new THREE.Sprite(reg(new THREE.SpriteMaterial({map:glowTex,color:o.color,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),1));this.head.scale.setScalar(o.headSize||.05);this.head.renderOrder=9;group.add(this.head);}
+    if(o.impact){this.imp=new THREE.Sprite(reg(new THREE.SpriteMaterial({map:ringTex,color:o.color,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),1));this.imp.position.copy(this.curve.getPointAt(1));this.imp.renderOrder=9;group.add(this.imp);}}
+  update(t){this.mat.uniforms.uTime.value=t;if(!this.head)return;const head=Math.max(0,(((t+this.o.off)/this.o.period)%1)*1.3);
+    if(RM){this.head.visible=false;if(this.imp)this.imp.visible=false;return;}
+    if(head<=1){this.head.visible=true;this.head.position.copy(this.curve.getPointAt(head));if(this.imp)this.imp.visible=false;}
+    else{this.head.visible=false;if(this.imp){const q=(head-1)/.3;this.imp.visible=true;this.imp.scale.setScalar(.02+.12*q);this.imp.material.userData.base=1-q;}}}}
+const ARCS=[];
+STRIKES.forEach((s,i)=>ARCS.push(new Arc(G.wars,s[0],s[1],{color:0xFF3B30,additive:true,period:2.4+i*.17,off:i*.53,trail:.42,base:.14,radius:.0024,head:true,headSize:.045,impact:true})));
+[[[55.75,37.62],[50.45,30.52]],[[32,53],[31.5,34.8]]].forEach((s,i)=>ARCS.push(new Arc(G.wars,s[0],s[1],{color:0xFF5A4E,additive:true,period:3.6,off:i*1.4,trail:.3,base:.1,radius:.0018,head:true,headSize:.035,impact:true})));
+const laneCurves=LANES.map(l=>{const pts=[];for(let i=0;i<l.length-1;i++){const a=ll2v(l[i][0],l[i][1],1),b=ll2v(l[i+1][0],l[i+1][1],1);const seg=Math.max(4,Math.round(a.angleTo(b)*60));for(let k=0;k<seg;k++)pts.push(slerp(a,b,k/seg).multiplyScalar(1.0035));}pts.push(ll2v(l[l.length-1][0],l[l.length-1][1],1.0035));return new THREE.CatmullRomCurve3(pts);});
+laneCurves.forEach(c=>{const len=c.getLength();const m=arcMaterial({color:0xF6C453,dash:true,dashN:Math.round(len*95),speed:.6,base:.95});const mesh=new THREE.Mesh(new THREE.TubeGeometry(c,Math.round(c.points.length*1.5),.0016,5,false),m);mesh.renderOrder=4;G.econ.add(mesh);ARCS.push({update:t=>{m.uniforms.uTime.value=t;}});});
+HOSTILE.forEach((h,i)=>{const c=new THREE.CatmullRomCurve3(h.map(p=>ll2v(p[0],p[1],1.0035)));const m=arcMaterial({color:0xFF3B30,dash:i===2,dashN:40,speed:.4,base:.95});const mesh=new THREE.Mesh(new THREE.TubeGeometry(c,60,.0024,6,false),m);mesh.renderOrder=4;G.rel.add(mesh);
+  const glow=new THREE.Mesh(new THREE.TubeGeometry(c,60,.007,6,false),arcMaterial({color:0xFF3B30,base:.22,trail:.001,period:99}));glow.renderOrder=3;G.rel.add(glow);ARCS.push({update:t=>{m.uniforms.uTime.value=t;}});});
+const GLOWS=[];CONFLICTS.forEach((c,i)=>{const s=new THREE.Sprite(reg(new THREE.SpriteMaterial({map:glowTex,color:0xFF2A1F,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),.95));const base=[0,.09,.15,.24][c.i];s.position.copy(ll2v(c.at[0],c.at[1],1.006));s.scale.setScalar(base);s.renderOrder=9;G.wars.add(s);
+  const core=new THREE.Sprite(reg(new THREE.SpriteMaterial({map:glowTex,color:0xFFE2B0,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),1));core.position.copy(s.position);core.scale.setScalar(base*.22);core.renderOrder=10;G.wars.add(core);
+  const ring=new THREE.Sprite(reg(new THREE.SpriteMaterial({map:ringTex,color:0xFF4A3D,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),.8));ring.position.copy(s.position);ring.renderOrder=10;G.wars.add(ring);GLOWS.push({s,ring,base,ph:i*.37});});
+
+/* ---------- camera: smooth, tilt with zoom, zoom-to-cursor ---------- */
+const HOME={lat:25,lng:70,dist:MOBILE?3.7:3.05};
+const cam={lat:HOME.lat,lng:HOME.lng,dist:RM?HOME.dist:6.5};const T={...cam};
+let vel={lat:0,lng:0},fly=null,lastInput=-1e9;
+const MIN_D=1.11,MAX_D=5.5;
+const tiltFor=d=>Math.max(0,Math.min(1,(1.85-d)/.65))*(Math.PI/180)*52;
+const tmpN=new THREE.Vector3();
+function applyCam(){const P=ll2v(cam.lat,cam.lng,1);const north=ll2v(Math.min(89.9,cam.lat+.05),cam.lng,1).sub(ll2v(Math.max(-89.9,cam.lat-.05),cam.lng,1)).normalize();
+  const h=cam.dist-1,th=tiltFor(cam.dist);tmpN.copy(P).normalize();camera.position.copy(P).addScaledVector(tmpN,h*Math.cos(th)).addScaledVector(north,-h*Math.sin(th));camera.up.copy(north);camera.lookAt(P);
+  camera.near=Math.max(.002,(cam.dist-1)*.25);camera.updateProjectionMatrix();}
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+function flyTo(lat,lng,dist,dur,done){dist=dist||T.dist;const from={...cam};const dl=((lng-from.lng+540)%360)-180;const ang=ll2v(from.lat,from.lng,1).angleTo(ll2v(lat,lng,1));
+  if(RM){Object.assign(cam,{lat,lng,dist});Object.assign(T,cam);done&&done();return;}
+  fly={from,to:{lat,lng:from.lng+dl,dist},h:Math.max(.08,Math.min(1.5,ang*1.0))*(dist<1.6?.6:1),dur:dur||(1200+ang*700),t0:performance.now(),done};vel={lat:0,lng:0};}
+function stepFly(now){if(!fly)return false;const t=Math.min(1,(now-fly.t0)/fly.dur),e=ease(t);cam.lat=fly.from.lat+(fly.to.lat-fly.from.lat)*e;cam.lng=fly.from.lng+(fly.to.lng-fly.from.lng)*e;cam.dist=fly.from.dist+(fly.to.dist-fly.from.dist)*e+fly.h*Math.sin(Math.PI*e);Object.assign(T,cam);if(t>=1){const d=fly.done;fly=null;d&&d();}return true;}
+const ptrs=new Map();let moved=0,pinch0=0,dist0=0,lastMove=0;
+canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;fly=null;vel={lat:0,lng:0};lastInput=performance.now();canvas.classList.add("dragging");introOut();if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);dist0=T.dist;}});
+canvas.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId)){hover(e);return;}const p=ptrs.get(e.pointerId);const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;moved+=Math.abs(dx)+Math.abs(dy);const now=performance.now();lastInput=now;
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];T.dist=Math.max(MIN_D,Math.min(MAX_D,dist0*pinch0/Math.hypot(a.x-b.x,a.y-b.y)));return;}
+  const k=(T.dist-1)*57.3/(innerHeight*1.1);const dLng=-dx*k/Math.max(.3,Math.cos(T.lat*Math.PI/180)),dLat=dy*k;T.lng+=dLng;T.lat=Math.max(-80,Math.min(80,T.lat+dLat));const dt=Math.max(8,now-lastMove);lastMove=now;vel={lat:dLat/dt*16,lng:dLng/dt*16};});
+canvas.addEventListener("pointerup",e=>{const w=ptrs.has(e.pointerId);ptrs.delete(e.pointerId);canvas.classList.remove("dragging");if(performance.now()-lastMove>80)vel={lat:0,lng:0};if(w&&moved<6&&!ptrs.size)pick(e);});
+canvas.addEventListener("pointercancel",e=>ptrs.delete(e.pointerId));
+canvas.addEventListener("wheel",e=>{e.preventDefault();fly=null;lastInput=performance.now();introOut();const nd=Math.max(MIN_D,Math.min(MAX_D,T.dist*Math.exp(e.deltaY*.0013)));const ll=hit(e);
+  if(ll&&nd<T.dist){const f=(1-nd/T.dist)*.9;const dl=((ll[1]-T.lng+540)%360)-180;T.lat+=(ll[0]-T.lat)*f;T.lng+=dl*f;}T.dist=nd;},{passive:false});
+const ray=new THREE.Raycaster();
+function hit(e){ray.setFromCamera({x:e.clientX/innerWidth*2-1,y:-e.clientY/innerHeight*2+1},camera);const h=ray.intersectObject(globe)[0];return h?v2ll(h.point):null;}
+function pick(e){if(state.tour)return;body.classList.remove("pulse-on");const ll=hit(e);if(!ll){closePanel();return;}const c=countryAt(ll[0],ll[1]);if(c)selectCountry(c.name);else closePanel();}
+const tip=$("#tip");let hT=0;
+const relLabel=s=>({ally:"Ally / partner",hostile:"Hostile",mixed:"Mixed",neutral:"Neutral"})[s];
+function hover(e){if(MOBILE)return;const now=performance.now();if(now-hT<50)return;hT=now;const ll=hit(e);const c=ll&&countryAt(ll[0],ll[1]);setHover(c);canvas.classList.toggle("hovering",!!c);
+  if(c){const s=state.mode==="home"&&state.selection&&state.selection.kind==="country"&&c.name!==state.selection.name?" · "+relLabel(relOf(state.selection.name,c.name)):"";tip.textContent=c.name+s;tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY+16)+"px";tip.style.opacity=1;}else tip.style.opacity=0;}
+canvas.addEventListener("pointerleave",()=>{tip.style.opacity=0;setHover(null);});
+
+/* ---------- states / provinces on zoom ---------- */
+let admState=0;const ADM_FILES=["India","USA","Pakistan","Brazil","Australia","Ukraine","Islamic_Republic_of_Iran","Saudi_Arabia","France","Germany","Japan"];
+function loadAdm(){if(admState)return;admState=1;let left=ADM_FILES.length+1;const done=()=>{if(--left)return;buildAdm();};
+  ADM_FILES.forEach(f=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/echarts-countries-js@1.0.5/echarts-countries-js/"+f+".js";s.onload=s.onerror=done;document.head.appendChild(s);});
+  const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/china.js";s.onload=s.onerror=done;document.head.appendChild(s);}
+function buildAdm(){const all=[];(window.__ADM||[]).forEach(({d})=>{((d&&d.features)||[]).forEach(f=>{const rs=featureRings(f);if(!rs.length)return;all.push(...rs);const nm=f.properties&&f.properties.name;
+    if(nm&&/^[\x00-\x7F]+$/.test(nm)){let mn=[999,999],mx=[-999,-999];rs[0].forEach(q=>{mn[0]=Math.min(mn[0],q[0]);mn[1]=Math.min(mn[1],q[1]);mx[0]=Math.max(mx[0],q[0]);mx[1]=Math.max(mx[1],q[1]);});
+      if((mx[0]-mn[0])*(mx[1]-mn[1])>.6){const d2=document.createElement("div");d2.className="lbl st";d2.textContent=nm;addMk("labels",(mn[1]+mx[1])/2,(mn[0]+mx[0])/2,d2,null,null,{maxD:1.62});}}});});
+  const seg=new THREE.LineSegments(ringsToSegs(all,1.0019),admMat);seg.renderOrder=2;admGroup.add(seg);admState=2;}
+
+/* ---------- HTML markers ---------- */
+const MK=[];
+function addMk(layer,lat,lng,el,onClick,label,opt){el.classList.add("mk");if(label){const t=document.createElement("span");t.className="tag";t.textContent=label;el.appendChild(t);el.setAttribute("aria-label",label);}
+  if(onClick)el.addEventListener("click",ev=>{ev.stopPropagation();introOut();onClick();});else el.style.pointerEvents="none";
+  $("#mk-"+layer).appendChild(el);const m=Object.assign({el,lat,lng,layer,v:ll2v(lat,lng,1.0)},opt||{});MK.push(m);return m;}
+const B=(cls,html)=>{const b=document.createElement("button");b.className=cls;b.innerHTML=html||"";return b;};
+const days=s=>Math.floor((NOW-new Date(s+"T00:00:00Z").getTime())/864e5);
+const BIG=["Russia","China","India","United States","Canada","Brazil","Australia"];
+[["RUSSIA",62,96],["CHINA",35,103],["INDIA",22.5,79],["UNITED STATES",40,-100],["CANADA",58,-105],["BRAZIL",-10,-53],["AUSTRALIA",-25,134],["AFRICA",4,20]].forEach(l=>{const d=document.createElement("div");d.className="lbl";d.textContent=l[0];addMk("labels",l[1],l[2],d,null,null,{maxD:3.6});});
+COUNTRIES.filter(c=>!BIG.includes(c.name)&&(c.best.mx[0]-c.best.mn[0])*(c.best.mx[1]-c.best.mn[1])>40).forEach(c=>{const d=document.createElement("div");d.className="lbl sm";d.textContent=c.name.toUpperCase();addMk("labels",c.centroid[0],c.centroid[1],d,null,null,{maxD:2.15});});
+[["INDIAN OCEAN",-14,78],["PACIFIC OCEAN",8,-150],["ATLANTIC OCEAN",22,-42],["ARABIAN SEA",14,63],["BAY OF BENGAL",15,88]].forEach((l,i)=>{const d=document.createElement("div");d.className="lbl sea";d.textContent=l[0];addMk("labels",l[1],l[2],d,null,null,i>2?{maxD:2.3}:{});});
+CITIES.forEach(c=>{const d=document.createElement("div");d.className="lbl city";d.textContent=c[0];addMk("labels",c[1],c[2],d,null,null,{maxD:1.75});});
+CONFLICTS.forEach(c=>{addMk("wars",c.at[0],c.at[1],B("hit"),()=>openConflict(c.id),c.callout?null:c.name);
+  if(c.callout){const b=B("callout",`<span class="fl">${c.fl.map(f=>flag(f,20)).join("")}</span><span><b>${c.name}</b><small><i>Active</i> • ${days(c.start).toLocaleString()} days</small></span><svg class="i chev"><use href="#i-right"/></svg>`);addMk("wars",c.at[0],c.at[1],b,()=>openConflict(c.id),null,{off:[22,-58]});}});
+Object.entries(ORGS).forEach(([k,o])=>{const b=B("medal",`<span class="m">${EMB[k]}</span><small>${k}</small>`);b.dataset.org=k;b.setAttribute("aria-pressed","false");b.setAttribute("aria-label",k+": show members");addMk("orgs",o.pin[0],o.pin[1],b,()=>toggleOrg(k),null,{show:()=>["NATO","EU","BRICS","SCO","QUAD"].includes(k)||state.org===k});});
+{const b=B("callout",`<span class="medal" style="margin:0;width:auto"><span class="m" style="width:32px;height:32px">${EMB.ASEAN}</span></span><span><b>${SUMMIT.name}</b><small>${SUMMIT.when}</small></span><svg class="i chev"><use href="#i-right"/></svg>`);addMk("orgs",SUMMIT.at[0],SUMMIT.at[1],b,openSummit,null,{off:[18,-20]});}
+MARKETS.forEach(m=>{const up=m[3]>=0;const d=document.createElement("div");d.className="pill";d.innerHTML=`${ic(up?"up":"down")}<span class="${up?"up":"dn"}">${up?"+":"−"}${Math.abs(m[3]).toFixed(1)}%</span> ${m[0]}`;d.querySelector("svg").style.color=up?"var(--ally)":"var(--conflict)";addMk("econ",m[1],m[2],d,null,null,{off:[10,0]});});
+CRISES.forEach(n=>{const c=BY[n];if(!c)return;addMk("econ",c.centroid[0],c.centroid[1],B("crisis",ic("alert")),()=>openCrisis(n),n+" · economic crisis (example)");});
+Object.entries(NUCLEAR).forEach(([n,w])=>{const c=BY[n];if(!c)return;addMk("defense",c.centroid[0],c.centroid[1],B("nuke",ic("rad")),()=>selectCountry(n),n+" · ~"+w.toLocaleString()+" warheads");});
+CHOKES.forEach(ch=>addMk("energy",ch[1],ch[2],B("choke",ic("ship")),()=>openChoke(ch),ch[0]));
+const SHIP_SVG=`<svg viewBox="0 0 40 16" width="40" height="16"><path d="M2 9h34l-4 6H7z" fill="#fff"/><path d="M2 9h34l-.8 1.2H2.8z" fill="#C9D6DF"/><rect x="9" y="4" width="5" height="5" fill="#E8EEF2"/><rect x="14.5" y="4" width="5" height="5" fill="#F2B33D"/><rect x="20" y="4" width="5" height="5" fill="#E8EEF2"/><rect x="25.5" y="5" width="5" height="4" fill="#5B8DB8"/><rect x="31" y="2" width="3" height="7" fill="#fff"/><rect x="32" y="1" width="1" height="2" fill="#E5484D"/></svg>`;
+const SHIPS=[];laneCurves.forEach((c,i)=>{const n=i===0?4:2;for(let k=0;k<n;k++){const d=document.createElement("div");d.className="ship";d.innerHTML=SHIP_SVG;const m=addMk("econ",0,0,d,null,null);SHIPS.push({m,c,t:(k/n+i*.13)%1,sp:.012/Math.max(.3,c.getLength())});}});
+const tv=new THREE.Vector3(),tv2=new THREE.Vector3(),cdir=new THREE.Vector3();
+function project(v){tv.copy(v).project(camera);return [(tv.x+1)/2*innerWidth,(1-tv.y)/2*innerHeight];}
+function facing(v){cdir.copy(camera.position).sub(v).normalize();return tv2.copy(v).normalize().dot(cdir);}
+let anchorAt=null;
+function updMarkers(dt){
+  SHIPS.forEach(s=>{if(!RM)s.t=(s.t+dt*s.sp)%1;const p=s.c.getPointAt(s.t),p2=s.c.getPointAt(Math.min(1,s.t+.002));s.m.v=p;const a=project(p),b=project(p2);s.m.flip=b[0]<a[0];});
+  MK.forEach(m=>{const L=$("#mk-"+m.layer);if(L.classList.contains("off"))return;
+    if((m.maxD&&cam.dist>m.maxD)||(m.show&&!m.show())){m.el.classList.add("hidden");return;}
+    const d=facing(m.v);if(d<.12){m.el.classList.add("hidden");return;}m.el.classList.remove("hidden");
+    let [x,y]=project(m.v);if(m.off){x+=m.off[0];y+=m.off[1];}if(y<78){m.el.classList.add("hidden");return;}
+    m.el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)${m.flip?" scaleX(-1)":""}`;m.el.style.opacity=Math.min(1,(d-.12)*5);});
+  if(anchorAt){const d=facing(anchorAt);const [x,y]=project(anchorAt);anchorEl.style.transform=`translate(${(x+52).toFixed(1)}px,${(y-28).toFixed(1)}px)`;anchorEl.classList.toggle("on",d>.2&&!state.tour);}else anchorEl.classList.remove("on");}
+
+/* ---------- state + UI ---------- */
+const state={mode:"home",selection:null,metric:{economy:"growth",defense:"spend",energy:"clean",diplomacy:"blocs"},org:null,tour:null,tourHl:null,tourArcs:false};
+const layers={wars:true,orgs:true,econ:true,rel:true};
+function curMetric(){return METRICS[state.mode].find(m=>m.id===state.metric[state.mode])||METRICS[state.mode][0];}
+const panel=$("#panel"),pb=$("#panelBody"),pulse=$("#pulse"),anchorEl=$("#anchor");
+function setNav(k){document.querySelectorAll(".nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.nav===k)));}
+function applyLayers(){const home=state.mode==="home"&&!state.tour;const cs=!!(state.selection&&state.selection.kind==="country")&&state.mode==="home";
+  $("#mk-wars").classList.toggle("off",!(home&&layers.wars&&!cs));$("#mk-orgs").classList.toggle("off",!((home&&layers.orgs&&!cs)||state.mode==="diplomacy"));
+  $("#mk-econ").classList.toggle("off",!(home&&layers.econ&&!cs));$("#mk-labels").classList.toggle("off",!!state.tour);
+  $("#mk-defense").classList.toggle("off",!(state.mode==="defense"&&state.metric.defense==="nuclear"));$("#mk-energy").classList.toggle("off",state.mode!=="energy");
+  G.wars.userData.target=home&&layers.wars&&!cs?1:0;G.econ.userData.target=(home&&layers.econ&&!cs)||state.mode==="energy"?1:0;G.rel.userData.target=home&&layers.rel&&!cs?1:0;G.sel.userData.target=cs?1:0;G.tour.userData.target=state.tour&&state.tourArcs?1:0;
+  cloudState.target=state.mode==="home"&&!cs?1:.35;earthMat.color.setScalar(state.mode==="home"?1:.78);}
+function toggleOrg(k){state.org=state.org===k?null:k;if(state.selection&&state.selection.kind==="country"&&state.mode==="home")deselectCountry();
+  document.querySelectorAll(".medal[data-org]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.org===state.org)));paintOverlay();renderPulse();if(state.org)openOrg(state.org);else closePanel();}
+
+const dock=$("#dock");
+dock.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;introOut();setMode(b.dataset.mode);});
+function setMode(m){if(state.tour)endTour();if(m===state.mode&&m!=="home")m="home";const prev=state.mode;state.mode=m;
+  dock.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===m)));
+  if(state.selection&&state.selection.kind!=="country")closePanel(true);if(prev!==m)state.org=null;
+  applyLayers();paintOverlay();renderPulse();if(state.selection&&state.selection.kind==="country")renderCountry(state.selection.name);}
+
+function fmt(v,m){if(m.id==="nuclear")return v?Math.round(v).toLocaleString():"0";if(m.id==="personnel")return Math.round(v).toLocaleString()+"k";return v.toFixed(m.dp)+(m.unit==="%"?"%":"");}
+const LAYERS=[["wars","Wars & Conflicts","Active conflicts worldwide","swords","#E5484D","rgba(229,72,77,.12)"],["orgs","Summits & Organizations","Ongoing & upcoming summits","landmark","#3F63D8","rgba(63,99,216,.12)"],["econ","Global Economy","Market moves, trade flows","bars","#E9A21C","rgba(242,179,61,.18)"],["rel","Relations","Diplomatic ties & rivalries","users","#2FA36B","rgba(47,163,107,.13)"]];
+function renderPulse(){let h="";
+  if(state.mode==="home"){
+    h+=`<div class="hd"><h3>Global Pulse</h3><span class="live"><i></i>Live</span></div><p class="q">What is happening in the world right now.</p>`+
+    LAYERS.map(l=>`<div class="lay"><span class="ic" style="background:${l[5]};color:${l[4]}">${ic(l[3])}</span><b>${l[1]}</b><button class="sw" role="switch" aria-checked="${layers[l[0]]}" aria-label="${l[1]}" data-layer="${l[0]}" style="--c:${l[4]}"></button><small>${l[2]}</small></div>`).join("");
+    if(state.selection&&state.selection.kind==="country")h+=`<div class="relkey"><span><i style="background:var(--ally)"></i>Ally / partner</span><span><i style="background:var(--conflict)"></i>Hostile</span><span><i style="background:var(--mixed)"></i>Mixed</span><span><i style="background:var(--neutral)"></i>Neutral</span></div>`;
+    else h+=`<p class="note">Tap a country to see its friends and rivals. Tap a bloc badge to see its members. Scroll to zoom toward any place.</p>`;
+  } else {
+    const TT={economy:["Economy","How strong is this economy, and who is it connected to?"],defense:["Defense","How secure and well-armed is this country?"],energy:["Energy & Resources","What powers this country, and who does it depend on?"],diplomacy:["Diplomacy","Who are this country's friends, rivals and blocs?"]}[state.mode];
+    h+=`<div class="hd"><h3>${TT[0]}</h3><span class="live"><i></i>Live</span></div><p class="q">${TT[1]}</p><div class="chips">${METRICS[state.mode].map(m=>`<button class="chip" data-metric="${m.id}" aria-pressed="${state.metric[state.mode]===m.id}">${m.label}</button>`).join("")}</div>`;
+    if(state.mode==="diplomacy")h+=`<div class="chips">${Object.keys(ORGS).map(k=>`<button class="chip" style="--c:${ORGS[k].c}" data-org="${k}" aria-pressed="${state.org===k}">${k}</button>`).join("")}</div>`;
+    const m=curMetric();const vals=COUNTRIES.map(c=>m.fn(c.name));
+    h+=`<div class="scale"><div class="bar" style="background:linear-gradient(90deg,${SCALES[state.mode].join(",")})"></div><div class="ends"><span>${fmt(Math.min(...vals),m)}</span><span>${m.label}</span><span>${fmt(Math.max(...vals),m)}</span></div></div><p class="note">One metric colours the globe at a time. Tap a country for its core numbers. Values here are illustrative.</p>`;
+  }
+  pulse.innerHTML=h;}
+pulse.addEventListener("click",e=>{const s=e.target.closest("[data-layer]"),mm=e.target.closest("[data-metric]"),o=e.target.closest("button[data-org]");
+  if(s){layers[s.dataset.layer]=!layers[s.dataset.layer];s.setAttribute("aria-checked",String(layers[s.dataset.layer]));applyLayers();paintOverlay();}
+  if(mm){state.metric[state.mode]=mm.dataset.metric;applyLayers();renderPulse();paintOverlay();if(state.selection&&state.selection.kind==="country")renderCountry(state.selection.name);}
+  if(o)toggleOrg(o.dataset.org);});
+
+function openPanel(html){pb.innerHTML=`<div class="stagger">${html}</div>`;pb.scrollTop=0;panel.classList.add("open");body.classList.add("panel-open");body.classList.remove("pulse-on");}
+function closePanel(silent){panel.classList.remove("open");body.classList.remove("panel-open");
+  if(state.selection&&state.selection.kind==="country"){deselectCountry();paintOverlay();renderPulse();}
+  state.selection=null;anchorAt=null;setNav("home");applyLayers();}
+$("#closePanel").addEventListener("click",()=>{if(state.org&&state.mode==="home"){state.org=null;document.querySelectorAll(".medal").forEach(b=>b.setAttribute("aria-pressed","false"));paintOverlay();}closePanel();});
+const newsMini=items=>`<div class="news-mini">${items.map(t=>`<div>${t}<small>Example slot · 2+ trusted sources · 18 min ago</small></div>`).join("")}</div>`;
+function countUps(root){root.querySelectorAll("[data-count]").forEach(el=>{const to=+el.dataset.count;if(RM){el.textContent=to.toLocaleString();return;}const s=performance.now();(function f(){const t=Math.min(1,(performance.now()-s)/1200);el.textContent=Math.round(to*(1-Math.pow(1-t,3))).toLocaleString();if(t<1)requestAnimationFrame(f);})();});}
+function anchorCard(title,fl,rows){anchorEl.innerHTML=`<div class="h">${fl||""}<span>${title}</span></div><dl>${rows.map(r=>`<dt>${r[0]}</dt><dd style="${r[2]?"color:"+r[2]:""}">${r[1]}</dd>`).join("")}</dl>`;}
+const FLAGOF={"India":"IN","United States":"US","China":"CN","Russia":"RU","Pakistan":"PK","Ukraine":"UA","Israel":"IL"};
+function setAnchor(){const s=state.selection;anchorAt=null;if(!s||s.kind!=="country")return;const c=BY[s.name];anchorAt=ll2v(c.centroid[0],c.centroid[1],1);const fl=FLAGOF[s.name]?flag(FLAGOF[s.name],24):"";
+  if(state.mode==="home"){const R=REL[s.name];const n=k=>R?Object.keys(R[k]).length:"—";anchorCard(s.name,fl,[["Allies / partners",n("ally"),"#7EE0AE"],["Hostile",n("hostile"),"#FF8A8E"],["Mixed",n("mixed"),"#FFC966"],["Blocs",Object.values(ORGS).filter(o=>o.m.includes(s.name)).length]]);}
+  else{const ms=METRICS[state.mode].filter(m=>m.id!=="capability").slice(0,3);anchorCard(s.name,fl,ms.map(m=>[m.label,fmt(m.fn(s.name),m)]).concat([["Values","illustrative"]]));}}
+
+function openConflict(id){const c=CONFLICTS.find(x=>x.id===id);if(state.mode!=="home")setMode("home");state.selection={kind:"conflict",id};flyTo(c.at[0],c.at[1],1.75);
+  openPanel(`<div class="kicker">Conflict</div><h2 class="ptitle">${c.name}</h2><span class="status">${c.status}</span>
+  <div class="kpis"><div class="kpi"><div class="v" data-count="${days(c.start)}">0</div><div class="l">days since ${new Date(c.start).toLocaleDateString("en-GB",{month:"short",year:"numeric"})}</div></div><div class="kpi"><div class="v">${["","Low","Medium","High"][c.i]}</div><div class="l">intensity tier (example)</div></div></div>
+  <div class="kicker">Parties</div><div class="parties">${c.parties.map((p,i)=>`<span class="tagx">${c.fl[i]?flag(c.fl[i],16):""}${p}</span>`).join("")}</div>
+  <div class="sect"><h4>Why it matters</h4><ul class="why">${c.why.map((w,i)=>`<li data-n="${i+1}">${w}</li>`).join("")}</ul></div>
+  <div class="sect"><h4>Latest verified news</h4>${newsMini(["Latest front-line or diplomacy headline appears here","Second headline from a different trusted outlet","Humanitarian update from UN / ReliefWeb"])}</div>
+  <div class="row-btns"><button class="btn dark" id="watchBtn">${ic("play")} Watch a story (demo: Hormuz)</button></div>
+  <p class="psub" style="margin-top:12px;font-size:12px;color:var(--ink-3)">Red arcs are symbolic strike reports, not real trajectories. Figures come from curated data in the real build.</p>`);
+  countUps(pb);$("#watchBtn").onclick=startTour;applyLayers();}
+function openSummit(){state.selection={kind:"summit"};flyTo(SUMMIT.at[0],SUMMIT.at[1],2.1);
+  openPanel(`<div class="kicker">Summit · example</div><h2 class="ptitle">${SUMMIT.name}</h2><div class="psub">${SUMMIT.host} · ${SUMMIT.when}</div>
+  <div class="sect"><h4>Agenda (example)</h4><ul class="why"><li data-n="1">Trade and supply chains across Southeast Asia</li><li data-n="2">South China Sea code of conduct</li><li data-n="3">Myanmar crisis and regional stability</li></ul></div>
+  <div class="sect"><h4>Members</h4><div class="parties">${ORGS.ASEAN.m.map(n=>`<span class="tagx">${n}</span>`).join("")}</div></div>
+  <div class="sect"><h4>Live coverage</h4>${newsMini(["Summit headline from a trusted outlet","Leaders' joint statement headline"])}</div>`);}
+function openCrisis(n){state.selection={kind:"crisis"};const c=BY[n];flyTo(c.centroid[0],c.centroid[1],2.1);
+  openPanel(`<div class="kicker">Economic crisis · example</div><h2 class="ptitle">${n}</h2><div class="psub">Crisis markers come from a curated list informed by IMF programme status and news.</div>
+  <div class="sect"><h4>Why it matters</h4><ul class="why"><li data-n="1">High inflation or debt makes daily life more expensive.</li><li data-n="2">Lenders like the IMF often attach conditions to support.</li><li data-n="3">Crises can shift a country's foreign partners.</li></ul></div>
+  <div class="row-btns"><button class="btn" id="toEco">${ic("bars")} Open in Economy</button></div>`);$("#toEco").onclick=()=>{setMode("economy");selectCountry(n);};}
+function openOrg(k){const o=ORGS[k];const cen=o.m.map(n=>BY[n]&&BY[n].centroid).filter(Boolean);const la=cen.reduce((s,c)=>s+c[0],0)/cen.length;let x=0,z=0;cen.forEach(c=>{x+=Math.cos(c[1]*Math.PI/180);z+=Math.sin(c[1]*Math.PI/180);});
+  flyTo(la,Math.atan2(z,x)*180/Math.PI,k==="G20"||k==="NATO"?3.6:2.8);state.selection={kind:"org"};
+  openPanel(`<div class="kicker">Alliance / organisation</div><h2 class="ptitle" style="display:flex;align-items:center;gap:12px"><span class="medal" style="margin:0;width:auto"><span class="m" style="width:40px;height:40px">${EMB[k]}</span></span>${k}</h2><div class="psub">${o.purpose}</div>
+  <div class="kpis"><div class="kpi"><div class="v" data-count="${o.m.length}">0</div><div class="l">members shown</div></div><div class="kpi"><div class="v" style="font-size:17px;line-height:1.15">${o.hq}</div><div class="l">headquarters</div></div></div>
+  <div class="kicker">Members</div><div class="parties">${o.m.map(n=>`<span class="tagx">${n}</span>`).join("")}</div>
+  <div class="sect"><h4>Latest news</h4>${newsMini([k+" headline from a trusted outlet"])}</div>`);countUps(pb);}
+function openChoke(ch){state.selection={kind:"choke"};flyTo(ch[1],ch[2],1.8);
+  openPanel(`<div class="kicker">Strategic chokepoint</div><h2 class="ptitle">${ch[0]}</h2><div class="psub">${ch[3]}</div>
+  <div class="sect"><h4>Why it matters</h4><ul class="why"><li data-n="1">Narrow sea lanes are easy to disrupt.</li><li data-n="2">Disruption raises shipping costs and fuel prices.</li><li data-n="3">Navies of several powers patrol these waters.</li></ul></div>
+  ${ch[0]==="Strait of Hormuz"?`<div class="row-btns"><button class="btn dark" id="watchBtn">${ic("play")} Watch the story</button></div>`:""}`);const w=$("#watchBtn");if(w)w.onclick=startTour;}
+
+const relArcs=[];
+function clearRel(){relArcs.forEach(a=>{G.sel.remove(a.mesh);if(a.head)G.sel.remove(a.head);});relArcs.length=0;}
+function deselectCountry(){clearRel();state.selection=null;anchorAt=null;applyLayers();}
+function selectCountry(name){const c=BY[name];if(!c)return;introOut();state.selection={kind:"country",name};
+  if(state.mode==="home"){state.org=null;document.querySelectorAll(".medal").forEach(b=>b.setAttribute("aria-pressed","false"));clearRel();
+    const R=REL[name];if(R)[...Object.keys(R.ally).slice(0,8).map(n=>[n,"ally"]),...Object.keys(R.hostile).slice(0,3).map(n=>[n,"hostile"]),...Object.keys(R.mixed).slice(0,3).map(n=>[n,"mixed"])].forEach(([n,s],i)=>{if(!BY[n])return;
+      relArcs.push(new Arc(G.sel,c.centroid,BY[n].centroid,{color:s==="ally"?0x2FA36B:s==="hostile"?0xE5484D:0xE8A21C,period:2.8+i*.09,off:i*.24,trail:.4,base:.32,radius:.0022,head:true,headSize:.04}));});}
+  applyLayers();flyTo(c.centroid[0],c.centroid[1],Math.min(Math.max(T.dist,2.6),3.4));paintOverlay();renderPulse();renderCountry(name);}
+function spark(seed,col,w,h){const p=[];let v=.5;for(let i=0;i<10;i++){v=Math.max(.08,Math.min(.92,v+(hsh(seed+i)-.5)*.45));p.push(v);}w=w||88;h=h||28;const d=p.map((y,i)=>`${i?"L":"M"}${(i/9*(w-4)).toFixed(1)},${(h-3-y*(h-8)).toFixed(1)}`).join("");
+  return `<svg class="sp" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round"/><circle cx="${(w-4).toFixed(1)}" cy="${(h-3-p[9]*(h-8)).toFixed(1)}" r="3" fill="${col}"/></svg>`;}
+function header(name){const orgs=Object.keys(ORGS).filter(k=>ORGS[k].m.includes(name));const fl=FLAGOF[name]?flag(FLAGOF[name],28):"";
+  return `<div class="kicker">${{home:"Relations",economy:"Economy",defense:"Defense",energy:"Energy",diplomacy:"Diplomacy"}[state.mode]}</div><h2 class="ptitle" style="display:flex;align-items:center;gap:10px">${fl}${name}</h2><div class="psub">Capital · leader · government type (from Wikidata in build)</div>${orgs.length?`<div class="parties">${orgs.map(o=>`<span class="tagx">${o}</span>`).join("")}</div>`:""}`;}
+function renderCountry(name){
+  if(state.mode==="home"){const R=REL[name];
+    if(!R){openPanel(header(name)+`<div class="sect"><p class="psub">Relation data in this prototype covers six countries. The real build computes relations for every country from alliances, UN votes and news tone, with editorial review.</p><div class="row-btns">${Object.keys(REL).map(n=>`<button class="btn" data-go="${n}">${n}</button>`).join("")}</div></div>`);pb.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>selectCountry(b.dataset.go));setAnchor();return;}
+    const rows=[];["ally","hostile","mixed"].forEach(s=>Object.entries(R[s]).forEach(([n,b])=>rows.push([n,s,b])));const cnt=s=>rows.filter(r=>r[1]===s).length;
+    openPanel(header(name)+`<div class="kpis"><div class="kpi"><div class="v" style="color:var(--ally)" data-count="${cnt("ally")}">0</div><div class="l">allies and partners</div></div><div class="kpi"><div class="v" style="color:var(--conflict)" data-count="${cnt("hostile")}">0</div><div class="l">hostile relations</div></div></div>
+    <div class="rel-filter" id="relF"><button class="chip" aria-pressed="true" data-f="all">All</button><button class="chip" data-f="ally" aria-pressed="false" style="--c:var(--ally)">Allies</button><button class="chip" data-f="hostile" aria-pressed="false" style="--c:var(--conflict)">Rivals</button><button class="chip" data-f="mixed" aria-pressed="false" style="--c:var(--mixed)">Mixed</button></div>
+    <div>${rows.map(r=>`<button class="rel" data-s="${r[1]}" data-n="${r[0]}"><span class="rdot ${r[1]}"></span><b>${r[0]}</b><small>${relLabel(r[1])} · ${r[2]}</small></button>`).join("")}</div>
+    <p class="psub" style="font-size:12px;color:var(--ink-3);margin-top:12px">Every other country shows blue (neutral). Labels are illustrative; real labels show their basis and review date.</p>
+    <div class="row-btns"><button class="btn" data-mode-go="economy">${ic("bars")} Economy</button><button class="btn" data-mode-go="defense">${ic("shield")} Defense</button></div>`);
+    countUps(pb);$("#relF").onclick=e=>{const b=e.target.closest("[data-f]");if(!b)return;$("#relF").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));pb.querySelectorAll(".rel").forEach(r=>r.hidden=!(b.dataset.f==="all"||r.dataset.s===b.dataset.f));};
+    pb.querySelectorAll(".rel").forEach(r=>r.onclick=()=>{const t=BY[r.dataset.n];if(t)flyTo(t.centroid[0],t.centroid[1]);});pb.querySelectorAll("[data-mode-go]").forEach(b=>b.onclick=()=>setMode(b.dataset.modeGo));setAnchor();return;}
+  let h=header(name);
+  if(state.mode==="defense"){const cap=["Air","Land","Sea"].map(d=>[d,Math.max(.5,Math.min(9.8,METRICS.defense[2].fn(name)+(hsh(name+d)-.5)*3))]);
+    h+=`<div class="sect"><h4>Capability index <span class="est">Estimate</span></h4>${cap.map(c=>`<div class="cap"><b>${c[0]}</b><div class="track"><div class="fill" style="width:${c[1]*10}%"></div></div><span>${c[1].toFixed(1)}</span></div>`).join("")}
+    <details class="how"><summary>How we calculate</summary><p>A rough 0–10 estimate of force size from published counts. It is not a prediction of who would win: it ignores training, technology, alliances and geography.</p><pre>n(x) = log(1+x) / log(1+world_max(x))
+Air  = 10·(0.55·n(combat aircraft) + 0.20·n(attack helicopters) + 0.25·n(support aircraft))
+Land = 10·(0.35·n(ground troops) + 0.35·n(tanks + IFVs) + 0.30·n(artillery))
+Sea  = 10·(0.35·n(major surface ships) + 0.35·n(submarines) + 0.30·n(carriers + amphibious))</pre></details></div>`;
+    if(NUCLEAR[name])h+=`<div class="sect"><h4>Nuclear status</h4><div class="kpis" style="margin:0"><div class="kpi"><div class="v" data-count="${NUCLEAR[name]}">0</div><div class="l">estimated warheads (FAS 2025)</div></div><div class="kpi"><div class="v" style="font-size:17px">Land · Sea · Air</div><div class="l">delivery legs (curated data)</div></div></div></div>`;}
+  h+=`<div class="sect"><h4>Core numbers <span class="est">Illustrative</span></h4>${METRICS[state.mode].filter(m=>m.id!=="nuclear"&&m.id!=="capability").map(m=>{const v=m.fn(name);return `<div class="metric"><span class="ml">${m.label}</span><span class="mv">${fmt(v,m)}</span><div class="mm"><span>${m.mean(v)}<span class="src">Source in build: ${m.src}</span></span>${spark(name+m.id,"#C8891A")}</div></div>`;}).join("")}</div>`;
+  if(state.mode==="economy")h+=`<div class="sect"><h4>Top trade partners</h4><p class="psub">The real build draws export arcs (out) and import arcs (in) to the top 5 partners, sized by value, from UN Comtrade.</p></div>`;
+  h+=`<div class="sect"><h4>Latest ${state.mode} news</h4>${newsMini([name+": "+state.mode+" headline from a trusted outlet",name+": second headline, different outlet"])}</div>`;
+  openPanel(h);countUps(pb);setAnchor();}
+
+$("#mkt").innerHTML=`<div class="t"><b>Markets today</b><button id="mktMore">See more ${ic("arrow")}</button></div><div class="row">${INDICES.map(x=>`<div class="ix"><small>${x[0]}</small><b class="${x[1]>=0?"up":"dn"}">${ic(x[1]>=0?"up":"down")}${x[1]>=0?"+":""}${x[1].toFixed(1)}%</b>${spark(x[0]+(x[1]>=0?"u":"d"),x[1]>=0?"#2FA36B":"#E5484D",70,26)}</div>`).join("")}</div>`;
+$("#mktMore").onclick=()=>setMode("economy");
+
+function openBrief(){if(state.mode!=="home")setMode("home");state.selection={kind:"brief"};
+  const BR=[["ru-ua","Russia – Ukraine War","Strike and front-line updates; talks on air defence and aid."],["sudan","Sudan Civil War","Aid access and displacement figures."],["summit","ASEAN Summit","Leaders meet on trade and the South China Sea."],["yemen","Red Sea shipping","Why ship insurers and freight costs react."],["gaza","Israel – Gaza Conflict","Humanitarian access and regional diplomacy."]];
+  openPanel(`<div class="kicker">Daily brief · example</div><h2 class="ptitle">Five things to know today</h2><div class="psub">Ranked by coverage from trusted outlets across regions. Tap a story to fly there.</div><div class="brief">${BR.map((b,i)=>`<button data-b="${b[0]}" style="animation-delay:${i*60}ms"><span class="num">${i+1}</span><b>${b[1]}</b><small>${b[2]}</small></button>`).join("")}</div>`);
+  setNav("brief");pb.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>x.dataset.b==="summit"?openSummit():openConflict(x.dataset.b));}
+function openGlossary(){state.selection={kind:"glossary"};const TG=[["NATO","Military alliance of 32 countries. An attack on one is treated as an attack on all.","NATO"],["BRICS","Group of large emerging economies, from Brazil and India to Iran and Indonesia.","BRICS"],["QUAD","Dialogue between India, the US, Japan and Australia on Indo-Pacific security.","QUAD"],["Inflation","How fast prices rise each year. Central banks usually aim for 2–4%.",null],["Sanctions","Penalties one country puts on another, such as trade bans or frozen assets.",null],["Chokepoint","A narrow sea passage that a large share of world trade must pass through.",null]];
+  openPanel(`<div class="kicker">Glossary</div><h2 class="ptitle">Words that explain the world</h2><div class="psub">Tap "See on globe" to highlight members.</div>${TG.map(t=>`<div class="gl-term"><b>${t[0]}</b><p>${t[1]}</p>${t[2]?`<button class="btn" style="margin-top:8px;height:34px" data-see="${t[2]}">${ic("globe")} See on globe</button>`:""}</div>`).join("")}`);
+  setNav("glossary");pb.querySelectorAll("[data-see]").forEach(b=>b.onclick=()=>{if(state.mode!=="home")setMode("home");toggleOrg(b.dataset.see);});}
+function openSources(){state.selection={kind:"sources"};const S=[["News & events","GDELT, trusted outlet RSS feeds, The Guardian Open Platform, ReliefWeb"],["Economy","IMF DataMapper, World Bank, UN Comtrade"],["Defense","SIPRI (via World Bank), FAS nuclear estimates, curated capability data"],["Energy","Our World in Data, Ember, US EIA, USGS"],["Diplomacy","Wikidata, UN General Assembly votes, curated sanctions list"],["Map","NASA Blue Marble imagery, Natural Earth boundaries, state boundaries from open datasets"]];
+  openPanel(`<div class="kicker">Sources</div><h2 class="ptitle">Where every number comes from</h2><div class="psub">Every value in the real build shows its source and an "as of" date. Everything in this prototype is sample data.</div>${S.map(s=>`<div class="gl-term"><b>${s[0]}</b><p>${s[1]}</p></div>`).join("")}`);setNav("sources");}
+function goHome(){closePanel();if(state.mode!=="home")setMode("home");flyTo(HOME.lat,HOME.lng,HOME.dist);}
+document.querySelector(".nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;introOut();const k=b.dataset.nav;
+  if(k==="home")goHome();else if(k==="brief")openBrief();else if(k==="stories")startTour();else if(k==="glossary")openGlossary();else if(k==="sources")openSources();});
+$("#bell").onclick=openBrief;$("#logo").onclick=goHome;
+$("#q").addEventListener("change",e=>{const v=e.target.value.trim().toLowerCase();if(!v)return;const c=COUNTRIES.find(x=>x.name.toLowerCase()===v);const k=CONFLICTS.find(x=>x.name.toLowerCase().includes(v));const o=Object.keys(ORGS).find(x=>x.toLowerCase()===v);
+  if(c)selectCountry(c.name);else if(k)openConflict(k.id);else if(o)toggleOrg(o);e.target.value="";e.target.blur();});
+$("#cIn").onclick=()=>{T.dist=Math.max(MIN_D,T.dist*.72);lastInput=performance.now();};
+$("#cOut").onclick=()=>{T.dist=Math.min(MAX_D,T.dist*1.35);lastInput=performance.now();};
+$("#cNorth").onclick=()=>flyTo(T.lat,T.lng,Math.max(T.dist,1.9),700);
+$("#cHome").onclick=()=>flyTo(HOME.lat,HOME.lng,HOME.dist);
+$("#cLayers").onclick=()=>{const hide=pulse.style.opacity!=="0";pulse.style.opacity=hide?"0":"";pulse.style.pointerEvents=hide?"none":"";};
+$("#mToggle").onclick=()=>body.classList.add("pulse-on");
+
+const TOUR={title:"Why the Strait of Hormuz matters",src:"Source: US EIA, World Oil Transit Chokepoints",stops:[
+ {lat:26.6,lng:56.3,dist:1.32,title:"A narrow gap",text:"Between Iran and Oman, the Strait of Hormuz is about 33 km wide at its narrowest point.",hl:["Iran","Oman"]},
+ {lat:26,lng:50,dist:1.75,title:"Gulf producers",text:"Oil from Saudi Arabia, Iraq, Kuwait, the UAE, Qatar and Iran must pass through it to reach the open sea.",hl:["Saudi Arabia","Iraq","Kuwait","United Arab Emirates","Qatar","Iran"]},
+ {lat:22,lng:95,dist:3.0,title:"Most of it goes to Asia",text:"About a fifth of the world's oil use flows through Hormuz, and most of it is shipped to China, India, Japan and South Korea.",hl:["China","India","Japan","Korea"],arcs:true},
+ {lat:24,lng:48,dist:1.9,title:"Few ways around",text:"Pipelines across Saudi Arabia to the Red Sea and across the UAE to Fujairah can bypass the strait, but only for part of the flow.",hl:["Saudi Arabia","United Arab Emirates"]},
+ {lat:24,lng:68,dist:2.3,title:"Why it matters to you",text:"Any threat to shipping here can push up fuel prices worldwide, including in India. Live: latest verified Hormuz headlines appear here.",hl:["India","Iran","Oman"]}]};
+const tourEl=$("#tour");let tT=null;let tourBuilt=false;
+function startTour(){introOut();closePanel(true);if(state.mode!=="home")setMode("home");state.tour={step:0,playing:!RM};body.classList.add("touring");setNav("stories");
+  if(!tourBuilt){tourBuilt=true;[[31,121],[19,72.8],[35.5,139.7],[35.1,129]].forEach((t,i)=>ARCS.push(new Arc(G.tour,[26.57,56.25],t,{color:0xF2B33D,additive:true,period:3+i*.2,off:i*.4,trail:.4,base:.3,radius:.0026,head:true,headSize:.045})));}
+  tourStep(0);}
+function tourStep(i){const TS=TOUR.stops,s=TS[i];state.tour.step=i;clearTimeout(tT);state.tourHl=s.hl;state.tourArcs=!!s.arcs;applyLayers();paintOverlay();
+  tourEl.innerHTML=`<div class="dots">${TS.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div><div class="kicker">Story · ${TOUR.title}</div><h2>${s.title}</h2><p>${s.text}</p>
+  <div class="ctrl"><button class="btn" id="tPrev" ${i?"":"disabled"} aria-label="Previous">${ic("left")}</button><button class="btn" id="tPlay">${state.tour.playing?ic("pause")+" Pause":ic("play")+" Play"}</button><button class="btn dark" id="tNext">${i===TS.length-1?"Finish":"Next"} ${ic("right")}</button><button class="btn" id="tExit" aria-label="Exit story">${ic("x")}</button><span class="src">${TOUR.src}<br>Reviewed: example</span></div>`;
+  $("#tPrev").onclick=()=>tourStep(Math.max(0,i-1));$("#tNext").onclick=()=>i===TS.length-1?endTour():tourStep(i+1);$("#tExit").onclick=endTour;$("#tPlay").onclick=()=>{state.tour.playing=!state.tour.playing;tourStep(i);};
+  flyTo(s.lat,s.lng,s.dist,2200,()=>{if(state.tour&&state.tour.playing&&state.tour.step===i)tT=setTimeout(()=>{if(state.tour&&state.tour.step===i){if(i===TS.length-1){state.tour.playing=false;tourStep(i);}else tourStep(i+1);}},6500);});}
+function endTour(){clearTimeout(tT);state.tour=null;state.tourHl=null;state.tourArcs=false;body.classList.remove("touring");setNav("home");applyLayers();paintOverlay();flyTo(HOME.lat,HOME.lng,HOME.dist);}
+
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT"){if(e.key==="Escape")e.target.blur();return;}
+  if(e.key==="Escape"){if(state.tour)return endTour();if(panel.classList.contains("open"))return closePanel();if(state.mode!=="home")return setMode("home");}
+  const k=["1","2","3","4","5"].indexOf(e.key);if(k>=0)setMode(["home","economy","defense","energy","diplomacy"][k]);
+  if(e.key==="/"){e.preventDefault();$("#q").focus();}if(e.key==="+"||e.key==="=")$("#cIn").click();if(e.key==="-")$("#cOut").click();
+  if(e.key===" "&&state.tour){e.preventDefault();state.tour.playing=!state.tour.playing;tourStep(state.tour.step);}});
+
+let introOn=true;function introOut(){if(!introOn)return;introOn=false;$("#intro").classList.add("out");setTimeout(()=>{const el=$("#intro");if(el)el.remove();},1000);}
+setTimeout(introOut,RM?400:3600);
+
+function deep(){const h=location.hash.replace("#","");if(!h)return;introOut();fly=null;
+  if(h==="india")selectCountry("India");
+  else if(h==="states"){Object.assign(T,{lat:23,lng:79,dist:1.5});Object.assign(cam,T);}
+  else if(h==="conflict")openConflict("ru-ua");
+  else if(h==="economy"){setMode("economy");selectCountry("India");}
+  else if(h==="defense"){state.metric.defense="capability";setMode("defense");selectCountry("India");}
+  else if(h==="tour")startTour();else if(h==="nato")toggleOrg("NATO");}
+
+function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
+addEventListener("resize",resize);resize();
+paintOverlay();renderPulse();applyLayers();
+if(!RM)flyTo(HOME.lat,HOME.lng,HOME.dist,3400);
+lastInput=performance.now()-12000;
+setTimeout(deep,RM?0:3500);
+let last=performance.now(),t0=performance.now();
+function loop(now){const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;const t=Math.max(0,(now-t0)/1000);
+  if(!stepFly(now)){
+    if(!ptrs.size){T.lat=Math.max(-80,Math.min(80,T.lat+vel.lat));T.lng+=vel.lng;const dmp=Math.pow(.9,dt*60);vel.lat*=dmp;vel.lng*=dmp;}
+    if(!RM&&!state.tour&&!panel.classList.contains("open")&&now-lastInput>20000&&T.dist>2.2)T.lng-=dt*2.2;
+    const k=1-Math.exp(-dt*9);cam.lat+=(T.lat-cam.lat)*k;cam.lng+=(T.lng-cam.lng)*k;cam.dist+=(T.dist-cam.dist)*k;}
+  applyCam();
+  sunDir.set(-2.6,2.0,3.0).applyQuaternion(camera.quaternion).normalize();
+  [cloudsA,cloudsB,cloudShadow].forEach(m=>{m.material.uniforms.uTime.value=RM?0:t;});
+  const zf=Math.max(.12,Math.min(1,(cam.dist-1.12)/.7));cloudState.v+=(cloudState.target-cloudState.v)*Math.min(1,dt*3);
+  cloudsA.material.uniforms.uOpacity.value=.92*zf*cloudState.v;cloudsB.material.uniforms.uOpacity.value=.32*Math.max(.05,Math.min(1,(cam.dist-1.3)/.8))*cloudState.v;cloudShadow.material.uniforms.uOpacity.value=.22*zf*cloudState.v;
+  if(cam.dist<2.05&&!admState)loadAdm();
+  admMat.opacity=Math.max(0,Math.min(1,(2.0-cam.dist)/.5))*.55;borderMat.opacity=.42+.38*Math.max(0,Math.min(1,(2.4-cam.dist)/1.0));
+  $("#zoomhint").classList.toggle("on",!introOn&&cam.dist<2.3&&cam.dist>1.9&&!panel.classList.contains("open"));
+  Object.values(G).forEach(g=>{const u=g.userData;u.fade+=(u.target-u.fade)*Math.min(1,dt/.18);g.visible=u.fade>.01;g.traverse(o=>{const m=o.material;if(!m)return;if(m.uniforms&&m.uniforms.uFade)m.uniforms.uFade.value=u.fade;else if(m.userData.base!==undefined)m.opacity=m.userData.base*u.fade;});});
+  ARCS.forEach(a=>a.update(t));relArcs.forEach(a=>a.update(t));
+  GLOWS.forEach(g=>{const p=RM?.5:(t*.6+g.ph)%1;g.ring.scale.setScalar(g.base*(.3+1.1*p));g.ring.material.userData.base=.8*(1-p);g.s.scale.setScalar(g.base*(1+.08*Math.sin(t*2+g.ph*6)));});
+  renderer.render(scene,camera);updMarkers(dt);requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+})();
+</script>
+
+</html>

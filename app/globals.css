@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-heading: var(--font-sans);
+  --font-display: var(--font-fraunces);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-conflict: var(--conflict);
+  --color-ally: var(--ally);
+  --color-neutral-rel: var(--neutral);
+  --color-mixed: var(--mixed);
+  --color-summit: var(--summit);
+  --color-nuclear: var(--nuclear);
+  --color-gold: var(--gold);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Design tokens — docs/UI-DESIGN.md §3. Light theme only (approved v3 design). */
+:root {
+  color-scheme: light;
+
+  /* GeoPolitics palette */
+  --paper: #f3f1ec;
+  --paper-2: #eae7df;
+  --ink: #11232b;
+  --ink-strong: #0f1d24;
+  --ink-2: #4a5a61;
+  --ink-3: #7d8a8f;
+  --line: rgba(17, 35, 43, 0.1);
+  --glass: rgba(255, 255, 255, 0.86);
+  --night: rgba(16, 24, 30, 0.88);
+  --shadow-card: 0 16px 44px rgba(17, 35, 43, 0.13), 0 2px 6px rgba(17, 35, 43, 0.06);
+
+  --conflict: #e5484d;
+  --ally: #2fa36b;
+  --neutral: #4c74d9;
+  --mixed: #e8a21c;
+  --summit: #3f63d8;
+  --nuclear: #e8c21c;
+  --gold: #f2b33d;
+
+  /* shadcn/ui variables mapped onto the palette */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--ink-strong);
+  --primary-foreground: #ffffff;
+  --secondary: var(--paper-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-2);
+  --muted-foreground: var(--ink-2);
+  --accent: var(--paper-2);
+  --accent-foreground: var(--ink);
+  --destructive: var(--conflict);
+  --border: var(--line);
+  --input: rgba(17, 35, 43, 0.16);
+  --ring: var(--ink);
+  --chart-1: var(--ally);
+  --chart-2: var(--conflict);
+  --chart-3: var(--mixed);
+  --chart-4: var(--neutral);
+  --chart-5: var(--gold);
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink-strong);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--paper-2);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--ink);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}
