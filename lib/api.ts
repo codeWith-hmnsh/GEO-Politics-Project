@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { Pulse } from "@/lib/data/pulse";
+import type { IndicatorsSnapshot } from "@/ingest/jobs/indicators";
 import type { ApiEnvelope, NewsCluster, Section } from "@/lib/schemas/news";
 
 async function getJson<T>(url: string): Promise<T> {
@@ -19,6 +20,16 @@ export function useNews(params: { section?: Section | "all"; country?: string; l
     queryKey: ["news", params.section ?? "all", params.country ?? "", params.limit ?? 30],
     queryFn: () => getJson<ApiEnvelope<NewsCluster[]>>(`/api/news?${qs}`),
     refetchInterval: 5 * 60_000,
+  });
+}
+
+export function useIndicators(mode: string) {
+  const enabled = mode === "economy" || mode === "defense";
+  return useQuery({
+    queryKey: ["indicators", mode],
+    queryFn: () => getJson<ApiEnvelope<IndicatorsSnapshot["metrics"]>>(`/api/indicators?mode=${mode}`),
+    enabled,
+    staleTime: 60 * 60_000,
   });
 }
 

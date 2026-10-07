@@ -46,6 +46,24 @@ test.describe("visual reference", () => {
     await page.screenshot({ path: `test-results/visual/${info.project.name}-bloc.png` });
   });
 
+  for (const mode of ["Economy", "Defense"]) {
+    test(`${mode} mode with country`, async ({ page }, info) => {
+      test.skip(info.project.name !== "desktop");
+      await page.goto("/");
+      await page.waitForTimeout(4500);
+      await page.getByRole("navigation", { name: "Mode" }).getByRole("button", { name: mode }).click();
+      await expect(page.getByRole("complementary", { name: `${mode} mode` })).toBeVisible();
+      // Home layers are gone in a mode.
+      await expect(page.getByRole("button", { name: /Russia – Ukraine War/ })).toHaveCount(0);
+      await page.waitForTimeout(2500);
+      await page.screenshot({ path: `test-results/visual/${info.project.name}-${mode.toLowerCase()}.png` });
+      const box = (await page.locator("canvas").boundingBox())!;
+      await page.mouse.click(box.width * 0.56, box.height * 0.6);
+      await page.waitForTimeout(3500);
+      await page.screenshot({ path: `test-results/visual/${info.project.name}-${mode.toLowerCase()}-country.png` });
+    });
+  }
+
   test("zoom to states", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop");
     await page.goto("/");

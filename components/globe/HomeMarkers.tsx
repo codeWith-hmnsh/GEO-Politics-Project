@@ -72,7 +72,7 @@ export function HomeMarkers() {
 
   return (
     <>
-      <div aria-label="Alliances and summits" className={`pointer-events-none fixed inset-0 z-[7] transition-opacity duration-500 ${orgsVisible ? "" : "opacity-0"}`}>
+      <div aria-label="Alliances and summits" inert={!orgsVisible} aria-hidden={!orgsVisible} className={`pointer-events-none fixed inset-0 z-[7] transition-opacity duration-500 ${orgsVisible ? "" : "opacity-0"}`}>
         {pulse?.organizations
           .filter((o) => o.shown || o.id === selectedOrg)
           .map((o) => (
@@ -114,7 +114,7 @@ export function HomeMarkers() {
         ))}
       </div>
 
-      <div aria-label="Global economy" className={`pointer-events-none fixed inset-0 z-[6] transition-opacity duration-500 ${econVisible ? "" : "opacity-0"}`}>
+      <div aria-label="Global economy" inert={!econVisible} aria-hidden={!econVisible} className={`pointer-events-none fixed inset-0 z-[6] transition-opacity duration-500 ${econVisible ? "" : "opacity-0"}`}>
         {(pulse?.crises ?? []).map((c) => {
           const country = byIso.get(c.iso3);
           if (!country) return null;

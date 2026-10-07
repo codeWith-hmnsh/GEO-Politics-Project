@@ -5,8 +5,8 @@ export const flags = {
   /** Story tours (M3). */
   tours: false,
   /** Economy and Defense modes (M2). */
-  economyMode: false,
-  defenseMode: false,
+  economyMode: true,
+  defenseMode: true,
   /** Energy and Diplomacy modes (M4). */
   energyMode: false,
   diplomacyMode: false,

@@ -32,3 +32,12 @@ test("news and pulse APIs return data with freshness", async ({ request }) => {
   expect(pulse.data.conflicts.length).toBeGreaterThan(0);
   expect(pulse.data.organizations.some((o: { id: string }) => o.id === "NATO")).toBe(true);
 });
+
+test("indicators API returns economy and defense metrics", async ({ request }) => {
+  const eco = await (await request.get("/api/indicators?mode=economy")).json();
+  expect(Object.keys(eco.data)).toEqual(expect.arrayContaining(["growth", "inflation", "debt"]));
+  expect(eco.data.growth.values.IND.value).toEqual(expect.any(Number));
+  const def = await (await request.get("/api/indicators?mode=defense")).json();
+  expect(def.data.capability.values.USA.value).toBeGreaterThan(9);
+  expect((await request.get("/api/indicators?mode=bogus")).status()).toBe(400);
+});

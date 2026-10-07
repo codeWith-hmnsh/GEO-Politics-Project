@@ -3,6 +3,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
+import { useGlobe } from "@/lib/store";
 import { Atmosphere } from "./Atmosphere";
 import { AdminBorders, CountryBorders, CountryOutlines } from "./Borders";
 import { CameraRig } from "./CameraRig";
@@ -17,6 +18,7 @@ import { MarkerProjector } from "./MarkerProjector";
 /** The WebGL globe. Mounted once; layers are added on top in later milestones. */
 export default function GlobeCanvas() {
   const [countries, setCountries] = useState<IndexedCountry[]>([]);
+  const cloudsDimmed = useGlobe((s) => s.mode !== "home" || s.selectedIso3 !== null);
   const [mobile] = useState(() => window.matchMedia("(max-width: 760px)").matches);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function GlobeCanvas() {
     >
       <Suspense fallback={null}>
         <Earth segments={mobile ? 128 : 200} />
-        <Clouds />
+        <Clouds dimmed={cloudsDimmed} />
       </Suspense>
       <Atmosphere />
       {countries.length > 0 && (

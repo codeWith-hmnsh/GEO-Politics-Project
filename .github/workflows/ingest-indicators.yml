@@ -1,0 +1,29 @@
+name: ingest-indicators
+
+on:
+  schedule:
+    - cron: "17 4 * * 1" # weekly, Monday 04:17 UTC (IMF and World Bank update rarely)
+  workflow_dispatch:
+
+jobs:
+  indicators:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - name: Skip until Supabase is configured
+        if: env.SUPABASE_URL == ''
+        run: echo "SUPABASE_URL secret not set; nothing to store results in. Skipping." && exit 0
+      - uses: actions/checkout@v4
+        if: env.SUPABASE_URL != ''
+      - uses: actions/setup-node@v4
+        if: env.SUPABASE_URL != ''
+        with:
+          node-version: 24
+          cache: npm
+      - if: env.SUPABASE_URL != ''
+        run: npm ci
+      - if: env.SUPABASE_URL != ''
+        run: npm run ingest -- indicators

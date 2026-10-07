@@ -13,6 +13,7 @@ import type { NewsCluster } from "@/lib/schemas/news";
 import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
 import { REL_LABEL, relationsFor, type RelStatus } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
+import { CountryModePanel } from "./CountryModePanel";
 import { Flag } from "./Flag";
 
 const kicker = "mb-2.5 text-[11px] font-bold tracking-[.16em] text-ink-3 uppercase";
@@ -411,6 +412,8 @@ export function PanelHost() {
               <SummitPanel summit={summit} />
             ) : country && mode === "home" && pulse ? (
               <RelationsPanel country={country} pulse={pulse.data} countryName={nameOf} />
+            ) : country && (mode === "economy" || mode === "defense") ? (
+              <CountryModePanel country={country} />
             ) : country ? (
               <CountryShell country={country} />
             ) : null}

@@ -111,13 +111,14 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 ## M2 — MVP: Economy + Defense modes (weeks 6–8)
 
 ### Tasks
-- [ ] Mode machine in Zustand per PRD §7 (switch clears Home layers; Home restores and refetches).
-- [ ] Layer registry fade (400 ms); mode tint on Earth texture.
-- [ ] Choropleth system: per-mode scale, legend bar, metric chips (single select).
-- [ ] Country panel template (header with leader / government from Wikidata, 5 core items, "what this means", sparklines, source + as-of, 3 news).
-- [ ] **Economy**: IMF + World Bank jobs; Comtrade trade partners job; IDS creditors; arcs on tap (exports out, imports in, creditors). Chips: Growth, Inflation, Jobs, Debt, Trade.
-- [ ] **Defense**: World Bank SIPRI indicators + SIPRI latest year + arms transfers import; `nuclear.json`; `capability.json` + index calc + "How we calculate" dialog. Chips: Spending, Personnel, Nuclear, Capability, Arms.
-- [ ] Mode news in the mode card and country panel (section filter, + country filter on selection).
+- [x] Mode machine in Zustand per PRD §7 (switch clears Home layers and makes them inert; Home restores them).
+- [x] Layer fade; Earth texture and clouds dim in modes so the choropleth reads clearly.
+- [x] Choropleth system: per-mode scale (5th–95th percentile, log for totals), legend bar, metric chips (single select).
+- [x] Country panel template: core items, "what this means", sparklines (forecast years dashed), source + as-of, 3 news.
+- [ ] Leader / government line from Wikidata in the panel header.
+- [ ] **Economy**: [x] IMF job (growth, inflation, unemployment, debt, GDP; `npm run ingest -- indicators`); [ ] Comtrade trade partners; [ ] IDS creditors; Comtrade trade partners job; IDS creditors; arcs on tap (exports out, imports in, creditors). Chips: Growth, Inflation, Jobs, Debt, Trade.
+- [x] **Defense** (draft data, needs editorial review): World Bank SIPRI indicators + SIPRI latest year + arms transfers import; `nuclear.json`; `capability.json` + index calc + "How we calculate" dialog. Chips: Spending, Personnel, Nuclear, Capability, Arms.
+- [x] Mode news in the mode card and country panel (section filter, + country filter on selection).
 - [ ] Compare for Economy + Defense (fitBounds, paired bars, no winner highlight).
 - [ ] Glossary chips (40 terms) wired into panels and cards.
 - [ ] E2E: Home → Economy (Home layers gone) → Defense → Home (Home layers back, news refreshed).

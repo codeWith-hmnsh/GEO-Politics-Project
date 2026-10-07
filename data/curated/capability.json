@@ -1,0 +1,33 @@
+{
+  "reviewedAt": "2026-10-07",
+  "needsEditorialReview": true,
+  "source": "Approximate active inventories based on IISS The Military Balance (2024–2025 editions). Draft: every figure must be checked by an editor before public launch.",
+  "fields": {
+    "aircraft": "Combat-capable aircraft (all services)",
+    "tanks": "Main battle tanks in active service",
+    "warships": "Principal surface combatants plus submarines",
+    "carriers": "Aircraft carriers (fixed-wing)"
+  },
+  "items": [
+    { "iso3": "USA", "aircraft": 3000, "tanks": 2640, "warships": 186, "carriers": 11 },
+    { "iso3": "CHN", "aircraft": 2400, "tanks": 4800, "warships": 161, "carriers": 3 },
+    { "iso3": "RUS", "aircraft": 1100, "tanks": 1750, "warships": 81, "carriers": 1 },
+    { "iso3": "IND", "aircraft": 750, "tanks": 3700, "warships": 46, "carriers": 2 },
+    { "iso3": "PAK", "aircraft": 430, "tanks": 2500, "warships": 15, "carriers": 0 },
+    { "iso3": "GBR", "aircraft": 210, "tanks": 210, "warships": 27, "carriers": 2 },
+    { "iso3": "FRA", "aircraft": 250, "tanks": 215, "warships": 30, "carriers": 1 },
+    { "iso3": "DEU", "aircraft": 225, "tanks": 300, "warships": 17, "carriers": 0 },
+    { "iso3": "ITA", "aircraft": 240, "tanks": 150, "warships": 27, "carriers": 2 },
+    { "iso3": "JPN", "aircraft": 320, "tanks": 400, "warships": 73, "carriers": 0 },
+    { "iso3": "KOR", "aircraft": 470, "tanks": 2200, "warships": 43, "carriers": 0 },
+    { "iso3": "PRK", "aircraft": 550, "tanks": 3500, "warships": 72, "carriers": 0 },
+    { "iso3": "TUR", "aircraft": 290, "tanks": 2200, "warships": 28, "carriers": 0 },
+    { "iso3": "ISR", "aircraft": 340, "tanks": 400, "warships": 12, "carriers": 0 },
+    { "iso3": "IRN", "aircraft": 260, "tanks": 1500, "warships": 26, "carriers": 0 },
+    { "iso3": "SAU", "aircraft": 400, "tanks": 900, "warships": 7, "carriers": 0 },
+    { "iso3": "EGY", "aircraft": 550, "tanks": 2500, "warships": 21, "carriers": 0 },
+    { "iso3": "UKR", "aircraft": 100, "tanks": 1000, "warships": 1, "carriers": 0 },
+    { "iso3": "AUS", "aircraft": 110, "tanks": 59, "warships": 17, "carriers": 0 },
+    { "iso3": "BRA", "aircraft": 90, "tanks": 250, "warships": 13, "carriers": 0 }
+  ]
+}

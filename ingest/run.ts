@@ -1,6 +1,7 @@
-// Ingest CLI: `npm run ingest -- news [--no-gdelt] [--seed]`
+// Ingest CLI: `npm run ingest -- <news|indicators> [--no-gdelt] [--seed]`
 import { copyFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
+import { runIndicators } from "./jobs/indicators";
 import { runNews } from "./jobs/news";
 
 const [job, ...flags] = process.argv.slice(2);
@@ -10,8 +11,11 @@ async function main() {
     case "news":
       await runNews({ gdelt: !flags.includes("--no-gdelt") });
       break;
+    case "indicators":
+      await runIndicators();
+      break;
     default:
-      console.error(`Unknown job "${job ?? ""}". Jobs: news`);
+      console.error(`Unknown job "${job ?? ""}". Jobs: news, indicators`);
       process.exit(1);
   }
   // Refresh the committed fallback snapshot from the local run.

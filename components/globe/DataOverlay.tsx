@@ -3,8 +3,9 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { usePulse } from "@/lib/api";
+import { useIndicators, usePulse } from "@/lib/api";
 import type { IndexedCountry } from "@/lib/geo/countries";
+import { MODE_SCALES, metricById, scaleColor, scaleDomain, scaleT } from "@/lib/metrics";
 import { REL_COLORS, relationsFor } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
 
@@ -17,7 +18,10 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
   const { data } = usePulse();
   const selectedOrg = useGlobe((s) => s.selectedOrg);
   const selectedIso3 = useGlobe((s) => s.selectedIso3);
-  const homeMode = useGlobe((s) => s.mode === "home");
+  const mode = useGlobe((s) => s.mode);
+  const homeMode = mode === "home";
+  const metricId = useGlobe((s) => (s.mode === "economy" || s.mode === "defense" ? s.modeMetric[s.mode] : null));
+  const { data: indicators } = useIndicators(mode);
   const relVisible = useGlobe((s) => s.layers.rel && s.mode === "home");
 
   const { canvas, texture } = useMemo(() => {
@@ -58,6 +62,22 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
         path(c);
         ctx.fill("evenodd");
       }
+    }
+
+    // Choropleth for the active metric (Economy / Defense): one metric colours the globe at a time.
+    const metric = metricId ? indicators?.data[metricId] : undefined;
+    if (metricId && metric && (mode === "economy" || mode === "defense")) {
+      const def = metricById(metricId);
+      const domain = scaleDomain(Object.values(metric.values).map((v) => v.value), def.log);
+      for (const c of countries) {
+        const v = metric.values[c.iso3];
+        if (!v) continue;
+        ctx.fillStyle = c.iso3 === selectedIso3 ? "rgba(255,255,255,.88)" : scaleColor(MODE_SCALES[mode], scaleT(v.value, domain));
+        ctx.globalAlpha = c.iso3 === selectedIso3 ? 1 : 0.82;
+        path(c);
+        ctx.fill("evenodd");
+      }
+      ctx.globalAlpha = 1;
     }
 
     // Relations of the selected country (Home): green / red / amber / blue (UI-DESIGN §4.3).
@@ -104,7 +124,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       }
     }
     texture.needsUpdate = true;
-  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible]);
+  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators]);
 
   return (
     <mesh renderOrder={1}>

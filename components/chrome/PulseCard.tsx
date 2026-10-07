@@ -20,6 +20,7 @@ export function PulseCard() {
   const open = useGlobe((s) => s.pulseOpen);
   const setOpen = useGlobe((s) => s.setPulseOpen);
   const countrySelected = useGlobe((s) => s.selectedIso3 !== null);
+  const homeMode = useGlobe((s) => s.mode === "home");
   // Phones start with the card closed so the globe is visible; desktop follows the store flag.
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -36,7 +37,7 @@ export function PulseCard() {
         <Layers className="size-4" aria-hidden /> Layers
       </button>
       <AnimatePresence>
-        {open && (
+        {open && homeMode && (
           <motion.aside
             aria-label="Layers"
             initial={{ opacity: 0, x: -16 }}

@@ -1,6 +1,7 @@
 // App state (docs/ARCHITECTURE.md §3.2). Grows milestone by milestone.
 import { create } from "zustand";
 import type { CameraState } from "@/lib/camera/fly";
+import type { MetricId } from "@/lib/metrics";
 
 export type FlyRequest = { lat: number; lng: number; dist?: number; durationMs?: number; id: number };
 export type ZoomRequest = { factor: number; id: number };
@@ -26,6 +27,8 @@ type GlobeState = {
   layers: Record<LayerId, boolean>;
   pulseOpen: boolean;
   adminLabels: Record<string, AdminLabel[]>;
+  modeMetric: { economy: MetricId; defense: MetricId };
+  setModeMetric: (mode: "economy" | "defense", id: MetricId) => void;
   setHover: (iso3: string | null, name: string | null, x: number, y: number, latLng?: [number, number] | null) => void;
   select: (iso3: string | null) => void;
   selectConflict: (id: string | null) => void;
@@ -75,6 +78,8 @@ export const useGlobe = create<GlobeState>((set) => ({
   layers: { wars: true, orgs: true, econ: true, rel: true },
   pulseOpen: true,
   adminLabels: {},
+  modeMetric: { economy: "growth", defense: "milPct" },
+  setModeMetric: (mode, id) => set((s) => ({ modeMetric: { ...s.modeMetric, [mode]: id } })),
   setHover: (iso3, name, x, y, latLng = null) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y }, hoverLatLng: latLng }),
   // One panel at a time: each selection clears the others.
   select: (iso3) => set({ ...NONE, selectedIso3: iso3 }),

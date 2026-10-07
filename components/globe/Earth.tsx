@@ -4,6 +4,7 @@ import { useTexture } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
+import { useGlobe } from "@/lib/store";
 import { SUN_OFFSET, globeRefs } from "./shared";
 
 const TEX = {
@@ -19,6 +20,7 @@ export function Earth({ segments = 200 }: { segments?: number }) {
   const { gl, camera } = useThree();
   const mesh = useRef<THREE.Mesh>(null);
   const light = useRef<THREE.DirectionalLight>(null);
+  const material = useRef<THREE.MeshPhongMaterial>(null);
 
   useLayoutEffect(() => {
     const aniso = gl.capabilities.getMaxAnisotropy();
@@ -34,7 +36,12 @@ export function Earth({ segments = 200 }: { segments?: number }) {
   }, [gl, map, bump, water, night]);
 
   // Keep the sun at the camera's upper-left so the visible side is always lit.
-  useFrame(() => {
+  useFrame((_, dt) => {
+    if (material.current) {
+      const want = useGlobe.getState().mode === "home" ? 1 : 0.72;
+      const cur = material.current.color.r;
+      material.current.color.setScalar(cur + (want - cur) * Math.min(1, dt * 4));
+    }
     if (!light.current) return;
     light.current.position.copy(SUN_OFFSET).applyQuaternion(camera.quaternion).add(camera.position);
   });
@@ -46,6 +53,7 @@ export function Earth({ segments = 200 }: { segments?: number }) {
       <mesh ref={mesh}>
         <sphereGeometry args={[1, segments, Math.round(segments * 0.7)]} />
         <meshPhongMaterial
+          ref={material}
           map={map}
           bumpMap={bump}
           bumpScale={0.012}
