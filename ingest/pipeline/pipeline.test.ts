@@ -83,6 +83,17 @@ describe("cluster", () => {
     expect(kyiv.verified).toBe(true);
     expect(out.find((c) => c.countries.includes("IND"))!.verified).toBe(false);
   });
+
+  it("leads with the country most headlines mention and places the story there", () => {
+    const out = clusterItems([
+      item({ title: "US military aid to Israel continues three years on", countries: ["USA", "ISR"], lat: 39, lng: -98, url: "https://bbc.co.uk/1" }),
+      item({ name: "DW", domain: "dw.com", title: "Israel marks three years since October 7 attack", countries: ["ISR"], lat: 31, lng: 35, url: "https://dw.com/2" }),
+      item({ name: "CNN", domain: "cnn.com", tier: 2, title: "Israel marks three years since attack", countries: ["ISR"], lat: 31, lng: 35, url: "https://cnn.com/3" }),
+    ]);
+    expect(out).toHaveLength(1);
+    expect(out[0].countries).toEqual(["ISR", "USA"]);
+    expect([out[0].lat, out[0].lng]).toEqual([31, 35]);
+  });
 });
 
 describe("exclusions", () => {

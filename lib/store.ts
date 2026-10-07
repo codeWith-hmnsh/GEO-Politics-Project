@@ -25,6 +25,9 @@ type GlobeState = {
   selectedConflict: string | null;
   selectedOrg: string | null;
   selectedSummit: string | null;
+  /** Learn panels opened from the header: Daily Brief or the Stories list. */
+  sidePanel: "brief" | "stories" | null;
+  openSide: (panel: "brief" | "stories") => void;
   /** Countries lit by a glossary "See on globe" (cleared by any selection). */
   highlight: string[];
   setHighlight: (iso3s: string[]) => void;
@@ -54,11 +57,17 @@ type GlobeState = {
 
 let requestId = 0;
 
-const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null, highlight: [] as string[], compareIso3: null, comparePicking: false };
+const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null, highlight: [] as string[], compareIso3: null, comparePicking: false, sidePanel: null };
 
 /** True when any detail panel is open. */
-export const panelOpenSelector = (s: { selectedIso3: string | null; selectedConflict: string | null; selectedOrg: string | null; selectedSummit: string | null }) =>
-  s.selectedIso3 !== null || s.selectedConflict !== null || s.selectedOrg !== null || s.selectedSummit !== null;
+export const panelOpenSelector = (s: {
+  selectedIso3: string | null;
+  selectedConflict: string | null;
+  selectedOrg: string | null;
+  selectedSummit: string | null;
+  sidePanel: string | null;
+}) =>
+  s.selectedIso3 !== null || s.selectedConflict !== null || s.selectedOrg !== null || s.selectedSummit !== null || s.sidePanel !== null;
 
 export const HOME_VIEW: CameraState = { lat: 25, lng: 70, dist: 3.05 };
 
@@ -81,6 +90,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   selectedConflict: null,
   selectedOrg: null,
   selectedSummit: null,
+  sidePanel: null,
   highlight: [],
   fly: null,
   zoom: null,
@@ -101,6 +111,7 @@ export const useGlobe = create<GlobeState>((set) => ({
         ? { compareIso3: iso3, comparePicking: false }
         : { ...NONE, selectedIso3: iso3 },
     ),
+  openSide: (panel) => set({ ...NONE, sidePanel: panel }),
   startCompare: () => set({ comparePicking: true, compareIso3: null }),
   selectConflict: (id) => set({ ...NONE, selectedConflict: id }),
   selectOrg: (id) => set({ ...NONE, selectedOrg: id }),

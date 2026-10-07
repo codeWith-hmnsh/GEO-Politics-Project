@@ -63,7 +63,14 @@ export function clusterItems(items: TaggedItem[]): NewsCluster[] {
     const lead = [...g.items].sort((a, b) => a.tier - b.tier || b.publishedAt.localeCompare(a.publishedAt))[0];
     const outlets = new Set(g.items.filter((i) => i.tier <= 2).map((i) => i.domain));
     const sections = [...new Set(g.items.flatMap((i) => i.sections))];
-    const located = g.items.find((i) => i.lat !== null) ?? lead;
+    // Lead country = the one most headlines mention (ties: the lead headline's own order), not whichever came first.
+    const mentions = (c: string) => g.items.filter((i) => i.countries.includes(c)).length;
+    const leadRank = (c: string) => (lead.countries.includes(c) ? lead.countries.indexOf(c) : Infinity);
+    const countries = [...g.countries].sort((a, b) => mentions(b) - mentions(a) || leadRank(a) - leadRank(b));
+    const located =
+      [lead, ...g.items].find((i) => i.lat !== null && i.countries[0] === countries[0]) ??
+      g.items.find((i) => i.lat !== null) ??
+      lead;
     return {
       id: hash(lead.url),
       title: lead.title,
@@ -71,7 +78,7 @@ export function clusterItems(items: TaggedItem[]): NewsCluster[] {
       source: lead.name,
       publishedAt: g.items.map((i) => i.publishedAt).sort().at(-1)!,
       sections,
-      countries: [...g.countries],
+      countries,
       lat: located.lat,
       lng: located.lng,
       sourceCount: new Set(g.items.map((i) => i.domain)).size,

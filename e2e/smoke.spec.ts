@@ -50,3 +50,10 @@ test("country API returns leaders and trade partners", async ({ request }) => {
   expect(pak.data.creditors.creditors.length).toBeGreaterThan(0);
   expect((await request.get("/api/country?iso3=12")).status()).toBe(400);
 });
+
+test("brief API returns up to five ranked stories with a place", async ({ request }) => {
+  const body = await (await request.get("/api/brief")).json();
+  expect(body.data.length).toBeGreaterThan(0);
+  expect(body.data.length).toBeLessThanOrEqual(5);
+  for (const c of body.data) expect(c.lat).toEqual(expect.any(Number));
+});

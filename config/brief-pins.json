@@ -1,0 +1,5 @@
+{
+  "_note": "Editor controls for the Daily Brief. Each entry is a news cluster id or a piece of a headline (case-insensitive). Pinned stories go first; hidden ones never show.",
+  "pin": [],
+  "hide": []
+}

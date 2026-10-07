@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Manrope } from "next/font/google";
 import { Providers } from "./providers";
 import "flag-icons/css/flag-icons.min.css";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`${manrope.variable} ${fraunces.variable} h-full antialiased`}>
       <body className="min-h-full">
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );

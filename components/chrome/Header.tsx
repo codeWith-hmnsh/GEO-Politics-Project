@@ -10,7 +10,7 @@ import { homeView, useGlobe } from "@/lib/store";
 
 const NAV = [
   { id: "home", label: "Home", ready: true },
-  { id: "brief", label: "Daily Brief", ready: false },
+  { id: "brief", label: "Daily Brief", ready: true, side: "brief" as const },
   { id: "stories", label: "Stories", ready: false },
   { id: "glossary", label: "Glossary", ready: true },
   { id: "sources", label: "Sources", ready: true },
@@ -177,6 +177,15 @@ export function Header() {
             >
               {n.label}
             </button>
+          ) : "side" in n && n.side ? (
+            <button
+              key={n.id}
+              type="button"
+              onClick={() => useGlobe.getState().openSide(n.side!)}
+              className="py-2 text-[14.5px] font-medium text-ink-2 hover:text-ink"
+            >
+              {n.label}
+            </button>
           ) : n.ready ? (
             <a key={n.id} href={`/${n.id}`} className="py-2 text-[14.5px] font-medium text-ink-2 hover:text-ink">
               {n.label}
@@ -193,15 +202,14 @@ export function Header() {
       <div className="ml-auto flex items-center gap-3">
         <CountrySearch />
         <DateChip />
-        <SoonTip label="Daily Brief — coming soon">
-          <button
-            type="button"
-            aria-label="Daily Brief (coming soon)"
-            className="pointer-events-auto relative grid size-[42px] place-items-center rounded-xl border border-border bg-white/85 backdrop-blur max-md:size-10"
-          >
-            <Bell className="size-[18px]" aria-hidden />
-          </button>
-        </SoonTip>
+        <button
+          type="button"
+          aria-label="Daily Brief"
+          onClick={() => useGlobe.getState().openSide("brief")}
+          className="pointer-events-auto relative grid size-[42px] place-items-center rounded-xl border border-border bg-white/85 backdrop-blur max-md:size-10"
+        >
+          <Bell className="size-[18px]" aria-hidden />
+        </button>
       </div>
     </header>
   );

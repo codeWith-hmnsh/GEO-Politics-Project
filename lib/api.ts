@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import type { BriefItem } from "@/lib/brief";
 import type { CountryFacts } from "@/lib/data/country";
 import type { Pulse } from "@/lib/data/pulse";
 import type { IndicatorsSnapshot } from "@/ingest/jobs/indicators";
@@ -40,6 +41,14 @@ export function useCountryFacts(iso3: string | null) {
     queryFn: () => getJson<ApiEnvelope<CountryFacts>>(`/api/country?iso3=${iso3}`),
     enabled: !!iso3,
     staleTime: 60 * 60_000,
+  });
+}
+
+export function useBrief() {
+  return useQuery({
+    queryKey: ["brief"],
+    queryFn: () => getJson<ApiEnvelope<BriefItem[]>>("/api/brief"),
+    refetchInterval: 15 * 60_000,
   });
 }
 

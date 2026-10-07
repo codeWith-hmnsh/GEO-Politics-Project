@@ -85,6 +85,17 @@ test.describe("visual reference", () => {
     await page.screenshot({ path: `test-results/visual/${info.project.name}-compare.png` });
   });
 
+  test("daily brief", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    await page.goto("/");
+    await page.waitForTimeout(4500);
+    await page.getByRole("button", { name: "Daily Brief" }).last().click();
+    await expect(page.getByRole("heading", { name: "Today's top stories" })).toBeVisible();
+    await page.getByRole("button", { name: /Show on globe/ }).first().click();
+    await page.waitForTimeout(3000);
+    await page.screenshot({ path: `test-results/visual/${info.project.name}-brief.png` });
+  });
+
   test("zoom to states", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop");
     await page.goto("/");

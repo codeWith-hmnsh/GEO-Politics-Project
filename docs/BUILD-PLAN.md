@@ -131,7 +131,7 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 
 ## M3 — Learn (weeks 9–10)
 
-- [ ] Daily Brief: hourly job ranks clusters (source count × tier × region diversity), editor can pin/unpin; AnimatedList panel; tap → flyTo.
+- [x] Daily Brief: ranks clusters hourly (outlet tier × region diversity × recency, one story per lead country), editor pin/hide in `config/brief-pins.json`, `/api/brief`, staggered list panel from the header and bell, tap → flyTo.
 - [ ] Story Player: script loader, step dots, play/pause, caption BlurText, orbit, final live-news stop.
 - [ ] Write and review 6 tours (CONTENT-GUIDE §5.2).
 - [ ] Google photoreal close-up (`closeUp` flag): lazy `gmp-map-3d`, crossfade handoff from R3F, `flyCameraTo` + `flyCameraAround`, budget alert in Google Cloud, attribution.
