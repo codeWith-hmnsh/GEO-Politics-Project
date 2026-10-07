@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useCountryFacts } from "@/lib/api";
 import type { IndexedCountry } from "@/lib/geo/countries";
 import { CRUDE_COLOR } from "@/components/chrome/EnergySections";
+import { arcBudget } from "@/lib/perf";
 import { useGlobe } from "@/lib/store";
 import { RelationArc } from "./RelationsLayer";
 
@@ -14,6 +15,7 @@ export function TradeLayer({ countries }: { countries: IndexedCountry[] }) {
   const mode = useGlobe((s) => s.mode);
   const selected = useGlobe((s) => (s.mode === "economy" || s.mode === "energy" ? s.selectedIso3 : null));
   const { data } = useCountryFacts(selected);
+  const tier = useGlobe((s) => s.tier);
   const arcs = useMemo(() => {
     if (!selected || !data) return [];
     const byIso = new Map(countries.map((c) => [c.iso3, c]));
@@ -40,7 +42,7 @@ export function TradeLayer({ countries }: { countries: IndexedCountry[] }) {
   }, [selected, data, countries, mode]);
   return (
     <>
-      {arcs.map((a, i) => (
+      {arcs.slice(0, arcBudget(arcs.length, tier)).map((a, i) => (
         <RelationArc key={a.key} from={a.from} to={a.to} color={a.color} index={i} />
       ))}
     </>

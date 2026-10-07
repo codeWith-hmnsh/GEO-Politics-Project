@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "geo:build": "node scripts/build-geometry.mjs",
-    "ingest": "tsx ingest/run.ts"
+    "ingest": "tsx ingest/run.ts",
+    "gpu:benchmarks": "node -e \"require('fs').cpSync('node_modules/detect-gpu/dist/benchmarks','public/benchmarks',{recursive:true})\""
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -24,6 +25,7 @@
     "cmdk": "^1.1.1",
     "cn": "^0.4.0",
     "d3-geo": "^3.1.1",
+    "detect-gpu": "^5.0.70",
     "fast-xml-parser": "^5.11.2",
     "flag-icons": "^7.5.0",
     "gsap": "^3.15.0",

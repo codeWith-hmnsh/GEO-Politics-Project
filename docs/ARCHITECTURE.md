@@ -171,7 +171,7 @@ Ported from the prototype (`applyCam`, `flyTo`, `stepFly`, wheel and pointer han
 - DOM markers: one overlay, positions written with `transform` each frame; markers behind the globe or under the header are hidden.
 - Arcs, pulses, markers use instancing; one draw call per layer type.
 - `frameloop="demand"` when nothing animates (no auto-rotate, no arcs) — saves battery.
-- Device tiering (`detect-gpu`): tier 1 disables clouds, night lights blend, uses 1:110m borders, halves arc counts.
+- Device tiering (`detect-gpu`, benchmarks self-hosted in `public/benchmarks`, `?tier=1|2|3` to force): tier 1 disables clouds, lowers sphere detail, pixel ratio and overlay resolution, and halves arc counts. A frame-rate check after the intro drops to tier 1 below ~22 fps. Night lights stay on (they also tint the day side and cost one texture read); 1:110m borders were not needed.
 
 ## 4. Backend data model (Postgres)
 

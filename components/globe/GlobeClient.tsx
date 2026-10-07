@@ -13,6 +13,7 @@ import { MapLabels } from "./MapLabels";
 import { ActivityMarkers } from "./ActivityMarkers";
 import { ChokepointMarkers } from "./ChokepointMarkers";
 import { NuclearMarkers } from "./NuclearMarkers";
+import { FpsMeter } from "./PerfGuard";
 import { RelationsAnchor } from "./RelationsAnchor";
 
 // WebGL only runs in the browser; keep the globe out of server prerendering.
@@ -73,6 +74,7 @@ export function GlobeClient() {
       <NuclearMarkers />
       <ChokepointMarkers />
       <ActivityMarkers />
+      {process.env.NODE_ENV === "development" && <FpsMeter />}
       <HoverTooltip />
     </>
   );

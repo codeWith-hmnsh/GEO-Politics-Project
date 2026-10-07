@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { usePulse } from "@/lib/api";
 import type { PulseConflict } from "@/lib/data/pulse";
 import { latLngToVec3 } from "@/lib/geo/sphere";
+import { arcBudget } from "@/lib/perf";
 import { useGlobe } from "@/lib/store";
 import { arcCurve, arcMaterial, glowTexture, headProgress, ringTexture } from "../fx";
 import { prefersReducedMotion } from "../shared";
@@ -119,8 +120,9 @@ export function WarsLayer() {
     if (group.current) group.current.visible = fade.current > 0.01;
   });
 
+  const tier = useGlobe((s) => s.tier);
   const conflicts = data?.data.conflicts ?? [];
-  const arcs = conflicts.filter((c) => c.strikesActive).flatMap((c) => c.strikes as [number, number][][]).slice(0, MAX_ARCS);
+  const arcs = conflicts.filter((c) => c.strikesActive).flatMap((c) => c.strikes as [number, number][][]).slice(0, arcBudget(MAX_ARCS, tier));
 
   return (
     <group ref={group}>

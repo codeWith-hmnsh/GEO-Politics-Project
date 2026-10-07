@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import sanctions from "@/data/curated/sanctions.json";
 import { issuerPoint } from "@/lib/diplomacy";
 import type { IndexedCountry } from "@/lib/geo/countries";
+import { arcBudget } from "@/lib/perf";
 import { useGlobe } from "@/lib/store";
 import { RelationArc } from "./RelationsLayer";
 
@@ -13,6 +14,7 @@ export const SANCTION_COLOR = "#c25a84";
 export function SanctionsLayer({ countries }: { countries: IndexedCountry[] }) {
   const on = useGlobe((s) => s.mode === "diplomacy" && s.diplo.view === "sanctions");
   const selected = useGlobe((s) => s.selectedIso3);
+  const tier = useGlobe((s) => s.tier);
   const arcs = useMemo(() => {
     if (!on) return [];
     const byIso = new Map(countries.map((c) => [c.iso3, c.centroid]));
@@ -30,7 +32,7 @@ export function SanctionsLayer({ countries }: { countries: IndexedCountry[] }) {
   }, [on, selected, countries]);
   return (
     <>
-      {arcs.map((a, i) => (
+      {arcs.slice(0, arcBudget(arcs.length, tier)).map((a, i) => (
         <RelationArc key={a.key} from={a.from} to={a.to} color={SANCTION_COLOR} index={i} />
       ))}
     </>

@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { usePulse } from "@/lib/api";
 import type { IndexedCountry } from "@/lib/geo/countries";
 import { REL_COLORS, relationsFor, type RelStatus } from "@/lib/relations";
+import { arcBudget } from "@/lib/perf";
 import { useGlobe } from "@/lib/store";
 import { arcCurve, arcMaterial, glowTexture, headProgress, surfaceCurve } from "../fx";
 import { prefersReducedMotion } from "../shared";
@@ -67,6 +68,7 @@ export function RelationsLayer({ countries }: { countries: IndexedCountry[] }) {
   const { data } = usePulse();
   const visible = useHomeLayerVisible("rel");
   const selected = useGlobe((s) => (s.mode === "home" || (s.mode === "diplomacy" && s.diplo.view === "relations") ? s.selectedIso3 : null));
+  const tier = useGlobe((s) => s.tier);
   const fade = useRef(0);
   const group = useRef<THREE.Group>(null);
 
@@ -84,10 +86,10 @@ export function RelationsLayer({ countries }: { countries: IndexedCountry[] }) {
     return (Object.keys(ARC_LIMITS) as (keyof typeof ARC_LIMITS)[]).flatMap((status) =>
       rows
         .filter((r) => r.status === status && byIso.has(r.iso3))
-        .slice(0, ARC_LIMITS[status])
+        .slice(0, arcBudget(ARC_LIMITS[status], tier))
         .map((r) => ({ key: `${selected}-${r.iso3}`, from: origin.centroid, to: byIso.get(r.iso3)!.centroid, color: REL_COLORS[status] })),
     );
-  }, [selected, data, countries]);
+  }, [selected, data, countries, tier]);
 
   return (
     <>

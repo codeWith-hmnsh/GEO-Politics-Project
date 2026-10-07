@@ -51,9 +51,9 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - [x] Textures copied to `public/textures/`. Cloud texture licence still to verify.
 - [x] `GlobeCanvas`: Earth (Phong + bump + specular + night emissive), atmosphere halo + rim, two cloud shells + shadow shell.
 - [x] `CountryBorders`, `AdminBorders` (lazy below 2.05 R), `CountryOutlines` (hover white, selected gold), picking by ray → lat/lng → point-in-polygon, hover tooltip.
-- [ ] `DataOverlay` canvas sphere (fills) — moved to M1.4–M1.6 where the first fills are needed.
+- [x] `DataOverlay` canvas sphere (fills) — built in M1.4–M1.6.
 - [x] `CameraRig`: smooth target follow, inertia, zoom to cursor, pinch, tilt with zoom, parabolic `flyTo` (intro + store requests), idle drift, reduced motion, home view fitted to screen shape. Compass button comes with the map controls in M1.2.
-- [ ] Device tiering (detect-gpu) and FPS meter (dev only).
+- [x] Device tiering (detect-gpu, frame-rate fallback, `?tier=`) and FPS meter (dev only).
 - **Check:** 60 fps on desktop, ≥ 30 fps on a mid-range Android; side-by-side screenshot with the Google 3D Maps demo at planet distance looks comparable (atmosphere rim, night lights, smooth motion).
 
 ### M1.2 Intro + chrome (week 2–3)
@@ -83,7 +83,7 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - [x] Bloc badges (NATO, EU, BRICS, SCO, QUAD) → member tint on the new `DataOverlay` canvas sphere + bloc panel (purpose, members with flags, HQ, live news).
 - [x] Summit callout cards for summits in the next 2 months ("dates to be confirmed" until an editor confirms); summit panel with agenda and news.
 - [x] Crisis ⚠ badges; golden dashed trade routes (`data/curated/lanes.json`) with moving ships that face their direction.
-- [ ] Market pills + Markets card values: blocked on a market-data provider key (Stooq added a bot check).
+- [ ] Market pills + Markets card values: blocked on a market-data provider key (Stooq added a bot check). Until then `flags.markets` is off and the card shows news only.
 - **Check:** With no badge selected the globe shows no bloc tint (clean default); matches `v3-01-landing.png`.
 
 ### M1.6 Home layer 4 — Relations (week 5)
@@ -94,7 +94,7 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - **Check:** India, USA, China, Russia, Pakistan, Brazil, Nigeria relation maps reviewed manually against baseline; no unexplained status.
 
 ### M1.7 Landing polish + release (week 5)
-- [ ] News tab in the Markets/News card: section colour, time, source count; tap → flyTo + open panel.
+- [x] News tab in the Markets/News card: section colour, time, source count; tap → flyTo + open the conflict card or country panel; "Read" opens the article.
 - [x] Search (command palette) for countries, conflicts and blocs.
 - [x] Accessibility pass: axe WCAG 2.1 AA check in `e2e/a11y.spec.ts` (no serious issues), darker caption token, labelled globe, keyboard search and `Esc`; reduced motion handled in camera, clouds and arcs.
 - [x] 2D fallback map for no-WebGL (d3-geo, same panels; e2e test with WebGL disabled).
@@ -121,7 +121,7 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - [x] Mode news in the mode card and country panel (section filter, + country filter on selection).
 - [x] Compare for Economy + Defense: "Compare with…" then tap a second country; camera frames both; paired bars in neutral colours, no winner.
 - [x] Glossary: 40 terms (`data/curated/glossary.json`, draft for review), `/glossary` page, underlined chips in mode card, country panel and bloc chips, related terms, "See on globe" (bloc tint, member highlight or fly-to); deep link `/?term=<id>`.
-- [ ] E2E: Home → Economy (Home layers gone) → Defense → Home (Home layers back, news refreshed).
+- [x] E2E: Home → mode (Home layers gone) → Home (Home layers back), for Economy, Defense and Energy (`e2e/visual.spec.ts`).
 
 ### Done when
 - PRD FR-M-01…07, §9.4, §9.5 pass.
