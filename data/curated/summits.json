@@ -1,0 +1,58 @@
+{
+ "reviewedAt": "2026-10-07",
+ "needsEditorialReview": true,
+ "note": "Draft written during setup. An editor must confirm statuses, dates and wording before public launch (docs/CONTENT-GUIDE.md section 6).",
+ "items": [
+  {
+   "id": "apec-2026",
+   "org": null,
+   "name": "APEC Leaders' Meeting",
+   "host": "Shenzhen, China",
+   "at": [
+    22.54,
+    114.06
+   ],
+   "month": "2026-11",
+   "datesConfirmed": false,
+   "agenda": [
+    "Trade and supply chains across the Asia-Pacific",
+    "Digital economy",
+    "Growth and investment"
+   ]
+  },
+  {
+   "id": "cop31",
+   "org": null,
+   "name": "COP31 climate summit",
+   "host": "Antalya, Türkiye",
+   "at": [
+    36.9,
+    30.7
+   ],
+   "month": "2026-11",
+   "datesConfirmed": false,
+   "agenda": [
+    "Emission cuts",
+    "Climate finance",
+    "Adaptation"
+   ]
+  },
+  {
+   "id": "g20-2026",
+   "org": "G20",
+   "name": "G20 Leaders' Summit",
+   "host": "Miami, United States",
+   "at": [
+    25.78,
+    -80.19
+   ],
+   "month": "2026-12",
+   "datesConfirmed": false,
+   "agenda": [
+    "Global growth",
+    "Trade",
+    "Debt and finance"
+   ]
+  }
+ ]
+}

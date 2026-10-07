@@ -72,7 +72,7 @@ Rejected for MVP: **NewsAPI.org** (free plan is development-only), **GNews** (fr
 | **World Bank Indicators API** `api.worldbank.org/v2/` | History for sparklines, youth unemployment `SL.UEM.1524.ZS`, external debt `DT.DOD.DECT.CD` | Free, no key | Annual / quarterly | Sparklines, gaps not in IMF |
 | **World Bank IDS** (source 6) | External debt by creditor (multilateral, bilateral counterpart) | Free | Annual | "Who lends to whom" arcs |
 | **UN Comtrade API** | Bilateral trade by partner | Free key; free tier ~500 calls/day **(verify)** | Monthly / annual | Top 5 export/import partners + arcs |
-| **Stooq CSV quotes** | Daily index close for 8 markets | Free, no key | Daily | Home market arrows |
+| **Market quotes provider (to choose)** | Daily index close for 6–8 markets | Free key | Daily | Home market pills and Markets card. **Stooq is no longer usable** (bot check added, found 2026-10-07); candidates: Twelve Data or Alpha Vantage free tiers — confirm index coverage on sign-up |
 | **ExchangeRate-API open access** `open.er-api.com` | Daily rates, ~160 currencies | Free, no key, attribution required | Daily | Currency vs USD |
 | **Curated `crises.json` + `imf_programs.json`** | Countries in crisis, active IMF arrangements | Ours (from IMF lending pages) | Monthly | ⚠ markers, "active IMF programme" |
 | **AidData Chinese Development Finance** | Chinese official loans by country | Free dataset | Static (per release) | Creditor breakdown includes China (P1) |
@@ -163,6 +163,8 @@ Step 3 (P2, optional) — small LLM classification + one-line "why it matters" d
 Country tagging: GDELT `sourcecountry` is the *publisher's* country, not the story's. Use GDELT GEO / location fields + country-name matching on the title to tag the story's countries.
 
 ## 5. Fetch schedule and budget
+
+> **Status 2026-10-07 (M1.3):** the news job runs on trusted RSS feeds (13 feeds) plus GDELT. During development GDELT answered HTTP 429 for every request from the dev machine, so RSS carries the load and GDELT is used whenever it responds. The job never fails because of GDELT.
 
 | Job | Sources | Interval | Calls per run | Calls per day | Free limit |
 |---|---|---|---|---|---|

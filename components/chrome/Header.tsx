@@ -4,6 +4,7 @@ import { Bell, Calendar, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { timeAgo, useNews } from "@/lib/api";
 import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
 import { homeView, useGlobe } from "@/lib/store";
 
@@ -104,6 +105,8 @@ function CountrySearch() {
 
 function DateChip() {
   const [today, setToday] = useState("");
+  const news = useNews({ limit: 8 });
+  const asOf = news.data?.asOf;
   useEffect(() => {
     const id = requestAnimationFrame(() =>
       setToday(new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })),
@@ -115,7 +118,7 @@ function DateChip() {
       <Calendar className="size-[18px]" aria-hidden />
       <span>
         <span suppressHydrationWarning>{today}</span>
-        <small className="block text-[11.5px] font-medium text-ink-3">Live data arrives soon</small>
+        <small className="block text-[11.5px] font-medium text-ink-3">{asOf ? `Updated ${timeAgo(asOf)}` : "Connecting…"}</small>
       </span>
     </div>
   );

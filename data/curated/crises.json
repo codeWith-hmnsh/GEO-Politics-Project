@@ -1,0 +1,23 @@
+{
+ "reviewedAt": "2026-10-07",
+ "needsEditorialReview": true,
+ "note": "Draft written during setup. An editor must confirm statuses, dates and wording before public launch (docs/CONTENT-GUIDE.md section 6).",
+ "items": [
+  {
+   "iso3": "ARG",
+   "basis": "IMF programme approved in 2025 after years of high inflation."
+  },
+  {
+   "iso3": "PAK",
+   "basis": "IMF Extended Fund Facility since 2024; tight public finances."
+  },
+  {
+   "iso3": "EGY",
+   "basis": "IMF programme and pressure on the currency."
+  },
+  {
+   "iso3": "LBN",
+   "basis": "Deep financial collapse since 2019."
+  }
+ ]
+}

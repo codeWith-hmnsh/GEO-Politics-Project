@@ -1,0 +1,343 @@
+{
+ "reviewedAt": "2026-10-07",
+ "needsEditorialReview": true,
+ "note": "Draft written during setup. An editor must confirm statuses, dates and wording before public launch (docs/CONTENT-GUIDE.md section 6).",
+ "items": [
+  {
+   "id": "ru-ua",
+   "name": "Russia – Ukraine War",
+   "parties": [
+    "Russia",
+    "Ukraine"
+   ],
+   "flags": [
+    "RUS",
+    "UKR"
+   ],
+   "start": "2022-02-24",
+   "type": "interstate",
+   "status": "active",
+   "intensity": 3,
+   "at": [
+    48.4,
+    37.6
+   ],
+   "callout": true,
+   "why": [
+    "Largest war in Europe since 1945, with heavy military and civilian losses.",
+    "Shook global grain, fertiliser and gas markets, which affects prices far away.",
+    "Sits at the centre of NATO–Russia tension and Western sanctions on Russia."
+   ],
+   "strikes": [
+    [
+     [
+      47.2,
+      39.7
+     ],
+     [
+      49.99,
+      36.23
+     ]
+    ],
+    [
+     [
+      50.6,
+      36.6
+     ],
+     [
+      50.45,
+      30.52
+     ]
+    ],
+    [
+     [
+      45.0,
+      34.1
+     ],
+     [
+      46.48,
+      30.72
+     ]
+    ],
+    [
+     [
+      47.2,
+      39.7
+     ],
+     [
+      47.84,
+      35.14
+     ]
+    ],
+    [
+     [
+      50.4,
+      30.5
+     ],
+     [
+      53.2,
+      34.4
+     ]
+    ],
+    [
+     [
+      49.4,
+      32.0
+     ],
+     [
+      47.2,
+      39.7
+     ]
+    ]
+   ],
+   "keywords": [
+    "ukraine",
+    "kyiv",
+    "kharkiv",
+    "odesa",
+    "zelensky",
+    "zelenskyy",
+    "donbas",
+    "crimea"
+   ]
+  },
+  {
+   "id": "gaza",
+   "name": "Israel – Gaza Conflict",
+   "parties": [
+    "Israel",
+    "Hamas"
+   ],
+   "flags": [
+    "ISR",
+    "PSE"
+   ],
+   "start": "2023-10-07",
+   "type": "interstate-nonstate",
+   "status": "ceasefire",
+   "intensity": 2,
+   "at": [
+    31.4,
+    34.4
+   ],
+   "callout": true,
+   "why": [
+    "Very high civilian toll and humanitarian need in Gaza.",
+    "A ceasefire agreed in October 2025 is fragile, with repeated deadly strikes reported.",
+    "Draws in regional actors and affects Middle East diplomacy."
+   ],
+   "strikes": [],
+   "keywords": [
+    "gaza",
+    "hamas",
+    "rafah",
+    "khan younis",
+    "west bank"
+   ]
+  },
+  {
+   "id": "sudan",
+   "name": "Sudan Civil War",
+   "parties": [
+    "Sudanese Armed Forces",
+    "Rapid Support Forces"
+   ],
+   "flags": [
+    "SDN"
+   ],
+   "start": "2023-04-15",
+   "type": "civil",
+   "status": "active",
+   "intensity": 3,
+   "at": [
+    14.2,
+    28.8
+   ],
+   "callout": true,
+   "why": [
+    "One of the world's largest displacement crises.",
+    "Fighting spreads hunger across a country of about 50 million people.",
+    "Regional powers back different sides, which makes peace harder."
+   ],
+   "strikes": [],
+   "keywords": [
+    "sudan",
+    "khartoum",
+    "darfur",
+    "el fasher",
+    "rsf",
+    "kordofan"
+   ]
+  },
+  {
+   "id": "myanmar",
+   "name": "Myanmar Civil War",
+   "parties": [
+    "Military government",
+    "Resistance and ethnic armed groups"
+   ],
+   "flags": [
+    "MMR"
+   ],
+   "start": "2021-02-01",
+   "type": "civil",
+   "status": "active",
+   "intensity": 2,
+   "at": [
+    21.5,
+    95.9
+   ],
+   "why": [
+    "Conflict since the 2021 military coup has split the country.",
+    "Borders India, China, Bangladesh and Thailand, with refugee flows.",
+    "Tests ASEAN's ability to manage a crisis among its members."
+   ],
+   "strikes": [],
+   "keywords": [
+    "myanmar",
+    "burma",
+    "rakhine",
+    "junta"
+   ]
+  },
+  {
+   "id": "drc",
+   "name": "Eastern DR Congo",
+   "parties": [
+    "DR Congo",
+    "M23 rebels"
+   ],
+   "flags": [
+    "COD"
+   ],
+   "start": "2022-03-01",
+   "type": "civil",
+   "status": "active",
+   "intensity": 2,
+   "at": [
+    -1.7,
+    29.2
+   ],
+   "why": [
+    "Long-running war in a region rich in minerals used in electronics.",
+    "Millions displaced in North and South Kivu.",
+    "Strains relations between DR Congo and Rwanda despite peace talks."
+   ],
+   "strikes": [],
+   "keywords": [
+    "goma",
+    "m23",
+    "north kivu",
+    "south kivu",
+    "bukavu"
+   ]
+  },
+  {
+   "id": "sahel",
+   "name": "Sahel Insurgencies",
+   "parties": [
+    "Mali, Burkina Faso, Niger",
+    "Armed Islamist groups"
+   ],
+   "flags": [
+    "MLI",
+    "BFA",
+    "NER"
+   ],
+   "start": "2012-01-17",
+   "type": "insurgency",
+   "status": "active",
+   "intensity": 2,
+   "at": [
+    14.3,
+    -1.6
+   ],
+   "why": [
+    "Armed groups control wide rural areas across three countries.",
+    "Military governments have changed foreign partners in the region.",
+    "Instability pushes migration toward coastal West Africa and Europe."
+   ],
+   "strikes": [],
+   "keywords": [
+    "sahel",
+    "mali",
+    "burkina faso",
+    "niger",
+    "jnim"
+   ]
+  },
+  {
+   "id": "yemen",
+   "name": "Yemen Conflict",
+   "parties": [
+    "Houthis",
+    "Yemeni government and allies"
+   ],
+   "flags": [
+    "YEM"
+   ],
+   "start": "2014-09-21",
+   "type": "civil",
+   "status": "active",
+   "intensity": 2,
+   "at": [
+    15.4,
+    44.2
+   ],
+   "why": [
+    "Long civil war with a severe humanitarian crisis.",
+    "Attacks near the Red Sea have disrupted global shipping routes.",
+    "Linked to the wider Iran–Saudi and Middle East rivalry."
+   ],
+   "strikes": [
+    [
+     [
+      15.4,
+      44.2
+     ],
+     [
+      14.6,
+      42.0
+     ]
+    ]
+   ],
+   "keywords": [
+    "yemen",
+    "houthi",
+    "houthis",
+    "aden",
+    "sanaa",
+    "red sea"
+   ]
+  },
+  {
+   "id": "haiti",
+   "name": "Haiti Gang Violence",
+   "parties": [
+    "Armed gangs",
+    "Haitian state and international mission"
+   ],
+   "flags": [
+    "HTI"
+   ],
+   "start": "2021-07-07",
+   "type": "civil",
+   "status": "active",
+   "intensity": 1,
+   "at": [
+    18.55,
+    -72.3
+   ],
+   "why": [
+    "Gangs control most of the capital, Port-au-Prince.",
+    "Hunger and displacement are rising.",
+    "An international security mission is trying to restore order."
+   ],
+   "strikes": [],
+   "keywords": [
+    "haiti",
+    "port-au-prince"
+   ]
+  }
+ ]
+}

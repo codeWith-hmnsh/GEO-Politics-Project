@@ -65,12 +65,12 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - **Check:** Intro → Home in ≤ 4 s; skip works by click, tap, key; desktop and mobile match `v3-01-landing.png` and `v3-07-mobile.png`.
 
 ### M1.3 Data backbone (week 3)
-- [ ] `ingest/clients/gdelt.ts` (DOC + GEO, 5 s spacing, retry), `rss.ts`, `guardian.ts`.
-- [ ] `ingest/pipeline/classify.ts`, `geotag.ts`, `cluster.ts` (+ unit tests with recorded fixtures).
-- [ ] `config/sources.json` allowlist with tiers; 2-source rule implemented in cluster scoring.
-- [ ] Jobs: `news-global` (15 min), `conflicts` (30 min). GitHub Actions workflows.
-- [ ] Curated data v1: `conflicts.json`, `organizations.json`, `summits.json`, `hostile_borders.json`, `crises.json`, `relations_baseline.json` (top 40 countries), `data/seed/*` fallback snapshots.
-- [ ] Route handlers: `/api/pulse`, `/api/news`, with `asOf`, `stale`, `sources`; seed fallback when DB fails.
+- [x] `ingest/clients/gdelt.ts` (DOC, 6 s spacing, 429 back-off) and `rss.ts` (RSS 2.0, RDF, Atom). Guardian content comes through its free RSS for now; the key-based API is optional.
+- [x] `ingest/pipeline/classify.ts` (+ sport/call-out exclusions), `geotag.ts` (names, demonyms, capitals, cities), `cluster.ts` (per-headline similarity, 24 h window) with unit tests.
+- [x] `config/sources.json` allowlist with tiers and blocked state media; 2-source rule sets `verified` on clusters.
+- [x] Job `news` (`npm run ingest -- news`), scheduled every 15 min in `.github/workflows/ingest-news.yml` (skips until Supabase secrets exist). Conflict strike detection runs inside `/api/pulse` from the news snapshot.
+- [x] Curated data v1 (draft, flagged for editorial review): `conflicts.json`, `organizations.json`, `summits.json`, `borders.json` (hostile + disputed), `crises.json`; `data/seed/news.json` fallback. `relations_baseline.json` moves to M1.6.
+- [x] Route handlers `/api/news` and `/api/pulse` with `asOf`, `stale`, `sources`; storage falls back Supabase → `data/live` → `data/seed`. News tab and header "Updated …" use them.
 - **Check:** News rows appear in Supabase every 15 min; `/api/pulse` returns valid zod-parsed payload; turning off network to Supabase still serves seed with `stale: true`.
 
 ### M1.4 Home layer 1 — Wars & conflicts (week 4)

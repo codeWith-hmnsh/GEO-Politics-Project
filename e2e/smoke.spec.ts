@@ -17,3 +17,18 @@ test("country geometry is served", async ({ request }) => {
   const list = (await res.json()) as { iso3: string }[];
   expect(list.some((c) => c.iso3 === "IND")).toBe(true);
 });
+
+test("news and pulse APIs return data with freshness", async ({ request }) => {
+  const news = await (await request.get("/api/news?limit=5")).json();
+  expect(Array.isArray(news.data)).toBe(true);
+  expect(news.data.length).toBeGreaterThan(0);
+  expect(news.data[0]).toHaveProperty("verified");
+  expect(typeof news.asOf).toBe("string");
+
+  const conflict = await (await request.get("/api/news?section=conflict&limit=50")).json();
+  for (const c of conflict.data) expect(c.sections).toContain("conflict");
+
+  const pulse = await (await request.get("/api/pulse")).json();
+  expect(pulse.data.conflicts.length).toBeGreaterThan(0);
+  expect(pulse.data.organizations.some((o: { id: string }) => o.id === "NATO")).toBe(true);
+});

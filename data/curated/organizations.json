@@ -1,0 +1,239 @@
+{
+ "reviewedAt": "2026-10-07",
+ "needsEditorialReview": true,
+ "note": "Draft written during setup. An editor must confirm statuses, dates and wording before public launch (docs/CONTENT-GUIDE.md section 6).",
+ "items": [
+  {
+   "id": "NATO",
+   "name": "NATO",
+   "color": "#2F6FDB",
+   "pin": [
+    58,
+    16
+   ],
+   "hq": "Brussels",
+   "shown": true,
+   "purpose": "Military alliance. An attack on one member is treated as an attack on all (Article 5).",
+   "members": [
+    "ALB",
+    "BEL",
+    "BGR",
+    "CAN",
+    "HRV",
+    "CZE",
+    "DNK",
+    "EST",
+    "FIN",
+    "FRA",
+    "DEU",
+    "GRC",
+    "HUN",
+    "ISL",
+    "ITA",
+    "LVA",
+    "LTU",
+    "LUX",
+    "MNE",
+    "NLD",
+    "MKD",
+    "NOR",
+    "POL",
+    "PRT",
+    "ROU",
+    "SVK",
+    "SVN",
+    "ESP",
+    "SWE",
+    "TUR",
+    "GBR",
+    "USA"
+   ]
+  },
+  {
+   "id": "EU",
+   "name": "European Union",
+   "color": "#4F5FE0",
+   "pin": [
+    46,
+    0
+   ],
+   "hq": "Brussels",
+   "shown": true,
+   "purpose": "Political and economic union with a single market; 20 members share the euro.",
+   "members": [
+    "AUT",
+    "BEL",
+    "BGR",
+    "HRV",
+    "CYP",
+    "CZE",
+    "DNK",
+    "EST",
+    "FIN",
+    "FRA",
+    "DEU",
+    "GRC",
+    "HUN",
+    "IRL",
+    "ITA",
+    "LVA",
+    "LTU",
+    "LUX",
+    "MLT",
+    "NLD",
+    "POL",
+    "PRT",
+    "ROU",
+    "SVK",
+    "SVN",
+    "ESP",
+    "SWE"
+   ]
+  },
+  {
+   "id": "BRICS",
+   "name": "BRICS",
+   "color": "#E39A1E",
+   "pin": [
+    52,
+    112
+   ],
+   "hq": "New Development Bank, Shanghai",
+   "shown": true,
+   "purpose": "Group of major emerging economies seeking more say in global finance.",
+   "members": [
+    "BRA",
+    "RUS",
+    "IND",
+    "CHN",
+    "ZAF",
+    "EGY",
+    "ETH",
+    "IRN",
+    "ARE",
+    "IDN"
+   ]
+  },
+  {
+   "id": "SCO",
+   "name": "Shanghai Cooperation Organisation",
+   "color": "#C2416B",
+   "pin": [
+    44,
+    66
+   ],
+   "hq": "Beijing",
+   "shown": true,
+   "purpose": "Eurasian security and economic organisation led by China and Russia.",
+   "members": [
+    "CHN",
+    "RUS",
+    "IND",
+    "PAK",
+    "KAZ",
+    "KGZ",
+    "TJK",
+    "UZB",
+    "IRN",
+    "BLR"
+   ]
+  },
+  {
+   "id": "QUAD",
+   "name": "Quad",
+   "color": "#0EA5C6",
+   "pin": [
+    -4,
+    134
+   ],
+   "hq": "No headquarters",
+   "shown": true,
+   "purpose": "Strategic dialogue of four Indo-Pacific democracies.",
+   "members": [
+    "IND",
+    "USA",
+    "JPN",
+    "AUS"
+   ]
+  },
+  {
+   "id": "ASEAN",
+   "name": "ASEAN",
+   "color": "#2FA36B",
+   "pin": [
+    12,
+    104
+   ],
+   "hq": "Jakarta",
+   "shown": false,
+   "purpose": "Regional bloc of Southeast Asian nations for trade and stability.",
+   "members": [
+    "BRN",
+    "KHM",
+    "IDN",
+    "LAO",
+    "MYS",
+    "MMR",
+    "PHL",
+    "SGP",
+    "THA",
+    "VNM",
+    "TLS"
+   ]
+  },
+  {
+   "id": "G7",
+   "name": "G7",
+   "color": "#3A4A5A",
+   "pin": [
+    47,
+    -40
+   ],
+   "hq": "Rotating presidency",
+   "shown": false,
+   "purpose": "Seven large advanced economies that coordinate on economy and security.",
+   "members": [
+    "USA",
+    "CAN",
+    "GBR",
+    "FRA",
+    "DEU",
+    "ITA",
+    "JPN"
+   ]
+  },
+  {
+   "id": "G20",
+   "name": "G20",
+   "color": "#1F9E8F",
+   "pin": [
+    -10,
+    -30
+   ],
+   "hq": "Rotating presidency",
+   "shown": false,
+   "purpose": "Forum of the largest economies, about 85% of world GDP. The EU and African Union are also members.",
+   "members": [
+    "ARG",
+    "AUS",
+    "BRA",
+    "CAN",
+    "CHN",
+    "FRA",
+    "DEU",
+    "IND",
+    "IDN",
+    "ITA",
+    "JPN",
+    "MEX",
+    "RUS",
+    "SAU",
+    "ZAF",
+    "KOR",
+    "TUR",
+    "GBR",
+    "USA"
+   ]
+  }
+ ]
+}

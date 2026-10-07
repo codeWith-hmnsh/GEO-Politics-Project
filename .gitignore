@@ -50,3 +50,6 @@ next-env.d.ts
 
 # build caches
 /.cache/
+
+# local ingest output (data/seed is the committed fallback)
+/data/live/
