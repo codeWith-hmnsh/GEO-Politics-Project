@@ -1,6 +1,14 @@
 // Ingest CLI: `npm run ingest -- <news|indicators|profiles|trade|creditors|energy|crude|unvotes> [--no-gdelt] [--seed]`
 import { copyFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
+import { loadEnvFile } from "node:process";
+
+try {
+  loadEnvFile(".env.local");
+} catch {
+  // Ignored if file doesn't exist (e.g. in CI where env vars are already injected)
+}
+
 import { runCreditors, runCrude, runProfiles, runTrade } from "./jobs/country";
 import { runEnergy } from "./jobs/energy";
 import { runIndicators } from "./jobs/indicators";
