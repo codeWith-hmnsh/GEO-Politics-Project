@@ -111,7 +111,7 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
         lastHover = now;
         const ll = hit(e);
         const c = ll ? countryAt(countriesRef.current, ll[0], ll[1]) : null;
-        useGlobe.getState().setHover(c?.iso3 ?? null, c?.name ?? null, e.clientX, e.clientY);
+        useGlobe.getState().setHover(c?.iso3 ?? null, c?.name ?? null, e.clientX, e.clientY, ll);
         el.style.cursor = c ? "pointer" : "grab";
         return;
       }

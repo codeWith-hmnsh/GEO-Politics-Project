@@ -4,7 +4,7 @@ import { Bell, Calendar, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { timeAgo, useNews } from "@/lib/api";
+import { timeAgo, useNews, usePulse } from "@/lib/api";
 import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
 import { homeView, useGlobe } from "@/lib/store";
 
@@ -13,7 +13,7 @@ const NAV = [
   { id: "brief", label: "Daily Brief", ready: false },
   { id: "stories", label: "Stories", ready: false },
   { id: "glossary", label: "Glossary", ready: false },
-  { id: "sources", label: "Sources", ready: false },
+  { id: "sources", label: "Sources", ready: true },
 ] as const;
 
 export function goHome() {
@@ -52,6 +52,7 @@ function SoonTip({ children, label }: { children: React.ReactNode; label: string
 function CountrySearch() {
   const [open, setOpen] = useState(false);
   const [countries, setCountries] = useState<IndexedCountry[]>([]);
+  const { data: pulse } = usePulse();
 
   useEffect(() => {
     loadCountries().then(setCountries).catch(() => setCountries([]));
@@ -84,11 +85,47 @@ function CountrySearch() {
         <span className="truncate">Search countries, conflicts, organizations…</span>
         <kbd className="ml-auto rounded border border-border px-1.5 text-[11px] text-ink-3">/</kbd>
       </button>
-      <CommandDialog open={open} onOpenChange={setOpen} title="Search" description="Find a country">
+      <CommandDialog open={open} onOpenChange={setOpen} title="Search" description="Find a country, conflict or bloc">
         <Command>
-          <CommandInput placeholder="Search countries…" />
+          <CommandInput placeholder="Search countries, conflicts, blocs…" />
           <CommandList>
-            <CommandEmpty>No country found.</CommandEmpty>
+            <CommandEmpty>Nothing found.</CommandEmpty>
+            {pulse && (
+              <CommandGroup heading="Conflicts">
+                {pulse.data.conflicts.map((c) => (
+                  <CommandItem
+                    key={c.id}
+                    value={`${c.name} ${c.parties.join(" ")}`}
+                    onSelect={() => {
+                      setOpen(false);
+                      const s = useGlobe.getState();
+                      s.selectConflict(c.id);
+                      s.flyTo({ lat: c.at[0], lng: c.at[1], dist: 1.9 });
+                    }}
+                  >
+                    {c.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {pulse && (
+              <CommandGroup heading="Alliances and blocs">
+                {pulse.data.organizations.map((o) => (
+                  <CommandItem
+                    key={o.id}
+                    value={`${o.id} ${o.name}`}
+                    onSelect={() => {
+                      setOpen(false);
+                      const s = useGlobe.getState();
+                      s.selectOrg(o.id);
+                      s.flyTo({ lat: o.pin[0], lng: o.pin[1], dist: 3.2 });
+                    }}
+                  >
+                    {o.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
             <CommandGroup heading="Countries">
               {countries.map((c) => (
                 <CommandItem key={c.iso3} value={c.name} onSelect={() => choose(c)}>
@@ -130,7 +167,7 @@ export function Header() {
       <Logo />
       <nav aria-label="Main" className="pointer-events-auto flex gap-7 max-[1280px]:hidden">
         {NAV.map((n) =>
-          n.ready ? (
+          n.id === "home" ? (
             <button
               key={n.id}
               type="button"
@@ -140,6 +177,10 @@ export function Header() {
             >
               {n.label}
             </button>
+          ) : n.ready ? (
+            <a key={n.id} href={`/${n.id}`} className="py-2 text-[14.5px] font-medium text-ink-2 hover:text-ink">
+              {n.label}
+            </a>
           ) : (
             <SoonTip key={n.id} label="Coming soon">
               <button type="button" aria-disabled className="py-2 text-[14.5px] font-medium text-ink-3">

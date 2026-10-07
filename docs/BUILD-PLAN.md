@@ -95,11 +95,11 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 
 ### M1.7 Landing polish + release (week 5)
 - [ ] News tab in the Markets/News card: section colour, time, source count; tap → flyTo + open panel.
-- [ ] Search (command palette) for countries and conflicts.
+- [x] Search (command palette) for countries, conflicts and blocs.
 - [ ] Accessibility pass (keyboard path, live region, contrast on glass), reduced-motion pass.
-- [ ] 2D fallback map for no-WebGL.
+- [x] 2D fallback map for no-WebGL (d3-geo, same panels; e2e test with WebGL disabled).
 - [ ] Lighthouse CI budgets; E2E: intro → Home → conflict card → country relations → news click.
-- [ ] `/sources` page.
+- [x] `/sources` page (datasets, licences, trusted outlets by tier, blocked outlets).
 - **M1 release criteria:**
   - 5 test users (2 students, 1 UPSC aspirant, 2 non-experts) each explain "what is happening in the world" after 10 s on Home — ≥ 4 of 5 succeed.
   - No layer exceeds its visual budget (UI-DESIGN §4.3).

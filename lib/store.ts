@@ -13,6 +13,7 @@ type GlobeState = {
   camera: CameraState;
   hoverIso3: string | null;
   hoverName: string | null;
+  hoverLatLng: [number, number] | null;
   pointer: { x: number; y: number };
   selectedIso3: string | null;
   selectedConflict: string | null;
@@ -25,7 +26,7 @@ type GlobeState = {
   layers: Record<LayerId, boolean>;
   pulseOpen: boolean;
   adminLabels: Record<string, AdminLabel[]>;
-  setHover: (iso3: string | null, name: string | null, x: number, y: number) => void;
+  setHover: (iso3: string | null, name: string | null, x: number, y: number, latLng?: [number, number] | null) => void;
   select: (iso3: string | null) => void;
   selectConflict: (id: string | null) => void;
   selectOrg: (id: string | null) => void;
@@ -61,6 +62,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   camera: { ...HOME_VIEW },
   hoverIso3: null,
   hoverName: null,
+  hoverLatLng: null,
   pointer: { x: 0, y: 0 },
   selectedIso3: null,
   selectedConflict: null,
@@ -73,7 +75,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   layers: { wars: true, orgs: true, econ: true, rel: true },
   pulseOpen: true,
   adminLabels: {},
-  setHover: (iso3, name, x, y) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y } }),
+  setHover: (iso3, name, x, y, latLng = null) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y }, hoverLatLng: latLng }),
   // One panel at a time: each selection clears the others.
   select: (iso3) => set({ ...NONE, selectedIso3: iso3 }),
   selectConflict: (id) => set({ ...NONE, selectedConflict: id }),
