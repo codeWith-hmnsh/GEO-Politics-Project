@@ -74,9 +74,9 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - **Check:** News rows appear in Supabase every 15 min; `/api/pulse` returns valid zod-parsed payload; turning off network to Supabase still serves seed with `stale: true`.
 
 ### M1.4 Home layer 1 — Wars & conflicts (week 4)
-- [ ] Surface glows + pulse rings, size by intensity tier; dark callout cards (flags, name, days) for the top 3.
-- [ ] Missile tube arcs (moving head, trail, impact ring) driven by `strike_reports` (48 h expiry); max 12; "symbolic" note in panel.
-- [ ] Conflict panel: status pill, CountUp day counter, parties with flags, casualties + source, Why it matters, 3 latest news, Watch story.
+- [x] Surface glows + pulse rings, size by intensity tier and zoom; dark callout cards (flags, name, status, days) for the top 3; click targets on every hotspot.
+- [x] Missile tube arcs (moving head, trail, impact ring), shown only when `/api/pulse` finds a verified strike report in the last 48 h; max 12; "symbolic" note in panel.
+- [x] Conflict panel: status pill, CountUp day counter, intensity, parties with flags, Why it matters, latest news, Watch story (disabled until tours). Casualty figures wait for editor-sourced data.
 - **Check:** Every arc on screen maps to a cluster with ≥ 2 trusted sources (verify in a debug overlay).
 
 ### M1.5 Home layers 2–3 — Alliances, summits, economy pulse (week 4)

@@ -18,20 +18,29 @@ export function MarkerProjector() {
       tmp.n.copy(tmp.p).normalize();
       const facing = tmp.n.dot(tmp.toCam.copy(camera.position).sub(tmp.p).normalize());
       if (out || facing < 0.12) {
-        m.el.style.opacity = "0";
-        m.el.style.visibility = "hidden";
+        if (m.last?.o !== 0) {
+          m.el.style.opacity = "0";
+          m.el.style.visibility = "hidden";
+          m.last = { x: -1, y: -1, o: 0 };
+        }
         continue;
       }
       tmp.p.project(camera);
       const x = ((tmp.p.x + 1) / 2) * size.width + (m.offset?.[0] ?? 0);
       const y = ((1 - tmp.p.y) / 2) * size.height + (m.offset?.[1] ?? 0);
       if (y < HEADER_SAFE_Y) {
-        m.el.style.opacity = "0";
-        m.el.style.visibility = "hidden";
+        if (m.last?.o !== 0) {
+          m.el.style.opacity = "0";
+          m.el.style.visibility = "hidden";
+          m.last = { x: -1, y: -1, o: 0 };
+        }
         continue;
       }
+      const o = Math.min(1, (facing - 0.12) * 5);
+      if (m.last && Math.abs(m.last.x - x) < 0.1 && Math.abs(m.last.y - y) < 0.1 && Math.abs(m.last.o - o) < 0.01) continue;
+      m.last = { x, y, o };
       m.el.style.visibility = "visible";
-      m.el.style.opacity = String(Math.min(1, (facing - 0.12) * 5));
+      m.el.style.opacity = String(o);
       m.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
     }
   });

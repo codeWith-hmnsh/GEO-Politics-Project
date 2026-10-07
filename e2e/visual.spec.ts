@@ -5,6 +5,8 @@ test.describe("visual reference", () => {
   test.skip(({ browserName }) => browserName !== "chromium");
   // Software WebGL in CI is slow; these are reference captures, not timing tests.
   test.setTimeout(120_000);
+  // One software-WebGL browser at a time; parallel runs starve the CPU.
+  test.describe.configure({ mode: "serial" });
 
   test("landing globe", async ({ page }, info) => {
     await page.goto("/");
@@ -21,6 +23,17 @@ test.describe("visual reference", () => {
     await page.mouse.click(box.width * 0.56, box.height * 0.6);
     await page.waitForTimeout(3500);
     await page.screenshot({ path: `test-results/visual/${info.project.name}-selected.png` });
+  });
+
+  test("conflict panel", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    await page.goto("/");
+    await page.waitForTimeout(5000);
+    // Markers follow the moving globe, so skip the "stable" wait.
+    await page.getByRole("button", { name: /Russia – Ukraine War/ }).last().click({ force: true });
+    await page.waitForTimeout(3500);
+    await expect(page.getByRole("heading", { name: "Russia – Ukraine War" })).toBeVisible();
+    await page.screenshot({ path: `test-results/visual/${info.project.name}-conflict.png` });
   });
 
   test("zoom to states", async ({ page }, info) => {

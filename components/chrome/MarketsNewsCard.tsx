@@ -39,7 +39,7 @@ function NewsRow({ c }: { c: NewsCluster }) {
 
 /** Bottom-right card: Markets (default) and News tabs (UI-DESIGN §8). */
 export function MarketsNewsCard() {
-  const panelOpen = useGlobe((s) => s.selectedIso3 !== null);
+  const panelOpen = useGlobe((s) => s.selectedIso3 !== null || s.selectedConflict !== null);
   const news = useNews({ limit: 8 });
 
   return (

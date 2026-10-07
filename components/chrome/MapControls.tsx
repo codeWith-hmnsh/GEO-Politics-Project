@@ -7,7 +7,7 @@ const round = "grid size-11 place-items-center rounded-full bg-white text-ink sh
 
 /** Compass, zoom, reset and layers buttons on the right edge (hidden on phones). */
 export function MapControls() {
-  const panelOpen = useGlobe((s) => s.selectedIso3 !== null);
+  const panelOpen = useGlobe((s) => s.selectedIso3 !== null || s.selectedConflict !== null);
   const pulseOpen = useGlobe((s) => s.pulseOpen);
   const setPulseOpen = useGlobe((s) => s.setPulseOpen);
 

@@ -15,6 +15,7 @@ type GlobeState = {
   hoverName: string | null;
   pointer: { x: number; y: number };
   selectedIso3: string | null;
+  selectedConflict: string | null;
   fly: FlyRequest | null;
   zoom: ZoomRequest | null;
   introDone: boolean;
@@ -24,6 +25,7 @@ type GlobeState = {
   adminLabels: Record<string, AdminLabel[]>;
   setHover: (iso3: string | null, name: string | null, x: number, y: number) => void;
   select: (iso3: string | null) => void;
+  selectConflict: (id: string | null) => void;
   flyTo: (req: Omit<FlyRequest, "id">) => void;
   zoomBy: (factor: number) => void;
   finishIntro: () => void;
@@ -50,6 +52,7 @@ export const useGlobe = create<GlobeState>((set) => ({
   hoverName: null,
   pointer: { x: 0, y: 0 },
   selectedIso3: null,
+  selectedConflict: null,
   fly: null,
   zoom: null,
   introDone: false,
@@ -58,7 +61,9 @@ export const useGlobe = create<GlobeState>((set) => ({
   pulseOpen: true,
   adminLabels: {},
   setHover: (iso3, name, x, y) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y } }),
-  select: (iso3) => set({ selectedIso3: iso3 }),
+  // One panel at a time: choosing a country clears a conflict and the other way round.
+  select: (iso3) => set({ selectedIso3: iso3, selectedConflict: null }),
+  selectConflict: (id) => set({ selectedConflict: id, selectedIso3: null }),
   flyTo: (req) => set({ fly: { ...req, id: ++requestId } }),
   zoomBy: (factor) => set({ zoom: { factor, id: ++requestId } }),
   finishIntro: () => set({ introDone: true }),
