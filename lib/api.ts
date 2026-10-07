@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import type { CountryFacts } from "@/lib/data/country";
 import type { Pulse } from "@/lib/data/pulse";
 import type { IndicatorsSnapshot } from "@/ingest/jobs/indicators";
 import type { ApiEnvelope, NewsCluster, Section } from "@/lib/schemas/news";
@@ -29,6 +30,15 @@ export function useIndicators(mode: string) {
     queryKey: ["indicators", mode],
     queryFn: () => getJson<ApiEnvelope<IndicatorsSnapshot["metrics"]>>(`/api/indicators?mode=${mode}`),
     enabled,
+    staleTime: 60 * 60_000,
+  });
+}
+
+export function useCountryFacts(iso3: string | null) {
+  return useQuery({
+    queryKey: ["country", iso3],
+    queryFn: () => getJson<ApiEnvelope<CountryFacts>>(`/api/country?iso3=${iso3}`),
+    enabled: !!iso3,
     staleTime: 60 * 60_000,
   });
 }

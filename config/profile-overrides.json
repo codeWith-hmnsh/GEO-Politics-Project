@@ -1,0 +1,5 @@
+{
+  "_note": "Editorial fixes applied on top of Wikidata where its data is outdated or needs context. Keep each entry short and give a reason.",
+  "PAK": { "capital": "Islamabad", "_reason": "Wikidata still lists Rawalpindi (interim capital until 1967) without an end date." },
+  "ISR": { "capital": "Jerusalem (disputed; most embassies are in Tel Aviv)", "_reason": "Status of Jerusalem is disputed (CONTENT-GUIDE neutrality rule)." }
+}

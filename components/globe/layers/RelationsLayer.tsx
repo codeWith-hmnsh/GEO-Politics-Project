@@ -32,7 +32,7 @@ function HostileBorder({ line, dashed, fade }: { line: [number, number][]; dashe
   );
 }
 
-function RelationArc({ from, to, color, index }: { from: [number, number]; to: [number, number]; color: string; index: number }) {
+export function RelationArc({ from, to, color, index }: { from: [number, number]; to: [number, number]; color: string; index: number }) {
   const [reduce] = useState(prefersReducedMotion);
   const period = 2.8 + index * 0.09;
   const offset = index * 0.24;

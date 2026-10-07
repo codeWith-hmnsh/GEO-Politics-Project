@@ -3,14 +3,96 @@
   "needsEditorialReview": true,
   "source": "Federation of American Scientists, Status of World Nuclear Forces 2025 (estimates; exact numbers are secret)",
   "items": [
-    { "iso3": "RUS", "warheads": 5459, "delivery": ["Land", "Sea", "Air"], "npt": "Party (nuclear-weapon state)" },
-    { "iso3": "USA", "warheads": 5177, "delivery": ["Land", "Sea", "Air"], "npt": "Party (nuclear-weapon state)" },
-    { "iso3": "CHN", "warheads": 600, "delivery": ["Land", "Sea", "Air"], "npt": "Party (nuclear-weapon state)" },
-    { "iso3": "FRA", "warheads": 290, "delivery": ["Sea", "Air"], "npt": "Party (nuclear-weapon state)" },
-    { "iso3": "GBR", "warheads": 225, "delivery": ["Sea"], "npt": "Party (nuclear-weapon state)" },
-    { "iso3": "IND", "warheads": 180, "delivery": ["Land", "Sea", "Air"], "npt": "Never signed" },
-    { "iso3": "PAK", "warheads": 170, "delivery": ["Land", "Air"], "npt": "Never signed" },
-    { "iso3": "ISR", "warheads": 90, "delivery": ["Land", "Air"], "npt": "Never signed; does not confirm or deny" },
-    { "iso3": "PRK", "warheads": 50, "delivery": ["Land"], "npt": "Withdrew in 2003" }
-  ]
+    {
+      "iso3": "RUS",
+      "warheads": 5459,
+      "delivery": [
+        "Land",
+        "Sea",
+        "Air"
+      ],
+      "npt": "Party (nuclear-weapon state)"
+    },
+    {
+      "iso3": "USA",
+      "warheads": 5177,
+      "delivery": [
+        "Land",
+        "Sea",
+        "Air"
+      ],
+      "npt": "Party (nuclear-weapon state)"
+    },
+    {
+      "iso3": "CHN",
+      "warheads": 600,
+      "delivery": [
+        "Land",
+        "Sea",
+        "Air"
+      ],
+      "npt": "Party (nuclear-weapon state)"
+    },
+    {
+      "iso3": "FRA",
+      "warheads": 290,
+      "delivery": [
+        "Sea",
+        "Air"
+      ],
+      "npt": "Party (nuclear-weapon state)"
+    },
+    {
+      "iso3": "GBR",
+      "warheads": 225,
+      "delivery": [
+        "Sea"
+      ],
+      "npt": "Party (nuclear-weapon state)"
+    },
+    {
+      "iso3": "IND",
+      "warheads": 180,
+      "delivery": [
+        "Land",
+        "Sea",
+        "Air"
+      ],
+      "npt": "Never signed"
+    },
+    {
+      "iso3": "PAK",
+      "warheads": 170,
+      "delivery": [
+        "Land",
+        "Air"
+      ],
+      "npt": "Never signed"
+    },
+    {
+      "iso3": "ISR",
+      "warheads": 90,
+      "delivery": [
+        "Land",
+        "Air"
+      ],
+      "npt": "Never signed; does not confirm or deny"
+    },
+    {
+      "iso3": "PRK",
+      "warheads": 50,
+      "delivery": [
+        "Land"
+      ],
+      "npt": "Withdrew in 2003"
+    }
+  ],
+  "sharingHosts": [
+    "BEL",
+    "DEU",
+    "ITA",
+    "NLD",
+    "TUR"
+  ],
+  "sharingNote": "NATO nuclear-sharing host: US weapons stored under US control (publicly reported)."
 }

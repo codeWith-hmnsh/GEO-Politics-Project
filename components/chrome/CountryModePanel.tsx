@@ -3,22 +3,27 @@
 import { Info } from "lucide-react";
 import capability from "@/data/curated/capability.json";
 import nuclear from "@/data/curated/nuclear.json";
-import { timeAgo, useIndicators, useNews } from "@/lib/api";
+import { TRADE_COLORS } from "@/components/globe/layers/TradeLayer";
+import { timeAgo, useCountryFacts, useIndicators, useNews } from "@/lib/api";
 import { CAPABILITY_FORMULA, capabilityScores } from "@/lib/capability";
 import type { IndexedCountry } from "@/lib/geo/countries";
 import { MODE_COPY, metricsFor } from "@/lib/metrics";
 import { useGlobe } from "@/lib/store";
+import { CountryFacts } from "./CountryFacts";
 import { Flag } from "./Flag";
 import { Sparkline } from "./Sparkline";
 
 const kicker = "mb-1.5 text-[11px] font-bold tracking-[.16em] text-ink-3 uppercase";
 const sectTitle = "mb-2.5 text-[11px] font-bold tracking-[.16em] text-ink-3 uppercase";
+const usd = (v: number) => (v >= 1e12 ? `$${(v / 1e12).toFixed(2)}T` : v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : `$${(v / 1e6).toFixed(0)}M`);
 
 /** Country panel in Economy / Defense: core numbers, trend, meaning, source and the country's news (PRD §9.4–9.5). */
-export function CountryModePanel({ country }: { country: IndexedCountry }) {
+export function CountryModePanel({ country, countryName }: { country: IndexedCountry; countryName: (iso3: string) => string }) {
   const mode = useGlobe((s) => s.mode) as "economy" | "defense";
   const { data, isPending } = useIndicators(mode);
   const news = useNews({ section: mode, country: country.iso3, limit: 3 });
+  const facts = useCountryFacts(country.iso3);
+  const trade = mode === "economy" ? facts.data?.data.trade : null;
   const year = new Date().getUTCFullYear();
   const rows = metricsFor(mode)
     .filter((m) => m.id !== "capability" && m.id !== "nuclear")
@@ -45,6 +50,7 @@ export function CountryModePanel({ country }: { country: IndexedCountry }) {
         <Flag iso3={country.iso3} className="h-[19px] w-7" />
         {country.name}
       </h2>
+      <CountryFacts iso3={country.iso3} />
 
       <ul className="mt-4 grid gap-2.5">
         {rows.map(({ def, value, series }) => (
@@ -73,6 +79,44 @@ export function CountryModePanel({ country }: { country: IndexedCountry }) {
           </li>
         ))}
       </ul>
+
+      {trade && (
+        <section className="mt-5 border-t border-border pt-4">
+          <h3 className={sectTitle}>Top trade partners · {trade.year}</h3>
+          {(["exports", "imports"] as const).map((side) => {
+            const list = trade[side];
+            const total = side === "exports" ? trade.exportsTotal : trade.importsTotal;
+            const max = Math.max(...list.map((p) => p.value), 1);
+            return (
+              <div key={side} className="mb-3">
+                <div className="mb-1.5 flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-1.5 font-semibold capitalize">
+                    <i className="size-2.5 rounded-full" style={{ background: TRADE_COLORS[side] }} aria-hidden />
+                    {side} {side === "exports" ? "to" : "from"}
+                  </span>
+                  {total > 0 && <span className="text-ink-3">Total {usd(total)}</span>}
+                </div>
+                <ul className="grid gap-1">
+                  {list.map((p) => (
+                    <li key={p.iso3} className="grid grid-cols-[18px_1fr_64px] items-center gap-2 text-[13px]">
+                      <Flag iso3={p.iso3} className="h-[11px] w-4" />
+                      <span className="relative h-5 overflow-hidden rounded bg-paper">
+                        <span
+                          className="absolute inset-y-0 left-0 rounded"
+                          style={{ width: `${(p.value / max) * 100}%`, background: `${TRADE_COLORS[side]}55` }}
+                        />
+                        <span className="relative px-1.5 leading-5">{countryName(p.iso3)}</span>
+                      </span>
+                      <span className="text-right tabular-nums">{usd(p.value)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+          <p className="text-xs text-ink-3">Goods only, as reported by {country.name}. Source: UN Comtrade.</p>
+        </section>
+      )}
 
       {mode === "defense" && (
         <section className="mt-5 border-t border-border pt-4">

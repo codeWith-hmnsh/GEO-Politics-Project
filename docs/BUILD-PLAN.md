@@ -115,8 +115,8 @@ Rule: match the prototype screenshots in `all_refrence-ui/mockups/` before addin
 - [x] Layer fade; Earth texture and clouds dim in modes so the choropleth reads clearly.
 - [x] Choropleth system: per-mode scale (5th–95th percentile, log for totals), legend bar, metric chips (single select).
 - [x] Country panel template: core items, "what this means", sparklines (forecast years dashed), source + as-of, 3 news.
-- [ ] Leader / government line from Wikidata in the panel header.
-- [ ] **Economy**: [x] IMF job (growth, inflation, unemployment, debt, GDP; `npm run ingest -- indicators`); [ ] Comtrade trade partners; [ ] IDS creditors; Comtrade trade partners job; IDS creditors; arcs on tap (exports out, imports in, creditors). Chips: Growth, Inflation, Jobs, Debt, Trade.
+- [x] Leader / government line from Wikidata in the panel header (`npm run ingest -- profiles`).
+- [ ] **Economy**: [x] IMF job (growth, inflation, unemployment, debt, GDP size; `npm run ingest -- indicators`); [x] Comtrade top-5 export/import partners for 63 large economies, arcs on tap (`npm run ingest -- trade`); [ ] IDS creditors and creditor arcs; [ ] "Trade" choropleth chip.
 - [x] **Defense** (draft data, needs editorial review): World Bank SIPRI indicators + SIPRI latest year + arms transfers import; `nuclear.json`; `capability.json` + index calc + "How we calculate" dialog. Chips: Spending, Personnel, Nuclear, Capability, Arms.
 - [x] Mode news in the mode card and country panel (section filter, + country filter on selection).
 - [ ] Compare for Economy + Defense (fitBounds, paired bars, no winner highlight).

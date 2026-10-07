@@ -8,7 +8,7 @@ on:
 jobs:
   indicators:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -27,3 +27,7 @@ jobs:
         run: npm ci
       - if: env.SUPABASE_URL != ''
         run: npm run ingest -- indicators
+      - if: env.SUPABASE_URL != ''
+        run: npm run ingest -- profiles
+      - if: env.SUPABASE_URL != ''
+        run: npm run ingest -- trade

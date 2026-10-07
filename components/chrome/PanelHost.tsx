@@ -13,6 +13,7 @@ import type { NewsCluster } from "@/lib/schemas/news";
 import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
 import { REL_LABEL, relationsFor, type RelStatus } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
+import { CountryFacts } from "./CountryFacts";
 import { CountryModePanel } from "./CountryModePanel";
 import { Flag } from "./Flag";
 
@@ -250,6 +251,7 @@ function RelationsPanel({ country, pulse, countryName }: { country: IndexedCount
         <Flag iso3={country.iso3} className="h-[19px] w-7" />
         {country.name}
       </h2>
+      <CountryFacts iso3={country.iso3} />
       {blocs.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {blocs.map((b) => (
@@ -413,7 +415,7 @@ export function PanelHost() {
             ) : country && mode === "home" && pulse ? (
               <RelationsPanel country={country} pulse={pulse.data} countryName={nameOf} />
             ) : country && (mode === "economy" || mode === "defense") ? (
-              <CountryModePanel country={country} />
+              <CountryModePanel country={country} countryName={nameOf} />
             ) : country ? (
               <CountryShell country={country} />
             ) : null}

@@ -61,6 +61,11 @@ test.describe("visual reference", () => {
       await page.mouse.click(box.width * 0.56, box.height * 0.6);
       await page.waitForTimeout(3500);
       await page.screenshot({ path: `test-results/visual/${info.project.name}-${mode.toLowerCase()}-country.png` });
+      // Back to Home: mode card gone, Home layers back.
+      await page.getByRole("navigation", { name: "Mode" }).getByRole("button", { name: "Global Pulse" }).click();
+      await expect(page.getByRole("complementary", { name: `${mode} mode` })).toHaveCount(0);
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("button", { name: /Russia – Ukraine War/ }).first()).toBeAttached();
     });
   }
 

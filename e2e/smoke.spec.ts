@@ -41,3 +41,10 @@ test("indicators API returns economy and defense metrics", async ({ request }) =
   expect(def.data.capability.values.USA.value).toBeGreaterThan(9);
   expect((await request.get("/api/indicators?mode=bogus")).status()).toBe(400);
 });
+
+test("country API returns leaders and trade partners", async ({ request }) => {
+  const body = await (await request.get("/api/country?iso3=IND")).json();
+  expect(body.data.profile.capital).toBe("New Delhi");
+  expect(body.data.trade.exports.length).toBeGreaterThan(0);
+  expect((await request.get("/api/country?iso3=12")).status()).toBe(400);
+});

@@ -10,6 +10,7 @@ import { ConflictMarkers } from "./ConflictMarkers";
 import { Fallback2D } from "./Fallback2D";
 import { HomeMarkers } from "./HomeMarkers";
 import { MapLabels } from "./MapLabels";
+import { NuclearMarkers } from "./NuclearMarkers";
 import { RelationsAnchor } from "./RelationsAnchor";
 
 // WebGL only runs in the browser; keep the globe out of server prerendering.
@@ -67,6 +68,7 @@ export function GlobeClient() {
       <HomeMarkers />
       <ConflictMarkers />
       <RelationsAnchor />
+      <NuclearMarkers />
       <HoverTooltip />
     </>
   );
