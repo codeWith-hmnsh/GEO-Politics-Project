@@ -19,6 +19,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
   const selectedOrg = useGlobe((s) => s.selectedOrg);
   const highlight = useGlobe((s) => s.highlight);
   const selectedIso3 = useGlobe((s) => s.selectedIso3);
+  const compareIso3 = useGlobe((s) => s.compareIso3);
   const mode = useGlobe((s) => s.mode);
   const homeMode = mode === "home";
   const metricId = useGlobe((s) => (s.mode === "economy" || s.mode === "defense" ? s.modeMetric[s.mode] : null));
@@ -83,8 +84,9 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       for (const c of countries) {
         const v = metric.values[c.iso3];
         if (!v) continue;
-        ctx.fillStyle = c.iso3 === selectedIso3 ? "rgba(255,255,255,.88)" : scaleColor(MODE_SCALES[mode], scaleT(v.value, domain));
-        ctx.globalAlpha = c.iso3 === selectedIso3 ? 1 : 0.82;
+        const focus = c.iso3 === selectedIso3 || c.iso3 === compareIso3;
+        ctx.fillStyle = focus ? "rgba(255,255,255,.88)" : scaleColor(MODE_SCALES[mode], scaleT(v.value, domain));
+        ctx.globalAlpha = focus ? 1 : 0.82;
         path(c);
         ctx.fill("evenodd");
       }
@@ -135,7 +137,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       }
     }
     texture.needsUpdate = true;
-  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators, highlight]);
+  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators, highlight, compareIso3]);
 
   return (
     <mesh renderOrder={1}>

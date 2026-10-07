@@ -14,6 +14,7 @@ import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
 import { REL_LABEL, relationsFor, type RelStatus } from "@/lib/relations";
 import { useGlobe } from "@/lib/store";
 import { CountryFacts } from "./CountryFacts";
+import { ComparePanel } from "./ComparePanel";
 import { CountryModePanel } from "./CountryModePanel";
 import { Term, termById } from "@/components/learn/Term";
 import { Flag } from "./Flag";
@@ -380,6 +381,8 @@ export function PanelHost() {
   const summit = summitId ? pulse?.data.summits.find((x) => x.id === summitId) : undefined;
   const nameOf = (iso3: string) => countries.find((c) => c.iso3 === iso3)?.name ?? iso3;
   const mode = useGlobe((s) => s.mode);
+  const compareIso3 = useGlobe((s) => s.compareIso3);
+  const other = compareIso3 ? countries.find((c) => c.iso3 === compareIso3) : undefined;
   const key = conflict ? `c-${conflict.id}` : org ? `o-${org.id}` : summit ? `s-${summit.id}` : country ? `k-${country.iso3}` : null;
   const label = conflict?.name ?? org?.name ?? summit?.name ?? country?.name ?? "";
 
@@ -415,6 +418,8 @@ export function PanelHost() {
               <SummitPanel summit={summit} />
             ) : country && mode === "home" && pulse ? (
               <RelationsPanel country={country} pulse={pulse.data} countryName={nameOf} />
+            ) : country && other && (mode === "economy" || mode === "defense") ? (
+              <ComparePanel a={country} b={other} />
             ) : country && (mode === "economy" || mode === "defense") ? (
               <CountryModePanel country={country} countryName={nameOf} />
             ) : country ? (

@@ -69,6 +69,22 @@ test.describe("visual reference", () => {
     });
   }
 
+  test("compare two countries in Defense", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    await page.goto("/");
+    await page.waitForTimeout(4500);
+    await page.getByRole("navigation", { name: "Mode" }).getByRole("button", { name: "Defense" }).click();
+    const box = (await page.locator("canvas").boundingBox())!;
+    await page.mouse.click(box.width * 0.56, box.height * 0.6);
+    await page.waitForTimeout(3500);
+    await page.getByRole("button", { name: "Compare with…" }).click();
+    await expect(page.getByRole("status")).toContainText("Tap another country");
+    await page.mouse.click(box.width * 0.41, box.height * 0.37);
+    await expect(page.getByText(/^Compare · Defense$/)).toBeVisible();
+    await page.waitForTimeout(3000);
+    await page.screenshot({ path: `test-results/visual/${info.project.name}-compare.png` });
+  });
+
   test("zoom to states", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop");
     await page.goto("/");

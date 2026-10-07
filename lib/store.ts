@@ -17,6 +17,11 @@ type GlobeState = {
   hoverLatLng: [number, number] | null;
   pointer: { x: number; y: number };
   selectedIso3: string | null;
+  /** Second country in Compare (Economy / Defense). */
+  compareIso3: string | null;
+  /** Waiting for the user to tap the second country. */
+  comparePicking: boolean;
+  startCompare: () => void;
   selectedConflict: string | null;
   selectedOrg: string | null;
   selectedSummit: string | null;
@@ -49,7 +54,7 @@ type GlobeState = {
 
 let requestId = 0;
 
-const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null, highlight: [] as string[] };
+const NONE = { selectedIso3: null, selectedConflict: null, selectedOrg: null, selectedSummit: null, highlight: [] as string[], compareIso3: null, comparePicking: false };
 
 /** True when any detail panel is open. */
 export const panelOpenSelector = (s: { selectedIso3: string | null; selectedConflict: string | null; selectedOrg: string | null; selectedSummit: string | null }) =>
@@ -71,6 +76,8 @@ export const useGlobe = create<GlobeState>((set) => ({
   hoverLatLng: null,
   pointer: { x: 0, y: 0 },
   selectedIso3: null,
+  compareIso3: null,
+  comparePicking: false,
   selectedConflict: null,
   selectedOrg: null,
   selectedSummit: null,
@@ -87,7 +94,14 @@ export const useGlobe = create<GlobeState>((set) => ({
   setHover: (iso3, name, x, y, latLng = null) => set({ hoverIso3: iso3, hoverName: name, pointer: { x, y }, hoverLatLng: latLng }),
   // One panel at a time: each selection clears the others.
   setHighlight: (iso3s) => set({ ...NONE, highlight: iso3s }),
-  select: (iso3) => set({ ...NONE, selectedIso3: iso3 }),
+  // While picking a Compare partner, a tap on another country fills the second slot instead.
+  select: (iso3) =>
+    set((s) =>
+      s.comparePicking && s.selectedIso3 && iso3 && iso3 !== s.selectedIso3
+        ? { compareIso3: iso3, comparePicking: false }
+        : { ...NONE, selectedIso3: iso3 },
+    ),
+  startCompare: () => set({ comparePicking: true, compareIso3: null }),
   selectConflict: (id) => set({ ...NONE, selectedConflict: id }),
   selectOrg: (id) => set({ ...NONE, selectedOrg: id }),
   selectSummit: (id) => set({ ...NONE, selectedSummit: id }),

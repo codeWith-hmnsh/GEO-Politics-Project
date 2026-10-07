@@ -9,6 +9,7 @@ import { CAPABILITY_FORMULA, CAPABILITY_WHAT, capabilityScores } from "@/lib/cap
 import type { IndexedCountry } from "@/lib/geo/countries";
 import { MODE_COPY, metricsFor } from "@/lib/metrics";
 import { useGlobe } from "@/lib/store";
+import { CompareButton } from "./ComparePanel";
 import { CountryFacts } from "./CountryFacts";
 import { Term } from "@/components/learn/Term";
 import { Flag } from "./Flag";
@@ -51,6 +52,7 @@ export function CountryModePanel({ country, countryName }: { country: IndexedCou
         {country.name}
       </h2>
       <CountryFacts iso3={country.iso3} />
+      <CompareButton />
 
       <ul className="mt-4 grid gap-2.5">
         {rows.map(({ def, value, series }) => (

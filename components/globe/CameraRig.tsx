@@ -145,7 +145,8 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
         const ll = hit(e);
         const c = ll ? countryAt(countriesRef.current, ll[0], ll[1]) : null;
         useGlobe.getState().select(c?.iso3 ?? null);
-        if (c) startFly({ lat: c.centroid[0], lng: c.centroid[1], dist: Math.min(Math.max(target.current.dist, 2.6), 3.4) });
+        // A Compare pick frames both countries (ComparePanel), so skip the single-country flight.
+        if (c && useGlobe.getState().compareIso3 !== c.iso3) startFly({ lat: c.centroid[0], lng: c.centroid[1], dist: Math.min(Math.max(target.current.dist, 2.6), 3.4) });
       }
     };
     const onCancel = (e: PointerEvent) => pointers.delete(e.pointerId);
