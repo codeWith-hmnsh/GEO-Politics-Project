@@ -1,0 +1,1035 @@
+<title>Statecraft Play Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: one long scrolling Play page. Each section is one step of the player's journey
+   (arrive → learn → choose mode → pick country → play → answer requests → Chronicle → rankings).
+   The globe sits at the centre of the hero and of the match screen. Light paper theme from Geo-Politics 1.0. */
+:root{
+  color-scheme: light;
+  --paper:#F3F1EC; --paper-2:#EAE7DF; --sky:#D7E3EA;
+  --ink:#11232B; --ink-strong:#0F1D24; --ink-2:#4A5A61; --ink-3:#5E6B70;
+  --line:rgba(17,35,43,.10); --glass:rgba(255,255,255,.86); --glass-edge:rgba(255,255,255,.75);
+  --night:rgba(16,24,30,.9); --on-night:#F3F1EC; --white:#FFFFFF;
+  --conflict:#E5484D; --ally:#2FA36B; --neutral:#4C74D9; --mixed:#E8A21C; --crisis:#E57A3A;
+  --gold:#F2B33D; --gold-deep:#B9821A; --wire:#7A5C2E; --wire-paper:#FBF7EE;
+  --ocean-1:#CFE0E8; --ocean-2:#9FBCCB; --land:#F4F0E6;
+  --shadow:0 16px 44px rgba(17,35,43,.13), 0 2px 6px rgba(17,35,43,.06);
+  --font-ui:"Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-display:"Fraunces", Georgia, "Times New Roman", serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--neutral);outline-offset:2px}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:20px}
+.tab{font-variant-numeric:tabular-nums}
+
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:rgba(243,241,236,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:18px;min-height:60px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.01em;white-space:nowrap}
+.logo i{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 32%,var(--white),var(--ocean-2) 48%,var(--ink-2));box-shadow:inset -2px -3px 5px rgba(17,35,43,.25)}
+.main-nav{display:flex;gap:2px}
+.main-nav a{padding:7px 12px;border-radius:999px;color:var(--ink-2);text-decoration:none;font-weight:600;font-size:14px}
+.main-nav a.on{background:var(--ink-strong);color:var(--white)}
+.jump{margin-left:auto;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-block:8px;min-width:0}
+.jump a{font-size:12.5px;color:var(--ink-2);text-decoration:none;padding:5px 10px;border:1px solid var(--line);border-radius:999px;white-space:nowrap;background:var(--glass)}
+.jump a:hover{color:var(--ink);border-color:rgba(17,35,43,.25)}
+@media (max-width:860px){.main-nav a:not(.on){display:none}}
+
+/* Annotation system */
+.n{flex:none;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--ink-strong);color:var(--white);font-size:12px;font-weight:800;line-height:1}
+.n.l{background:var(--gold);color:var(--ink-strong)}
+.banner{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-top:18px;padding:10px 14px;border:1px dashed rgba(17,35,43,.25);border-radius:12px;font-size:13px;color:var(--ink-2);background:var(--glass)}
+.banner b{color:var(--ink)}
+.eyebrow{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+h1,h2,h3{text-wrap:balance}
+h2{font-family:var(--font-display);font-weight:600;font-size:clamp(30px,4vw,44px);line-height:1.08;margin:0 0 10px;letter-spacing:-.01em}
+.lede{max-width:62ch;color:var(--ink-2);margin:0}
+section{padding-block:68px;border-top:1px solid var(--line)}
+.shead{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;align-items:end;margin-bottom:30px}
+.notes{display:grid;gap:8px;margin:0;padding:0;list-style:none;font-size:13px;color:var(--ink-2)}
+.notes li{display:flex;gap:10px;align-items:flex-start}
+.notes b{color:var(--ink)}
+@media (max-width:860px){.shead{grid-template-columns:minmax(0,1fr)}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--glass);border-radius:999px;padding:11px 18px;font-weight:700;font-size:14px;text-decoration:none;color:var(--ink)}
+.btn.primary{background:var(--ink-strong);color:var(--white);border-color:var(--ink-strong)}
+.btn.primary:hover{background:var(--ink)}
+.btn:hover{border-color:rgba(17,35,43,.3)}
+.btn.sm{padding:7px 12px;font-size:13px}
+.join{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--glass);overflow:hidden}
+.join input{border:0;background:transparent;padding:10px 14px;width:120px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.join input::placeholder{letter-spacing:.04em;text-transform:none;font-weight:500;color:var(--ink-3)}
+.join button{border:0;border-left:1px solid var(--line);background:transparent;padding:0 14px;font-weight:700}
+
+/* Glass card */
+.g{background:var(--glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--glass-edge);border-radius:16px;box-shadow:var(--shadow)}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:36px;align-items:center;padding-block:44px 64px}
+.hero h1{font-family:var(--font-display);font-weight:600;font-size:clamp(44px,6.4vw,82px);line-height:.98;letter-spacing:-.02em;margin:0 0 18px}
+.hero h1 em{font-style:italic;font-weight:500;color:var(--ink-2)}
+.hero .lede{font-size:17px;margin-bottom:26px}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.livebar{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-size:13px;color:var(--ink-2)}
+.live{display:inline-flex;align-items:center;gap:7px}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ally);box-shadow:0 0 0 4px rgba(47,163,107,.18)}
+.pick-line{margin-top:18px;font-size:13.5px;color:var(--ink-2);padding:10px 14px;border-radius:12px;background:var(--paper-2);display:inline-block}
+.pick-line b{color:var(--ink)}
+.globe-box{position:relative;width:100%;max-width:600px;margin-inline:auto;aspect-ratio:1;background:radial-gradient(circle at 50% 50%,var(--sky) 0%,rgba(215,227,234,0) 68%)}
+.globe-box canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:pan-y}
+.globe-box canvas:active{cursor:grabbing}
+.cap{display:flex;justify-content:center;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-3);margin-top:6px;text-align:center}
+.hero-tag{position:absolute;left:4%;top:8%;display:flex;gap:8px;align-items:center;font-size:12px;font-weight:700;padding:7px 11px}
+@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr);padding-block:28px 48px}}
+
+/* Steps */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;counter-reset:s}
+.step{padding:18px;position:relative}
+.step h3{margin:12px 0 6px;font-size:17px}
+.step p{margin:0;font-size:14px;color:var(--ink-2)}
+.step .k{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink);font-weight:800;font-size:13px}
+.step .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 9px;border-radius:999px;background:var(--paper-2);color:var(--ink-2)}
+@media (max-width:980px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.steps{grid-template-columns:minmax(0,1fr)}}
+
+/* Modes */
+.modes{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:14px}
+.mode{padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.mode h3{margin:0;font-size:19px}
+.mode p{margin:0;font-size:14px;color:var(--ink-2)}
+.mode .meta{display:flex;flex-wrap:wrap;gap:6px}
+.mode .btn{margin-top:auto;align-self:flex-start}
+.mode.dark{background:var(--night);color:var(--on-night);border-color:transparent}
+.mode.dark p{color:rgba(243,241,236,.75)}
+.mode.dark .chip{background:rgba(255,255,255,.1);color:var(--on-night)}
+.mode.dark .btn{background:var(--gold);border-color:var(--gold);color:var(--ink-strong)}
+@media (max-width:980px){.modes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.modes{grid-template-columns:minmax(0,1fr)}}
+
+/* Countries */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:12px}
+.cc{padding:15px;text-align:left;border:1.5px solid var(--glass-edge);display:flex;flex-direction:column;gap:7px;min-width:0;transition:border-color .2s,transform .2s}
+.cc:hover{transform:translateY(-2px)}
+.cc.sel{border-color:var(--gold);box-shadow:0 0 0 4px rgba(242,179,61,.22),var(--shadow)}
+.cc.taken{opacity:.62;cursor:not-allowed}
+.cc .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.code{display:inline-grid;place-items:center;min-width:42px;height:24px;padding:0 7px;border-radius:7px;background:var(--ink-strong);color:var(--white);font-size:11.5px;font-weight:800;letter-spacing:.06em}
+.code.gold{background:var(--gold);color:var(--ink-strong)}
+.cc .nm{margin-top:2px;font-size:16px;font-weight:700}
+.cc .s{font-size:12.5px;color:var(--ink-2)}
+.cc .s b{color:var(--ink);font-weight:700}
+.diff{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.diff.Easy{background:rgba(47,163,107,.14);color:#1F7A4F}
+.diff.Medium{background:rgba(232,162,28,.16);color:#8A5D08}
+.diff.Hard{background:rgba(229,72,77,.13);color:#A8272C}
+.seat{font-size:12px;font-weight:700;color:var(--ink-3)}
+.seat.free{color:#1F7A4F}
+.fbar{height:5px;border-radius:5px;background:var(--paper-2);overflow:hidden}
+.fbar i{display:block;height:100%;background:var(--neutral);border-radius:5px}
+.lobby-foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:18px;padding:14px 16px}
+.lobby-foot .seats{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px}
+
+/* Match screen (HUD mock) */
+.try{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;font-size:13.5px;color:var(--ink-2)}
+.screen{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);
+  background:radial-gradient(110% 85% at 50% 48%,#DDE8EE 0%,#E8EDEE 46%,var(--paper) 100%);
+  display:grid;grid-template-columns:252px minmax(0,1fr) 284px;grid-template-rows:auto minmax(440px,1fr) auto;
+  grid-template-areas:"bar bar bar" "cab globe target" "tray tray inbox";gap:12px;padding:12px}
+.area-bar{grid-area:bar}.area-cab{grid-area:cab}.area-globe{grid-area:globe}.area-target{grid-area:target}.area-tray{grid-area:tray}.area-inbox{grid-area:inbox}
+.rb{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.rb .n{width:19px;height:19px;font-size:10.5px}
+.panel{padding:14px;min-width:0}
+.hbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;padding:10px 14px}
+.hbar .grp{display:flex;align-items:center;gap:10px;min-width:0}
+.round{font-weight:700;font-size:14px}
+.round small{color:var(--ink-3);font-weight:600}
+.timer{position:relative;width:42px;height:42px}
+.timer svg{width:42px;height:42px;transform:rotate(-90deg)}
+.timer span{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:800}
+.phase{font-size:11px;font-weight:800;letter-spacing:.12em;padding:4px 9px;border-radius:999px;background:var(--ink-strong);color:var(--white)}
+.phase.wait{background:var(--paper-2);color:var(--ink-2)}
+.tension{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--ink-3)}
+.segs{display:flex;gap:3px}
+.segs i{width:15px;height:9px;border-radius:3px;background:var(--paper-2)}
+.tval{font-size:15px;color:var(--ink);letter-spacing:0}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.stat:last-of-type{border-bottom:0}
+.stat .v{font-weight:800}
+.big .v{font-size:22px}
+.d{font-size:11px;font-weight:800;margin-left:5px}
+.d.up{color:#1F7A4F}.d.dn{color:#B4282D}
+.sub{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:12px 0 6px}
+.good{display:grid;grid-template-columns:72px minmax(0,1fr) 38px;gap:8px;align-items:center;font-size:12.5px;padding:3px 0}
+.good .t{height:7px;border-radius:7px;background:var(--paper-2);overflow:hidden}
+.good .t i{display:block;height:100%;border-radius:7px;transition:width .6s}
+.good .p{text-align:right;font-weight:700}
+.cab-btns{display:flex;gap:6px;margin-top:12px}
+.globe-cell{position:relative;min-height:440px;border-radius:18px}
+.globe-cell canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:pan-y}
+.legend{position:absolute;left:10px;bottom:10px;display:flex;flex-wrap:wrap;gap:6px 10px;padding:8px 10px;font-size:11.5px;font-weight:600;max-width:calc(100% - 20px)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+.ln{width:16px;height:0;border-top:2px dashed;display:inline-block}
+.gtag{position:absolute;left:10px;top:10px;padding:6px 10px;font-size:11px}
+.replay{position:absolute;right:10px;top:10px;width:min(300px,calc(100% - 20px));display:grid;gap:6px}
+.ev{background:var(--night);color:var(--on-night);border-radius:12px;padding:9px 11px;font-size:12.5px;box-shadow:var(--shadow);animation:pop .35s cubic-bezier(.2,1.15,.4,1) both}
+.ev b{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.ev .dl{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.ev .dl span{font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.12)}
+@keyframes pop{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ev{animation:none}}
+.who{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.who h3{margin:0;font-size:17px;line-height:1.2}
+.who small{color:var(--ink-3);font-weight:600}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ally);margin-right:4px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12.5px;margin-bottom:8px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0;font-weight:700;text-align:right}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px}
+.st-stable{background:rgba(47,163,107,.14);color:#1F7A4F}
+.st-tension{background:rgba(232,162,28,.18);color:#8A5D08}
+.st-crisis{background:rgba(229,122,58,.18);color:#9A4513}
+.st-war{background:rgba(229,72,77,.15);color:#A8272C}
+.why{margin:0 0 10px;padding-left:16px;font-size:12px;color:var(--ink-2)}
+.acts{display:grid;gap:6px}
+.act{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;text-align:left;padding:9px 11px;border-radius:11px;border:1px solid var(--line);background:var(--white)}
+.act:hover{border-color:var(--ink-2)}
+.act b{font-size:13px}
+.act small{font-size:11.5px;color:var(--ink-3)}
+.act.danger b{color:#A8272C}
+.hint{font-size:12.5px;color:var(--ink-3);padding:10px;border:1px dashed var(--line);border-radius:11px}
+.strike{display:grid;gap:8px}
+.ttype{display:flex;flex-wrap:wrap;gap:5px}
+.ttype button{border:1px solid var(--line);background:var(--white);border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700}
+.ttype button[aria-pressed="true"]{background:var(--ink-strong);color:var(--white);border-color:var(--ink-strong)}
+.sinfo{font-size:12px;color:var(--ink-2);background:var(--paper-2);border-radius:10px;padding:8px 10px}
+.sinfo.warn{background:rgba(229,72,77,.1);color:#8E2226}
+.hold{position:relative;overflow:hidden;border:0;border-radius:12px;padding:11px;background:var(--conflict);color:var(--white);font-weight:800;font-size:13px;user-select:none;-webkit-user-select:none;touch-action:none}
+.hold i{position:absolute;inset:0;width:calc(var(--p,0) * 100%);background:rgba(17,35,43,.35)}
+.hold span{position:relative}
+.linkbtn{border:0;background:none;padding:0;font-size:12px;font-weight:700;color:var(--ink-2);text-decoration:underline}
+.tray{display:grid;gap:10px;padding:12px}
+.dock{display:flex;gap:4px;overflow-x:auto;padding:4px;background:var(--paper-2);border-radius:999px;width:max-content;max-width:100%;scrollbar-width:none}
+.dock button{border:0;background:transparent;padding:7px 13px;border-radius:999px;font-weight:700;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.dock button[aria-pressed="true"]{background:var(--ink-strong);color:var(--white)}
+.slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:8px;align-items:stretch}
+.slot{min-height:58px;border:1.5px dashed rgba(17,35,43,.22);border-radius:14px;display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12.5px;color:var(--ink-3);min-width:0}
+.slot.full{border-style:solid;border-color:var(--line);background:var(--white);color:var(--ink);animation:pop .3s cubic-bezier(.2,1.15,.4,1) both}
+.slot .cat{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:block}
+.slot .tx{min-width:0;flex:1;line-height:1.3}
+.slot .x{border:0;background:var(--paper-2);border-radius:50%;width:22px;height:22px;font-weight:800;line-height:1;flex:none}
+.submit{border:0;border-radius:14px;padding:0 18px;background:var(--ink-strong);color:var(--white);font-weight:800;font-size:14px;min-height:58px}
+.submit[disabled]{background:var(--paper-2);color:var(--ink-3);cursor:default}
+.tabs{display:flex;gap:4px;margin-bottom:8px}
+.tabs button{border:0;background:transparent;border-radius:999px;padding:5px 10px;font-weight:700;font-size:12.5px;color:var(--ink-3)}
+.tabs button[aria-pressed="true"]{background:var(--paper-2);color:var(--ink)}
+.feed{display:grid;gap:6px;max-height:170px;overflow:auto}
+.req{display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:12.5px;padding:8px 10px;border-radius:11px;background:var(--white);border:1px solid var(--line)}
+.wire{font-family:var(--font-display);font-style:italic;font-size:13.5px;color:var(--wire);padding:7px 10px;border-radius:10px;background:var(--wire-paper);border:1px solid rgba(122,92,46,.15);line-height:1.35}
+.wire small{display:block;font-family:var(--font-ui);font-style:normal;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--wire);opacity:.8}
+.toast{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:var(--night);color:var(--on-night);padding:9px 14px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:var(--shadow);z-index:5}
+@media (max-width:1060px){
+  .screen{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"bar bar" "globe globe" "cab target" "tray tray" "inbox inbox"}
+}
+@media (max-width:680px){
+  .screen{grid-template-columns:minmax(0,1fr);grid-template-areas:"bar" "globe" "cab" "target" "tray" "inbox";padding:8px;border-radius:18px}
+  .globe-cell{min-height:340px}
+  .slots{grid-template-columns:minmax(0,1fr)}
+  .submit{min-height:48px}
+}
+
+/* Request */
+.req-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:30px;align-items:center}
+.modal{padding:22px;border-radius:20px}
+.modal .head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.modal h3{margin:6px 0 4px;font-size:20px;letter-spacing:.02em}
+.quote{font-family:var(--font-display);font-style:italic;color:var(--ink-2);margin:0 0 14px}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.cols div{background:var(--paper-2);border-radius:12px;padding:12px;font-size:13px}
+.cols h4{margin:0 0 6px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.cols ul{margin:0;padding-left:16px}
+.ifno{font-size:12.5px;color:#8E2226;background:rgba(229,72,77,.08);border-radius:10px;padding:8px 10px;margin-bottom:14px}
+.choices{display:flex;flex-wrap:wrap;gap:8px}
+.choices .btn{flex:1;justify-content:center}
+.result{margin-top:12px;font-size:13px;font-weight:600;min-height:20px}
+@media (max-width:860px){.req-wrap{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:460px){.cols{grid-template-columns:minmax(0,1fr)}}
+
+/* Chronicle */
+.paper{background:var(--wire-paper);border:1px solid rgba(122,92,46,.18);border-radius:18px;padding:26px clamp(16px,3vw,34px);box-shadow:var(--shadow);color:var(--ink)}
+.mast{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--wire);font-weight:700}
+.mast h3{width:100%;text-align:center;font-family:var(--font-display);font-weight:700;font-size:clamp(26px,4.4vw,52px);letter-spacing:.12em;text-transform:uppercase;margin:6px 0;color:var(--ink);order:-1}
+.stamp{display:inline-block;border:1.5px solid var(--wire);color:var(--wire);font-size:11px;font-weight:800;letter-spacing:.16em;padding:3px 8px;border-radius:4px;transform:rotate(-2deg)}
+.rule{border:0;border-top:3px double rgba(122,92,46,.55);margin:12px 0 18px}
+.news{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:28px}
+.lead h4{font-family:var(--font-display);font-size:clamp(24px,3.2vw,36px);line-height:1.08;margin:0 0 10px;font-weight:700}
+.lead p{margin:0 0 12px;max-width:62ch}
+.minis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;border-top:1px solid rgba(122,92,46,.25);padding-top:14px}
+.minis h5{font-family:var(--font-display);font-size:17px;margin:0 0 4px}
+.minis p{margin:0;font-size:13px;color:var(--ink-2)}
+.stand{border-left:1px solid rgba(122,92,46,.25);padding-left:22px}
+.stand h5{margin:0 0 10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--wire)}
+.stand ol{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:13.5px}
+.stand li{display:grid;grid-template-columns:20px 44px minmax(0,1fr) auto;gap:6px;align-items:center}
+.stand li.me{background:rgba(242,179,61,.18);border-radius:8px;padding:3px 4px;margin:0 -4px}
+.stand .tt{font-size:11px;color:var(--ink-3)}
+.timeline{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(122,92,46,.25);font-size:12.5px}
+.timeline span{background:var(--white);border:1px solid rgba(122,92,46,.2);border-radius:999px;padding:4px 10px}
+.after{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+@media (max-width:820px){.news{grid-template-columns:minmax(0,1fr)}.stand{border-left:0;padding-left:0;border-top:1px solid rgba(122,92,46,.25);padding-top:14px}}
+@media (max-width:460px){.minis{grid-template-columns:minmax(0,1fr)}}
+
+/* Rankings */
+.rk{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+.tablebox{padding:14px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+th{text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line)}
+tr.top1 td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
+tr.top2 td:first-child{box-shadow:inset 3px 0 0 #B8C0C4}
+tr.top3 td:first-child{box-shadow:inset 3px 0 0 #C98E5A}
+.tier{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--paper-2)}
+.profile{padding:18px}
+.profile .who h3{font-size:19px}
+.dossier{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.dossier div{background:var(--white);border:1px solid var(--line);border-radius:11px;padding:9px 10px}
+.dossier small{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:800}
+.dossier b{font-size:17px}
+.titles{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+@media (max-width:900px){.rk{grid-template-columns:minmax(0,1fr)}}
+
+footer{border-top:1px solid var(--line);padding-block:30px 46px;font-size:13px;color:var(--ink-3)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+footer a{color:var(--ink-2)}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="logo"><i aria-hidden="true"></i>GeoPolitics</div>
+    <nav class="main-nav" aria-label="Main">
+      <a href="#">Explore</a><a href="#" class="on" aria-current="page">Play</a><a href="#">Daily Brief</a><a href="#">Stories</a>
+    </nav>
+    <nav class="jump" aria-label="Page sections">
+      <a href="#start">1 Start</a><a href="#how">2 How it works</a><a href="#modes">3 Modes</a><a href="#countries">4 Countries</a><a href="#match">5 Match</a><a href="#request">6 Requests</a><a href="#chronicle">7 Chronicle</a><a href="#ranks">8 Rankings</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="banner">
+      <span><b>Dummy UI, structure only.</b> The Play page scrolls from top to bottom. Numbers are examples.</span>
+      <span style="display:inline-flex;gap:6px;align-items:center"><span class="n">1</span> page section</span>
+      <span style="display:inline-flex;gap:6px;align-items:center"><span class="n l">A</span> part of the match screen</span>
+    </div>
+
+    <!-- 1 HERO -->
+    <div class="hero" id="start">
+      <div>
+        <p class="eyebrow"><span class="n">1</span>Start · first thing a player sees</p>
+        <h1>Run a country.<br><em>Shape the world.</em></h1>
+        <p class="lede">Lead one of ten real countries against friends or bots. Every decision you make lands on someone else's economy, and they answer back.</p>
+        <div class="ctas">
+          <a class="btn primary" href="#match">Quick match</a>
+          <a class="btn" href="#modes">Create room</a>
+          <form class="join" id="joinForm" aria-label="Join a room"><input id="joinCode" maxlength="6" placeholder="Room code" aria-label="Room code"><button type="submit">Join</button></form>
+        </div>
+        <div class="livebar"><span class="live">312 leaders in office</span><span>41 matches running</span><span>Today's crisis: Japan energy shock</span></div>
+        <div class="pick-line" id="pickLine" aria-live="polite">Your country: <b>not picked yet</b>. Tap a gold country on the globe, or choose in section 4.</div>
+      </div>
+      <div>
+        <div class="globe-box">
+          <canvas id="heroGlobe" aria-label="Globe with the ten playable countries in gold. Drag to rotate, tap a country to pick it."></canvas>
+          <div class="hero-tag g"><span class="n">1</span>Globe stays in the centre</div>
+        </div>
+        <p class="cap">Drag to rotate · gold = playable country · tap to pick</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 HOW -->
+  <section id="how">
+    <div class="wrap">
+      <div class="shead">
+        <div>
+          <p class="eyebrow"><span class="n">2</span>How it works</p>
+          <h2>Four steps, about 30 minutes</h2>
+          <p class="lede">New players read this once. It explains the whole loop before they commit to a match.</p>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step g"><span class="k">1</span><h3>Choose how to play</h3><p>Quick match with strangers, today's Daily Crisis, or a private room with friends.</p><div class="chips"><span class="chip">Section 3</span></div></div>
+        <div class="step g"><span class="k">2</span><h3>Pick your country</h3><p>Every country starts from real data. Bots take the empty seats, so the world is always full.</p><div class="chips"><span class="chip">Section 4</span></div></div>
+        <div class="step g"><span class="k">3</span><h3>Play 12 rounds</h3><p>Each round is one quarter. Set your budget, give up to 3 orders, watch the replay, answer requests.</p><div class="chips"><span class="chip">Sections 5–6</span></div></div>
+        <div class="step g"><span class="k">4</span><h3>Read the Chronicle</h3><p>Your match becomes a simulated newspaper. Scores and rankings update.</p><div class="chips"><span class="chip">Sections 7–8</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 MODES -->
+  <section id="modes">
+    <div class="wrap">
+      <div class="shead">
+        <div>
+          <p class="eyebrow"><span class="n">3</span>Choose how to play</p>
+          <h2>Pick a way in</h2>
+          <p class="lede">One primary card (Quick match) and three smaller ones. A returning player sees their unfinished match here.</p>
+        </div>
+      </div>
+      <div class="modes">
+        <div class="mode g dark"><h3>Quick match</h3><p>Join a world with other leaders. Starts in under 60 seconds; bots fill the empty seats.</p><div class="meta"><span class="chip">Standard · 12 rounds</span><span class="chip">~30 min</span></div><a class="btn" href="#countries">Find a match</a></div>
+        <div class="mode g"><h3>Daily Crisis</h3><p>Same country and crisis for everyone today. Solo against 9 bots.</p><div class="meta"><span class="chip">JPN · energy shock</span><span class="chip">Streak 4</span></div><a class="btn sm" href="#match">Play today</a></div>
+        <div class="mode g"><h3>Private room</h3><p>Create a room, share the code, play with up to 9 friends.</p><div class="meta"><span class="chip">Code K7Q2M</span><span class="chip">Invite link</span></div><a class="btn sm" href="#countries">Create room</a></div>
+        <div class="mode g"><h3>Continue</h3><p>Async match. You have 9 hours to give your orders for round 5.</p><div class="meta"><span class="chip">Round 5/12</span><span class="chip">Your turn</span></div><a class="btn sm" href="#match">Open match</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 COUNTRIES -->
+  <section id="countries">
+    <div class="wrap">
+      <div class="shead">
+        <div>
+          <p class="eyebrow"><span class="n">4</span>Lobby · pick your country</p>
+          <h2>Who will you lead?</h2>
+          <p class="lede">The same list appears on the globe. Taken seats show the player. Picking a card flies the globe in section 1 to that country.</p>
+        </div>
+        <ul class="notes">
+          <li><span class="n">4</span><span><b>Card</b> shows starting strength, weakness and difficulty, so a new player can choose quickly.</span></li>
+          <li><span class="n">4</span><span><b>Ready bar</b> at the bottom shows who is in. The host starts; bots fill the rest.</span></li>
+        </ul>
+      </div>
+      <div class="cgrid" id="cgrid"></div>
+      <div class="lobby-foot g">
+        <div class="seats"><span class="chip">Room K7Q2M</span><span class="chip">4 of 10 humans</span><span class="chip">Kabir ✓</span><span class="chip">Sana ✓</span><span class="chip">Ishan …</span><span class="chip" id="youChip">You: choosing</span></div>
+        <a class="btn primary" href="#match" id="readyBtn">Ready</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 MATCH -->
+  <section id="match">
+    <div class="wrap">
+      <div class="shead">
+        <div>
+          <p class="eyebrow"><span class="n">5</span>Inside a match</p>
+          <h2>The match screen</h2>
+          <p class="lede">In the real game this opens full-screen. Left is you, right is the country you picked on the globe, bottom is what you decide this round.</p>
+        </div>
+        <ul class="notes">
+          <li><span class="n l">A</span><span><b>Top bar</b>: round, quarter, timer, world tension.</span></li>
+          <li><span class="n l">B</span><span><b>Cabinet</b>: your money, approval, economy, goods.</span></li>
+          <li><span class="n l">C</span><span><b>Globe</b>: status colours, trade and sanction lines, players. Tap a country.</span></li>
+          <li><span class="n l">D</span><span><b>Target panel</b>: that country, and the actions you can take.</span></li>
+          <li><span class="n l">E</span><span><b>Category dock</b>: Domestic, Economy, Trade, Diplomacy, Military.</span></li>
+          <li><span class="n l">F</span><span><b>Orders</b>: up to 3 decisions, then Submit.</span></li>
+          <li><span class="n l">G</span><span><b>Inbox and World Wire</b>: requests and simulated news.</span></li>
+        </ul>
+      </div>
+
+      <p class="try"><span class="chip">Try it</span> Pick a category <span class="n l">E</span>, tap an action in the right panel <span class="n l">D</span>, it drops into an order slot <span class="n l">F</span>, then press Submit. Tap other countries on the globe <span class="n l">C</span>.</p>
+
+      <div class="screen" id="screen">
+        <!-- A -->
+        <div class="area-bar hbar g">
+          <div class="grp"><span class="n l">A</span><span class="code gold">IND</span><b>India</b><small style="color:var(--ink-3);font-weight:600">You</small></div>
+          <div class="grp">
+            <span class="round tab">Round <span id="rnd">5</span> / 12 <small id="qtr">Q4 2027</small></span>
+            <div class="timer" aria-label="Time left"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="none" stroke="var(--paper-2)" stroke-width="4"/><circle id="ring" cx="20" cy="20" r="16" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-dasharray="100.53" stroke-dashoffset="0"/></svg><span class="tab" id="secs">90</span></div>
+            <span class="phase" id="phase">ORDERS</span>
+          </div>
+          <div class="tension">TENSION <span class="segs" id="segs"><i></i><i></i><i></i><i></i><i></i></span><span class="tval tab" id="tval">62</span></div>
+        </div>
+
+        <!-- B -->
+        <div class="area-cab panel g">
+          <div class="rb"><span class="n l">B</span>Cabinet · India</div>
+          <div class="stat big"><span>Treasury</span><span><span class="v tab" id="s-treasury">$41.2B</span></span></div>
+          <div class="stat"><span>Approval</span><span><span class="v tab" id="s-approval">54%</span></span></div>
+          <div class="stat"><span>Growth</span><span><span class="v tab" id="s-growth">5.8%</span></span></div>
+          <div class="stat"><span>Inflation</span><span><span class="v tab" id="s-inflation">7.1%</span></span></div>
+          <div class="stat"><span>Debt</span><span><span class="v tab" id="s-debt">84% GDP</span></span></div>
+          <div class="sub">Goods (need met)</div>
+          <div id="goods"></div>
+          <div class="cab-btns"><button class="btn sm" type="button" id="budgetBtn">Budget</button><button class="btn sm" type="button" id="projBtn">Projects</button></div>
+        </div>
+
+        <!-- C -->
+        <div class="area-globe globe-cell">
+          <canvas id="hudGlobe" aria-label="Match globe. Tap a country to see it in the target panel."></canvas>
+          <div class="gtag g"><span class="rb" style="margin:0"><span class="n l">C</span>Shared world</span></div>
+          <div class="replay" id="replay" aria-live="polite"></div>
+          <div class="legend g">
+            <span><i class="sw" style="background:var(--gold)"></i>You</span>
+            <span><i class="sw" style="background:var(--mixed)"></i>Tension</span>
+            <span><i class="sw" style="background:var(--crisis)"></i>Crisis</span>
+            <span><i class="sw" style="background:var(--conflict)"></i>War</span>
+            <span><i class="ln" style="border-color:var(--gold-deep)"></i>Supply</span>
+            <span><i class="ln" style="border-color:var(--conflict)"></i>Embargo</span>
+            <span><i class="ln" style="border-color:var(--ally);border-top-style:solid"></i>Help</span>
+          </div>
+        </div>
+
+        <!-- D -->
+        <div class="area-target panel g" id="target"></div>
+
+        <!-- E + F -->
+        <div class="area-tray tray g">
+          <div class="rb" style="margin:0"><span class="n l">E</span>Category dock</div>
+          <div class="dock" id="dock" role="group" aria-label="Decision categories"></div>
+          <div class="rb" style="margin:4px 0 0"><span class="n l">F</span>Orders this round · <span id="slotCount">0</span> of 3</div>
+          <div class="slots" id="slots"></div>
+        </div>
+
+        <!-- G -->
+        <div class="area-inbox panel g">
+          <div class="rb"><span class="n l">G</span>Inbox and World Wire</div>
+          <div class="tabs" role="group" aria-label="Feed"><button type="button" aria-pressed="true" data-feed="inbox">Inbox (2)</button><button type="button" aria-pressed="false" data-feed="wire">World Wire</button></div>
+          <div class="feed" id="feed"></div>
+        </div>
+        <div class="toast" id="toast" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 REQUEST -->
+  <section id="request">
+    <div class="wrap">
+      <div class="req-wrap">
+        <div>
+          <p class="eyebrow"><span class="n">6</span>When someone asks you for help</p>
+          <h2>Russia decides</h2>
+          <p class="lede">India is at war with Pakistan and asks Russia for air defence. This is what the Russia player sees. The cost of saying yes and the cost of saying no are both shown before the choice.</p>
+          <ul class="notes" style="margin-top:18px">
+            <li><span class="n">6</span><span><b>Arrives</b> as a toast in the Inbox, then opens as this card.</span></li>
+            <li><span class="n">6</span><span><b>Accept, Counter or Decline.</b> Answering is free and does not use an order slot.</span></li>
+          </ul>
+        </div>
+        <div class="modal g" role="group" aria-labelledby="reqTitle">
+          <div class="head"><span class="code">IND</span><span class="chip">Expires after round 6</span></div>
+          <h3 id="reqTitle">INDIA REQUESTS MILITARY SUPPORT</h3>
+          <p class="quote">"We stand together."</p>
+          <div class="cols">
+            <div><h4>They ask</h4><ul><li>Air-defence deployment</li><li>Intel on Pakistan</li></ul></div>
+            <div><h4>It costs you</h4><ul><li>Your air defence −20 for 3 rounds</li><li>30% chance Pakistan finds out</li></ul></div>
+          </div>
+          <div class="cols" style="grid-template-columns:minmax(0,1fr)"><div><h4>They offer</h4>$8B over 2 rounds · lift tariff on Russian energy</div></div>
+          <div class="ifno">If you decline: India relation −15, trust −20.</div>
+          <div class="choices">
+            <button class="btn" type="button" data-r="decline">Decline</button>
+            <button class="btn" type="button" data-r="counter">Counter…</button>
+            <button class="btn primary" type="button" data-r="accept">Accept</button>
+          </div>
+          <p class="result" id="reqResult" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 CHRONICLE -->
+  <section id="chronicle">
+    <div class="wrap">
+      <div class="shead">
+        <div>
+          <p class="eyebrow"><span class="n">7</span>After the match</p>
+          <h2>The World Chronicle</h2>
+          <p class="lede">The match is written up as a simulated newspaper with the final standings. It has its own link, so players share it.</p>
+        </div>
+      </div>
+      <article class="paper">
+        <div class="mast">
+          <h3>The World Chronicle</h3>
+          <span class="stamp">SIMULATED</span>
+          <span>Match K7Q2M · Q4 2026 – Q3 2029 · 10 leaders · 27 min</span>
+          <span>A game played on GeoPolitics</span>
+        </div>
+        <hr class="rule">
+        <div class="news">
+          <div>
+            <div class="lead">
+              <h4>Oil dispute ends in Moscow talks after three rounds of strikes</h4>
+              <p>A US energy embargo pushed Indian fuel prices up 40 percent in two quarters. India answered with tariffs, then strikes on military sites. Pakistan opened a northern front in round 6. Russia accepted India's request for air defence, and a ceasefire was signed in round 10.</p>
+            </div>
+            <div class="minis">
+              <div><h5>Germany builds while others fight</h5><p>Six hospital and school programmes lifted Germany's People score by 31 points.</p></div>
+              <div><h5>Food prices hit a three-year high</h5><p>Grain embargoes between China and Brazil raised world food prices 18 percent.</p></div>
+            </div>
+          </div>
+          <aside class="stand">
+            <h5>Final standings</h5>
+            <ol>
+              <li><b>1</b><span class="code">DEU</span><span>Tom <span class="tt">Builder</span></span><b class="tab">744</b></li>
+              <li><b>2</b><span class="code">RUS</span><span>Ishan <span class="tt">Kingmaker</span></span><b class="tab">701</b></li>
+              <li class="me"><b>3</b><span class="code gold">IND</span><span>You <span class="tt">Defender</span></span><b class="tab">668</b></li>
+              <li><b>4</b><span class="code">BRA</span><span>Ana <span class="tt">Economist</span></span><b class="tab">612</b></li>
+              <li><b>5</b><span class="code">USA</span><span>Kabir <span class="tt">Hawk</span></span><b class="tab">574</b></li>
+              <li><b>…</b><span></span><span class="tt">5 more leaders</span><span></span></li>
+            </ol>
+            <div class="after"><a class="btn primary sm" href="#start">Rematch</a><button class="btn sm" type="button" id="shareBtn">Copy share link</button></div>
+            <p class="tt" id="shareMsg" aria-live="polite" style="margin:8px 0 0"></p>
+          </aside>
+        </div>
+        <div class="timeline"><span>R3 USA embargo</span><span>R4 India tariff</span><span>R5 India strike</span><span>R6 Pakistan offensive</span><span>R6 Russia sends air defence</span><span>R8 China–Brazil grain dispute</span><span>R10 Ceasefire</span><span>R12 Election: India re-elected</span></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 8 RANKINGS -->
+  <section id="ranks">
+    <div class="wrap">
+      <div class="shead">
+        <div>
+          <p class="eyebrow"><span class="n">8</span>Rankings and leader profile</p>
+          <h2>Who leads best</h2>
+          <p class="lede">Rank 1 is the leader who improved their country most, not the biggest army. Tables by season, by country and for today's Daily Crisis.</p>
+        </div>
+      </div>
+      <div class="rk">
+        <div class="tablebox g">
+          <div class="tabs" role="group" aria-label="Leaderboard"><button type="button" aria-pressed="true" data-lb="global">Global</button><button type="button" aria-pressed="false" data-lb="country">Best of India</button><button type="button" aria-pressed="false" data-lb="daily">Daily Crisis</button></div>
+          <table><thead><tr><th>#</th><th>Leader</th><th>Country</th><th>Tier</th><th style="text-align:right">Rating</th></tr></thead><tbody id="lb"></tbody></table>
+        </div>
+        <div class="profile g">
+          <div class="who"><span class="code">CHN</span><div><h3>Himanshu</h3><small>World Leader tier · rank 5 · rating 1,764</small></div></div>
+          <div class="sub" style="margin-top:4px">Country dossier · best match as China</div>
+          <div class="dossier">
+            <div><small>GDP</small><b class="tab">$21.4T</b></div>
+            <div><small>Growth</small><b class="tab">5.1%</b></div>
+            <div><small>Defense</small><b class="tab">78/100</b></div>
+            <div><small>Debt</small><b class="tab">71% GDP</b></div>
+            <div><small>Health</small><b class="tab">74</b></div>
+            <div><small>Loans</small><b>None</b></div>
+          </div>
+          <div class="titles"><span class="chip">The Diplomat</span><span class="chip">The Economist</span><span class="chip">32 matches</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><span>Statecraft · dummy UI for structure. Simulated game; not a prediction.</span><a href="#start">Back to top</a></div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script>
+const WORLD = __WORLD_JSON__;
+(function(){
+"use strict";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const css = getComputedStyle(document.documentElement);
+const tok = n => css.getPropertyValue(n).trim();
+const C = {
+  ocean1: tok("--ocean-1"), ocean2: tok("--ocean-2"), land: tok("--land"), gold: tok("--gold"), goldDeep: tok("--gold-deep"),
+  ink: tok("--ink"), conflict: tok("--conflict"), ally: tok("--ally"), white: tok("--white"),
+  status: { stable:"rgba(47,163,107,.30)", tension:"rgba(232,162,28,.55)", crisis:"rgba(229,122,58,.62)", war:"rgba(229,72,77,.62)" },
+  seat: "rgba(242,179,61,.42)", sel: "rgba(242,179,61,.88)"
+};
+
+const SEATS = {
+  USA:{id:"840",name:"United States",short:"US",ll:[-98,39]},
+  CHN:{id:"156",name:"China",short:"China",ll:[104,35]},
+  IND:{id:"356",name:"India",short:"India",ll:[79,22]},
+  RUS:{id:"643",name:"Russia",short:"Russia",ll:[95,61]},
+  PAK:{id:"586",name:"Pakistan",short:"Pakistan",ll:[69,30]},
+  SAU:{id:"682",name:"Saudi Arabia",short:"Saudi Arabia",ll:[45,24]},
+  DEU:{id:"276",name:"Germany",short:"Germany",ll:[10,51]},
+  JPN:{id:"392",name:"Japan",short:"Japan",ll:[138,37]},
+  BRA:{id:"076",name:"Brazil",short:"Brazil",ll:[-52,-10]},
+  GBR:{id:"826",name:"United Kingdom",short:"UK",ll:[-2,54]}
+};
+const byId = {}; for (const k in SEATS) byId[SEATS[k].id] = k;
+const countries = topojson.feature(WORLD, WORLD.objects.countries).features;
+const borders = topojson.mesh(WORLD, WORLD.objects.countries, (a,b) => a !== b);
+const featOf = {}; for (const f of countries) if (byId[f.id]) featOf[byId[f.id]] = f;
+
+/* ---------- Globe ---------- */
+function makeGlobe(canvas, o){
+  const ctx = canvas.getContext("2d");
+  const proj = d3.geoOrthographic().clipAngle(90).precision(0.6);
+  const path = d3.geoPath(proj, ctx);
+  const grat = d3.geoGraticule10();
+  const rot = o.rotate.slice();
+  let w=0,h=0,r=0,dpr=1, selected=o.selected||null, anim=null, lastInput=-1e9, visible=true, down=null;
+  function resize(){ const b=canvas.getBoundingClientRect(); dpr=Math.min(window.devicePixelRatio||1,2); w=b.width; h=b.height; canvas.width=Math.max(1,Math.round(w*dpr)); canvas.height=Math.max(1,Math.round(h*dpr)); r=Math.min(w,h)/2*o.fill; }
+  const front = ll => d3.geoDistance(ll,[-rot[0],-rot[1]]) < Math.PI/2 - 0.12;
+  function arcLine(a,b){ const i=d3.geoInterpolate(a,b), pts=[]; for(let k=0;k<=48;k++) pts.push(i(k/48)); return {type:"LineString",coordinates:pts}; }
+  function draw(t){
+    if(!w) return;
+    ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+    proj.scale(r).translate([w/2,h/2]).rotate(rot);
+    const cx=w/2, cy=h/2;
+    const halo=ctx.createRadialGradient(cx,cy,r*.92,cx,cy,r*1.14); halo.addColorStop(0,"rgba(184,219,255,.6)"); halo.addColorStop(1,"rgba(184,219,255,0)");
+    ctx.fillStyle=halo; ctx.beginPath(); ctx.arc(cx,cy,r*1.14,0,Math.PI*2); ctx.fill();
+    const og=ctx.createRadialGradient(cx-r*.35,cy-r*.4,r*.1,cx,cy,r); og.addColorStop(0,C.ocean1); og.addColorStop(1,C.ocean2);
+    ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle=og; ctx.fill();
+    ctx.beginPath(); path(grat); ctx.strokeStyle="rgba(255,255,255,.32)"; ctx.lineWidth=.6; ctx.stroke();
+    ctx.beginPath(); for(const f of countries) path(f); ctx.fillStyle=C.land; ctx.fill();
+    for(const iso in SEATS){
+      let col=null;
+      if(o.status && o.status[iso]) col=C.status[o.status[iso]];
+      else if(o.seatTint) col=C.seat;
+      if(o.you===iso) col=C.sel;
+      if(!o.you && iso===selected) col=C.sel;
+      if(col){ ctx.beginPath(); path(featOf[iso]); ctx.fillStyle=col; ctx.fill(); }
+    }
+    ctx.beginPath(); path(borders); ctx.strokeStyle="rgba(255,255,255,.95)"; ctx.lineWidth=.7; ctx.stroke();
+    if(o.you){ ctx.beginPath(); path(featOf[o.you]); ctx.strokeStyle=C.goldDeep; ctx.lineWidth=1.6; ctx.stroke(); }
+    if(selected && selected!==o.you){ ctx.beginPath(); path(featOf[selected]); ctx.strokeStyle=o.you?C.ink:C.goldDeep; ctx.lineWidth=1.8; ctx.setLineDash(o.you?[4,3]:[]); ctx.stroke(); ctx.setLineDash([]); }
+    if(o.arcs) for(const a of o.arcs){
+      const A=SEATS[a.from].ll, B=SEATS[a.to].ll, line=arcLine(A,B);
+      ctx.beginPath(); path(line);
+      ctx.lineWidth=2.2;
+      if(a.kind==="supply"){ ctx.strokeStyle=C.goldDeep; ctx.setLineDash([7,6]); ctx.lineDashOffset=reduce?0:-t/45; }
+      else if(a.kind==="embargo"){ ctx.strokeStyle=C.conflict; ctx.setLineDash([3,5]); ctx.lineDashOffset=0; }
+      else { ctx.strokeStyle=C.ally; ctx.setLineDash([]); }
+      ctx.stroke(); ctx.setLineDash([]);
+      if(!reduce){ const p=d3.geoInterpolate(A,B)(((t/2600)+a.phase)%1); if(front(p)){ const q=proj(p); ctx.beginPath(); ctx.arc(q[0],q[1],3.2,0,Math.PI*2); ctx.fillStyle=ctx.strokeStyle; ctx.fill(); } }
+    }
+    if(o.glows) for(const g of o.glows){ if(!front(g)) continue; const q=proj(g);
+      const gr=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],22); gr.addColorStop(0,"rgba(229,72,77,.85)"); gr.addColorStop(1,"rgba(229,72,77,0)");
+      ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(q[0],q[1],22,0,Math.PI*2); ctx.fill();
+      if(!reduce){ const k=(t%1600)/1600; ctx.beginPath(); ctx.arc(q[0],q[1],6+k*20,0,Math.PI*2); ctx.strokeStyle="rgba(229,72,77,"+(0.7*(1-k))+")"; ctx.lineWidth=1.5; ctx.stroke(); }
+    }
+    const sh=ctx.createRadialGradient(cx-r*.42,cy-r*.42,r*.15,cx,cy,r*1.02); sh.addColorStop(0,"rgba(255,255,255,.14)"); sh.addColorStop(.7,"rgba(17,35,43,0)"); sh.addColorStop(1,"rgba(17,35,43,.24)");
+    ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle=sh; ctx.fill();
+    if(o.pins){ ctx.font="700 11px Manrope, system-ui, sans-serif"; ctx.textBaseline="middle";
+      for(const iso in SEATS){ const ll=SEATS[iso].ll; if(!front(ll)) continue; const q=proj(ll); const label=o.pins(iso);
+        const mine = iso===o.you || (!o.you && iso===selected);
+        ctx.beginPath(); ctx.arc(q[0],q[1],4.5,0,Math.PI*2); ctx.fillStyle=mine?C.gold:C.ink; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle=C.white; ctx.stroke();
+        const tw=ctx.measureText(label).width, bx=q[0]+8, by=q[1]-10;
+        ctx.fillStyle="rgba(255,255,255,.92)"; roundRect(ctx,bx,by,tw+12,20,10); ctx.fill();
+        ctx.fillStyle=C.ink; ctx.fillText(label,bx+6,by+10.5);
+      }
+    }
+  }
+  function roundRect(c,x,y,w2,h2,rr){ c.beginPath(); c.moveTo(x+rr,y); c.arcTo(x+w2,y,x+w2,y+h2,rr); c.arcTo(x+w2,y+h2,x,y+h2,rr); c.arcTo(x,y+h2,x,y,rr); c.arcTo(x,y,x+w2,y,rr); c.closePath(); }
+  function frame(t){
+    if(visible){
+      if(anim){ const p=Math.min(1,(t-anim.start)/anim.dur), e=d3.easeCubicInOut(p); rot[0]=anim.from[0]+(anim.to[0]-anim.from[0])*e; rot[1]=anim.from[1]+(anim.to[1]-anim.from[1])*e; if(p>=1) anim=null; }
+      else if(o.spin && !reduce && !down && t-lastInput>3500) rot[0]+=o.speed;
+      draw(t);
+    }
+    requestAnimationFrame(frame);
+  }
+  new ResizeObserver(()=>{ resize(); draw(performance.now()); }).observe(canvas);
+  new IntersectionObserver(es=>{ visible=es[0].isIntersecting; }).observe(canvas);
+  canvas.addEventListener("pointerdown",e=>{ down={x:e.clientX,y:e.clientY,r:rot.slice(),moved:false}; anim=null; lastInput=performance.now(); });
+  canvas.addEventListener("pointermove",e=>{ if(!down) return; const dx=e.clientX-down.x, dy=e.clientY-down.y; if(Math.abs(dx)+Math.abs(dy)>5){ if(!down.moved){ down.moved=true; try{canvas.setPointerCapture(e.pointerId);}catch(_){} } } if(!down.moved) return; const k=80/r; rot[0]=down.r[0]+dx*k; rot[1]=Math.max(-70,Math.min(70,down.r[1]-dy*k)); lastInput=performance.now(); });
+  const end=e=>{ if(!down) return; if(!down.moved && e.type==="pointerup"){ const b=canvas.getBoundingClientRect(); const ll=proj.invert([e.clientX-b.left,e.clientY-b.top]); if(ll && isFinite(ll[0]) && d3.geoDistance(ll,[-rot[0],-rot[1]])<Math.PI/2){ for(const iso in featOf){ if(d3.geoContains(featOf[iso],ll)){ o.onPick && o.onPick(iso); break; } } } } down=null; lastInput=performance.now(); };
+  canvas.addEventListener("pointerup",end); canvas.addEventListener("pointercancel",end); canvas.addEventListener("pointerleave",e=>{ if(down && !down.moved) down=null; });
+  requestAnimationFrame(frame);
+  return {
+    flyTo(iso){ const ll=SEATS[iso].ll; let tx=-ll[0]; const cur=rot[0]; while(tx-cur>180) tx-=360; while(cur-tx>180) tx+=360; const to=[tx,Math.max(-45,Math.min(45,-ll[1]*0.7))]; if(reduce){ rot[0]=to[0]; rot[1]=to[1]; } else anim={start:performance.now(),from:rot.slice(),to,dur:1200}; lastInput=performance.now(); },
+    select(iso){ selected=iso; }
+  };
+}
+
+/* ---------- Data ---------- */
+const CDATA = [
+  {iso:"USA",diff:"Medium",gdp:"$30.5T",gr:"1.9%",strong:"tech, energy, military",weak:"debt 121% of GDP",force:92,nuke:true,taken:"Kabir"},
+  {iso:"CHN",diff:"Medium",gdp:"$19.2T",gr:"4.6%",strong:"minerals, factories",weak:"food and oil imports",force:84,nuke:true,taken:"Sana"},
+  {iso:"IND",diff:"Medium",gdp:"$4.2T",gr:"6.4%",strong:"growth, food",weak:"imports 85% of its oil",force:66,nuke:true},
+  {iso:"RUS",diff:"Hard",gdp:"$2.1T",gr:"0.9%",strong:"energy, grain, arms",weak:"sanctions, tech imports",force:80,nuke:true,taken:"Ishan"},
+  {iso:"PAK",diff:"Hard",gdp:"$0.4T",gr:"2.7%",strong:"large army",weak:"debt, energy imports",force:48,nuke:true},
+  {iso:"SAU",diff:"Easy",gdp:"$1.1T",gr:"3.5%",strong:"oil, cash reserves",weak:"food and arms imports",force:44},
+  {iso:"DEU",diff:"Medium",gdp:"$4.7T",gr:"0.4%",strong:"tech, reputation",weak:"energy imports",force:40},
+  {iso:"JPN",diff:"Hard",gdp:"$4.2T",gr:"0.7%",strong:"tech, money",weak:"energy and food imports",force:55},
+  {iso:"BRA",diff:"Easy",gdp:"$2.3T",gr:"2.2%",strong:"food, minerals",weak:"infrastructure",force:38},
+  {iso:"GBR",diff:"Medium",gdp:"$3.8T",gr:"1.2%",strong:"finance, reputation",weak:"food and energy imports",force:58,nuke:true}
+];
+
+/* ---------- Section 1 + 4: pick a country ---------- */
+let myPick = null;
+const hero = makeGlobe(document.getElementById("heroGlobe"), {
+  rotate:[-60,-18], fill:.84, spin:true, speed:.07, seatTint:true,
+  pins: iso => iso, onPick: iso => pick(iso, true)
+});
+const cgrid = document.getElementById("cgrid");
+cgrid.innerHTML = CDATA.map(c => `
+  <button type="button" class="cc g${c.taken?" taken":""}" data-iso="${c.iso}" ${c.taken?'aria-disabled="true"':""}>
+    <span class="row"><span class="code">${c.iso}</span><span class="diff ${c.diff}">${c.diff}</span></span>
+    <span class="nm">${SEATS[c.iso].name}${c.nuke?' <span title="Nuclear-armed" style="font-size:13px;color:var(--ink-3)">☢</span>':""}</span>
+    <span class="s"><b>GDP ${c.gdp}</b> · growth ${c.gr}</span>
+    <span class="s">Strong: ${c.strong}</span>
+    <span class="s">Weak: ${c.weak}</span>
+    <span class="fbar" title="Military strength ${c.force}/100"><i style="width:${c.force}%"></i></span>
+    <span class="row"><span class="seat ${c.taken?"":"free"}">${c.taken?"Taken · "+c.taken:"Free seat"}</span><span class="seat" data-lead></span></span>
+  </button>`).join("");
+cgrid.addEventListener("click", e => { const b=e.target.closest(".cc"); if(b) pick(b.dataset.iso, true); });
+function pick(iso, fly){
+  const c = CDATA.find(x=>x.iso===iso);
+  const line = document.getElementById("pickLine");
+  if(c.taken){ line.innerHTML = `<b>${SEATS[iso].name}</b> is taken by ${c.taken}. Pick a free country.`; return; }
+  myPick = iso;
+  cgrid.querySelectorAll(".cc").forEach(b => { const on=b.dataset.iso===iso; b.classList.toggle("sel",on); b.querySelector("[data-lead]").textContent = on ? "Your pick ✓" : ""; });
+  line.innerHTML = `Your country: <b>${SEATS[iso].name}</b>. Press Ready in section 4 when you are set.`;
+  document.getElementById("youChip").textContent = "You: " + SEATS[iso].name;
+  hero.select(iso); if(fly) hero.flyTo(iso);
+}
+document.getElementById("joinForm").addEventListener("submit", e => { e.preventDefault(); const v=document.getElementById("joinCode").value.trim(); document.getElementById("pickLine").innerHTML = v ? `Joining room <b>${v.toUpperCase()}</b>… (dummy)` : "Type a 6-letter room code to join."; });
+
+/* ---------- Section 5: match screen ---------- */
+const TARGETS = {
+  USA:{player:"Kabir",online:true,rel:-35,trust:20,status:"tension",why:["Energy embargo on you (round 3)","You put a 25% tariff on US goods (round 4)"]},
+  PAK:{player:"Bot · Normal",online:true,rel:-70,trust:5,status:"war",why:["At war since round 5","Ground offensive in the north"]},
+  RUS:{player:"Ishan",online:true,rel:40,trust:62,status:"stable",why:["Defence partner","Offered air defence (round 5)"]},
+  CHN:{player:"Sana",online:true,rel:-15,trust:35,status:"tension",why:["Border tension","Large trade partner"]},
+  SAU:{player:"Bot · Normal",online:true,rel:30,trust:55,status:"stable",why:["Oil supply contract (round 4)"]},
+  DEU:{player:"Tom",online:false,rel:20,trust:50,status:"stable",why:["Buys your software services"]},
+  JPN:{player:"Bot · Hard",online:true,rel:25,trust:58,status:"crisis",why:["Energy shortage at home"]},
+  BRA:{player:"Ana",online:true,rel:15,trust:45,status:"stable",why:["Food trade partner"]},
+  GBR:{player:"Bot · Easy",online:true,rel:10,trust:40,status:"stable",why:["Finance partner"]}
+};
+const STATUS = {USA:"tension",CHN:"tension",PAK:"war",JPN:"crisis",RUS:"stable",SAU:"stable",DEU:"stable",BRA:"stable",GBR:"stable"};
+const PLAYER = {USA:"Kabir",CHN:"Sana",RUS:"Ishan",PAK:"Bot",IND:"You",SAU:"Bot",DEU:"Tom",JPN:"Bot",BRA:"Ana",GBR:"Bot"};
+const hud = makeGlobe(document.getElementById("hudGlobe"), {
+  rotate:[-72,-24], fill:.9, spin:false, you:"IND", selected:"USA", status:STATUS,
+  arcs:[{from:"SAU",to:"IND",kind:"supply",phase:0},{from:"USA",to:"IND",kind:"embargo",phase:.3},{from:"RUS",to:"IND",kind:"help",phase:.6}],
+  glows:[[74.5,33.2]], pins: iso => PLAYER[iso], onPick: iso => setTarget(iso)
+});
+
+const st = {treasury:41.2,approval:54,growth:5.8,inflation:7.1,debt:84,tension:62,energy:71,food:104,tech:63,minerals:88,round:5};
+const CATS = {
+  domestic:{label:"Domestic",scope:"self",actions:[
+    {l:"Build hospitals programme",c:"$16.8B · ready in 2 rounds · health +8",w:"India launches national hospitals programme",d:{treasury:-16.8,approval:2}},
+    {l:"Schools and universities",c:"$21.0B · ready in 3 rounds",w:"India expands universities in budget push",d:{treasury:-21,approval:1}},
+    {l:"Highways and rail",c:"$33.6B · ready in 3 rounds · growth +0.3",w:"India starts new freight corridor",d:{treasury:-33.6,growth:.1}},
+    {l:"Fuel subsidy",c:"$8.4B · approval +5 · oil demand +10%",w:"India cuts fuel prices with new subsidy",d:{treasury:-8.4,approval:5,energy:-4}},
+    {l:"Mobilise troops",c:"$4.2B per round · tension +4",w:"India mobilises reserve divisions",d:{treasury:-4.2,tension:4}}]},
+  economy:{label:"Economy",scope:"self",actions:[
+    {l:"Buy oil on the world market",c:"$6.1B at today's price",w:"India buys emergency crude cargoes",d:{treasury:-6.1,energy:12}},
+    {l:"Sell surplus food",c:"+$3.2B income · food −3%",w:"India sells wheat surplus abroad",d:{treasury:3.2,food:-3}},
+    {l:"Ask the IMF for a programme",c:"+$126B now · spending caps for 4 rounds",w:"India agrees IMF support programme",d:{treasury:126,approval:-6,debt:3}},
+    {l:"Print money",c:"+$84B now · inflation +4",w:"Central bank expands money supply",d:{treasury:84,inflation:4}}]},
+  trade:{label:"Trade",scope:"target",actions:[
+    {l:t=>`Propose trade deal to ${t}`,c:"Both sides growth +0.2 · needs their yes",w:t=>`India offers ${t} a trade deal`,d:{}},
+    {l:t=>`25% tariff on ${t}`,c:"Revenue +$2B · your prices rise",w:t=>`India raises tariffs on ${t} goods to 25%`,d:{treasury:2,inflation:.3,tension:2}},
+    {l:t=>`Stop food exports to ${t}`,c:"You lose export income · relation −25",w:t=>`India halts grain exports to ${t}`,d:{treasury:-1.5,tension:4}},
+    {l:t=>`Sanction ${t}`,c:"Your exports −8% · relation −30",w:t=>`India announces sanctions on ${t}`,d:{growth:-.1,tension:4}}]},
+  diplomacy:{label:"Diplomacy",scope:"target",actions:[
+    {l:t=>`Ask ${t} for military help`,c:"Free to ask · they decide",w:t=>`India asks ${t} for air-defence support`,d:{}},
+    {l:t=>`Ask ${t} for oil`,c:"You set the price",w:t=>`India seeks oil supply deal with ${t}`,d:{}},
+    {l:t=>`Propose alliance to ${t}`,c:"An attack on one is a call to arms",w:t=>`India proposes defence pact to ${t}`,d:{}},
+    {l:t=>`Offer ceasefire to ${t}`,c:"Tension −5 if they accept",w:t=>`India offers ${t} a ceasefire`,d:{}}]},
+  military:{label:"Military",scope:"target",actions:[
+    {l:t=>`Strike ${t}…`,c:"Choose a target · hold to confirm",strike:true},
+    {l:t=>`Naval blockade of ${t}`,c:"Their sea trade −50% · tension +8",w:t=>`Indian navy blockades ${t} ports`,d:{tension:8}},
+    {l:t=>`Cyber operation on ${t}`,c:"40% chance they find out",w:t=>`Outages reported across ${t}; origin unclear`,d:{tension:2}},
+    {l:t=>`Send arms to ${t}`,c:"Your land force −5",w:t=>`India ships arms to ${t}`,d:{}}]}
+};
+const STRIKE_TYPES = [
+  {k:"Military base",tension:6,c:"Tension +6 · reputation −4"},
+  {k:"Energy site",tension:8,c:"Tension +8 · reputation −8 · world oil price rises"},
+  {k:"Infrastructure",tension:8,c:"Tension +8 · reputation −8"},
+  {k:"City",tension:12,c:"Tension +12 · reputation −20 · all relations −10",warn:"Striking cities breaks international humanitarian law. Other leaders will react."}
+];
+let cat="trade", target="USA", orders=[], submitted=false, strikeMode=null, feedMode="inbox";
+const wireLog = [
+  {r:4,t:"Saudi Arabia agrees to supply India with oil"},
+  {r:4,t:"US imposes energy embargo on India; fuel prices expected to rise"},
+  {r:5,t:"Pakistan launches offensive on India's northern border"}
+];
+const inbox = [
+  {from:"RUS",t:"Russia offers air-defence deployment"},
+  {from:"BRA",t:"Brazil proposes a food trade deal"}
+];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+const val = (x,t) => typeof x==="function" ? x(t) : x;
+
+function renderDock(){
+  $("dock").innerHTML = Object.entries(CATS).map(([k,v]) => `<button type="button" data-cat="${k}" aria-pressed="${k===cat}">${v.label}</button>`).join("");
+}
+$("dock").addEventListener("click", e => { const b=e.target.closest("button"); if(!b) return; cat=b.dataset.cat; strikeMode=null; renderDock(); renderTarget(); });
+
+function renderTarget(){
+  const box=$("target"), C2=CATS[cat];
+  let head;
+  if(C2.scope==="self"){
+    head = `<div class="rb"><span class="n l">D</span>Actions at home</div>
+      <div class="who"><span class="code gold">IND</span><div><h3>India</h3><small>${C2.label} decisions</small></div></div>`;
+  } else {
+    const T=TARGETS[target], s=SEATS[target];
+    head = `<div class="rb"><span class="n l">D</span>Target panel</div>
+      <div class="who"><span class="code">${target}</span><div><h3>${s.name}</h3><small>${T.online?'<i class="dot"></i>':""}${esc(T.player)}</small></div></div>
+      <dl class="kv"><dt>Relation</dt><dd class="tab">${T.rel>0?"+":""}${T.rel}</dd><dt>Trust</dt><dd class="tab">${T.trust}</dd><dt>Status</dt><dd><span class="pill st-${T.status}">${T.status[0].toUpperCase()+T.status.slice(1)}</span></dd></dl>
+      <ul class="why">${T.why.map(w=>`<li>${esc(w)}</li>`).join("")}</ul>`;
+  }
+  let body;
+  if(C2.scope==="target" && target==="IND"){
+    body = `<p class="hint">Tap another country on the globe to act on it.</p>`;
+  } else if(strikeMode){
+    const ty = STRIKE_TYPES[strikeMode.type], name=SEATS[target].name;
+    const chance = target==="USA"||target==="RUS"||target==="CHN" ? 62 : 41;
+    body = `<div class="strike">
+      <div class="sub" style="margin:0">Strike ${name} · choose target</div>
+      <div class="ttype">${STRIKE_TYPES.map((x,i)=>`<button type="button" data-ty="${i}" aria-pressed="${i===strikeMode.type}">${x.k}</button>`).join("")}</div>
+      <div class="sinfo">Interception chance about ${chance}%. Costs you: ${ty.c}.</div>
+      ${ty.warn?`<div class="sinfo warn">${ty.warn}</div>`:""}
+      <button type="button" class="hold" id="hold"><i></i><span>Hold to confirm strike</span></button>
+      <button type="button" class="linkbtn" id="cancelStrike">Cancel</button></div>`;
+  } else {
+    const tn = SEATS[target].short;
+    body = `<div class="sub" style="margin-top:0">${C2.label}</div><div class="acts">${C2.actions.map((a,i)=>`<button type="button" class="act${a.strike?" danger":""}" data-a="${i}"><b>${esc(val(a.l,tn))}</b><small>${esc(a.c)}</small></button>`).join("")}</div>`;
+  }
+  box.innerHTML = head + body;
+}
+$("target").addEventListener("click", e => {
+  const a=e.target.closest("[data-a]"), ty=e.target.closest("[data-ty]");
+  if(ty){ strikeMode.type=+ty.dataset.ty; renderTarget(); return; }
+  if(e.target.closest("#cancelStrike")){ strikeMode=null; renderTarget(); return; }
+  if(!a) return;
+  const act=CATS[cat].actions[+a.dataset.a], tn=CATS[cat].scope==="target"?SEATS[target].short:"";
+  if(act.strike){ strikeMode={type:0}; renderTarget(); return; }
+  addOrder({cat:CATS[cat].label, text:val(act.l,tn), wire:val(act.w,tn), d:act.d});
+});
+let holdRaf=null;
+$("target").addEventListener("pointerdown", e => {
+  const h=e.target.closest("#hold"); if(!h) return;
+  const t0=performance.now(), dur=reduce?400:1200;
+  const step=t=>{ const p=Math.min(1,(t-t0)/dur); h.style.setProperty("--p",p); if(p<1) holdRaf=requestAnimationFrame(step); else { holdRaf=null; const ty=STRIKE_TYPES[strikeMode.type], tn=SEATS[target].short; strikeMode=null;
+      addOrder({cat:"Military",text:`Strike ${tn} · ${ty.k.toLowerCase()}`,wire:`India strikes ${ty.k.toLowerCase()} targets in ${tn} (simulated)`,d:{tension:ty.tension},strike:true}); renderTarget(); } };
+  holdRaf=requestAnimationFrame(step);
+});
+const stopHold = () => { if(holdRaf){ cancelAnimationFrame(holdRaf); holdRaf=null; const h=$("hold"); if(h) h.style.setProperty("--p",0); } };
+["pointerup","pointerleave","pointercancel"].forEach(ev => $("target").addEventListener(ev, stopHold));
+$("target").addEventListener("keydown", e => { if(e.target.id==="hold" && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); const ty=STRIKE_TYPES[strikeMode.type], tn=SEATS[target].short; strikeMode=null; addOrder({cat:"Military",text:`Strike ${tn} · ${ty.k.toLowerCase()}`,wire:`India strikes ${ty.k.toLowerCase()} targets in ${tn} (simulated)`,d:{tension:ty.tension},strike:true}); renderTarget(); } });
+
+function setTarget(iso){
+  target = iso; hud.select(iso); strikeMode=null;
+  if(iso==="IND" && CATS[cat].scope==="target"){ cat="domestic"; renderDock(); }
+  renderTarget();
+}
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>t.hidden=true, 2200); }
+function addOrder(o){
+  if(submitted) return toast("Orders are locked for this round.");
+  if(orders.length>=3) return toast("All 3 order slots are full. Remove one first.");
+  orders.push(o); renderSlots();
+}
+function renderSlots(){
+  const s=[];
+  for(let i=0;i<3;i++){ const o=orders[i];
+    s.push(o ? `<div class="slot full"><span class="tx"><span class="cat">${esc(o.cat)}</span>${esc(o.text)}</span>${submitted?"":`<button type="button" class="x" data-rm="${i}" aria-label="Remove order">×</button>`}</div>`
+             : `<div class="slot">＋ Empty slot ${i+1}</div>`);
+  }
+  s.push(`<button type="button" class="submit" id="submit" ${orders.length&&!submitted?"":"disabled"}>${submitted?"Waiting for 3 leaders…":"Submit orders"}</button>`);
+  $("slots").innerHTML = s.join(""); $("slotCount").textContent = orders.length;
+}
+$("slots").addEventListener("click", e => {
+  const rm=e.target.closest("[data-rm]"); if(rm){ orders.splice(+rm.dataset.rm,1); renderSlots(); return; }
+  if(e.target.closest("#submit")) submit();
+});
+
+function fmt(){
+  $("s-treasury").textContent = "$"+st.treasury.toFixed(1)+"B";
+  $("s-approval").textContent = Math.round(st.approval)+"%";
+  $("s-growth").textContent = st.growth.toFixed(1)+"%";
+  $("s-inflation").textContent = st.inflation.toFixed(1)+"%";
+  $("s-debt").textContent = Math.round(st.debt)+"% GDP";
+  const goods=[["Energy","energy"],["Food","food"],["Tech","tech"],["Minerals","minerals"]];
+  $("goods").innerHTML = goods.map(([n,k]) => { const v=st[k], col=v>=100?"var(--ally)":v>=85?"var(--neutral)":v>=60?"var(--mixed)":"var(--conflict)";
+    return `<div class="good"><span>${n}</span><span class="t"><i style="width:${Math.min(100,v)}%;background:${col}"></i></span><span class="p tab">${Math.round(v)}%</span></div>`; }).join("");
+  const tv=Math.round(st.tension); $("tval").textContent=tv;
+  const segCol = tv>=75?"var(--conflict)":tv>=50?"var(--mixed)":"var(--neutral)";
+  [...$("segs").children].forEach((el,i)=>{ el.style.background = tv>i*20 ? segCol : ""; });
+  $("rnd").textContent = st.round;
+  const q = 4 + (st.round-5); $("qtr").textContent = "Q"+(((q-1)%4)+1)+" "+(2027+Math.floor((q-1)/4));
+}
+function renderFeed(){
+  document.querySelectorAll("[data-feed]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.feed===feedMode));
+  $("feed").innerHTML = feedMode==="inbox"
+    ? (inbox.length ? inbox.map((m,i)=>`<div class="req"><span><span class="code" style="min-width:36px;height:20px;font-size:10px">${m.from}</span> ${esc(m.t)}</span><a class="btn sm" href="#request">View</a></div>`).join("") : `<p class="hint">No requests waiting.</p>`)
+    : wireLog.slice().reverse().map(w=>`<div class="wire"><small>Simulated · round ${w.r}</small>${esc(w.t)}</div>`).join("");
+}
+document.querySelector(".area-inbox .tabs").addEventListener("click", e => { const b=e.target.closest("[data-feed]"); if(!b) return; feedMode=b.dataset.feed; renderFeed(); });
+
+let secs=90;
+const RING=100.53;
+setInterval(() => {
+  if(submitted) return;
+  secs = Math.max(0, secs-1); $("secs").textContent=secs; $("ring").style.strokeDashoffset = RING*(1-secs/90);
+  $("ring").style.stroke = secs<=10 ? "var(--conflict)" : "var(--ink)";
+  if(secs===0) submit(true);
+}, 1000);
+
+function submit(auto){
+  if(submitted) return;
+  submitted=true; $("phase").textContent="WAITING"; $("phase").classList.add("wait"); renderSlots();
+  if(auto && !orders.length) toast("Time is up. Your budget carries over; no new orders.");
+  setTimeout(resolve, 1300);
+}
+const OTHERS = [
+  {t:"Russia deploys air defence to India",d:["Your air defence +15"]},
+  {t:"US raises tariffs on Indian steel",d:["Growth −0.1","Tension +2"]},
+  {t:"Pakistan front holds; no change this round",d:["Approval −2 (war weariness)"]},
+  {t:"Brazil and China sign grain deal",d:["World food price −3%"]}
+];
+function resolve(){
+  $("phase").textContent="REPLAY";
+  const events=[];
+  for(const o of orders){
+    const d=o.d||{}, chips=[];
+    for(const k in d){ st[k]=(st[k]||0)+d[k]; const v=d[k];
+      const label={treasury:"Treasury",approval:"Approval",growth:"Growth",inflation:"Inflation",debt:"Debt",tension:"Tension",energy:"Energy",food:"Food"}[k]||k;
+      chips.push(`${label} ${v>0?"+":"−"}${k==="treasury"?"$"+Math.abs(v).toFixed(1)+"B":Math.abs(v)}`); }
+    events.push({h:o.strike?"War":o.cat, t:o.wire, d:chips});
+    wireLog.push({r:st.round,t:o.wire});
+  }
+  const other=OTHERS[(st.round-5)%OTHERS.length];
+  events.push({h:"World", t:other.t, d:other.d}); wireLog.push({r:st.round,t:other.t});
+  st.tension=Math.max(0,Math.min(100,st.tension-3)); st.treasury+=11.5; st.energy=Math.max(30,st.energy-2);
+  st.approval=Math.max(5,Math.min(95,st.approval)); st.inflation=Math.max(0,st.inflation-.2);
+  const box=$("replay"); box.innerHTML="";
+  events.forEach((ev,i)=>setTimeout(()=>{ const el=document.createElement("div"); el.className="ev"; el.innerHTML=`<b>${esc(ev.h)}</b>${esc(ev.t)}${ev.d.length?`<div class="dl">${ev.d.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}`; box.appendChild(el); }, reduce?0:i*650));
+  setTimeout(()=>{
+    box.innerHTML=""; st.round=Math.min(12,st.round+1); orders=[]; submitted=false; secs=90;
+    $("phase").textContent="ORDERS"; $("phase").classList.remove("wait"); $("secs").textContent=secs; $("ring").style.strokeDashoffset=0;
+    fmt(); renderSlots(); renderFeed(); toast("Round "+st.round+" begins. New headlines in World Wire.");
+  }, (reduce?0:events.length*650)+2600);
+}
+$("budgetBtn").addEventListener("click", ()=>toast("Budget opens as a sheet: tax and 6 ministry sliders with a forecast."));
+$("projBtn").addEventListener("click", ()=>{ cat="domestic"; renderDock(); renderTarget(); toast("Projects are in the Domestic category."); });
+
+renderDock(); renderTarget(); renderSlots(); fmt(); renderFeed();
+
+/* ---------- Section 6: request ---------- */
+document.querySelector(".choices").addEventListener("click", e => {
+  const b=e.target.closest("[data-r]"); if(!b) return;
+  const msg = { accept:"Accepted. Your air defence drops by 20 for 3 rounds; India relation +20; $8B arrives over 2 rounds.",
+                counter:"Counter-offer sent: air defence for $12B and a 3-round trade deal.",
+                decline:"Declined. You keep your air defence; India relation −15, trust −20." }[b.dataset.r];
+  $("reqResult").textContent = msg;
+});
+
+/* ---------- Section 7: share ---------- */
+$("shareBtn").addEventListener("click", () => {
+  const link="geopolitics.app/play/match/K7Q2M/chronicle";
+  const done = () => $("shareMsg").textContent = "Copied: "+link;
+  try { navigator.clipboard.writeText(link).then(done, () => $("shareMsg").textContent = "Link: "+link); } catch(_) { $("shareMsg").textContent = "Link: "+link; }
+});
+
+/* ---------- Section 8: leaderboard ---------- */
+const LB = {
+  global:[["Riya","IND","World Leader",1842],["Tom","DEU","World Leader",1790],["Ana","BRA","Statesman",1777],["Kenji","JPN","Statesman",1771],["Himanshu","CHN","Statesman",1764],["Kabir","USA","Minister",1702]],
+  country:[["Riya","IND","World Leader",812],["Arjun","IND","Statesman",790],["You","IND","Minister",668],["Meera","IND","Minister",655],["Dev","IND","Envoy",631],["Sara","IND","Envoy",620]],
+  daily:[["Kenji","JPN","Statesman",744],["Lina","JPN","Minister",731],["Omar","JPN","Minister",720],["Riya","JPN","World Leader",712],["Tom","JPN","World Leader",705],["Ana","JPN","Statesman",698]]
+};
+function renderLB(k){
+  document.querySelectorAll("[data-lb]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.lb===k));
+  $("lb").innerHTML = LB[k].map((r,i)=>`<tr class="${i<3?"top"+(i+1):""}"><td class="tab">${i+1}</td><td><b>${esc(r[0])}</b></td><td><span class="code" style="min-width:38px;height:20px;font-size:10px">${r[1]}</span></td><td><span class="tier">${r[2]}</span></td><td class="tab" style="text-align:right;font-weight:800">${r[3].toLocaleString("en-US")}</td></tr>`).join("");
+}
+document.querySelector("#ranks .tabs").addEventListener("click", e => { const b=e.target.closest("[data-lb]"); if(b) renderLB(b.dataset.lb); });
+renderLB("global");
+})();
+</script>
