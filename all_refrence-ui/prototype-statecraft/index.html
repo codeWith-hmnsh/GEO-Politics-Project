@@ -319,7 +319,7 @@ footer a{color:var(--ink-2)}
       <a href="#">Explore</a><a href="#" class="on" aria-current="page">Play</a><a href="#">Daily Brief</a><a href="#">Stories</a>
     </nav>
     <nav class="jump" aria-label="Page sections">
-      <a href="#start">1 Start</a><a href="#how">2 How it works</a><a href="#modes">3 Modes</a><a href="#countries">4 Countries</a><a href="#match">5 Match</a><a href="#request">6 Requests</a><a href="#chronicle">7 Chronicle</a><a href="#ranks">8 Rankings</a>
+      <a href="#start">1 Start</a><a href="#how">2 How it works</a><a href="#countries">3 Countries</a><a href="#match">4 Match</a><a href="#request">5 Requests</a><a href="#chronicle">6 Chronicle</a><a href="#ranks">7 Rankings</a>
     </nav>
   </div>
 </header>
@@ -339,12 +339,10 @@ footer a{color:var(--ink-2)}
         <h1>Run a country.<br><em>Shape the world.</em></h1>
         <p class="lede">Lead one of ten real countries against friends or bots. Every decision you make lands on someone else's economy, and they answer back.</p>
         <div class="ctas">
-          <a class="btn primary" href="#match">Quick match</a>
-          <a class="btn" href="#modes">Create room</a>
-          <form class="join" id="joinForm" aria-label="Join a room"><input id="joinCode" maxlength="6" placeholder="Room code" aria-label="Room code"><button type="submit">Join</button></form>
+          <a class="btn primary" href="#countries">Start</a>
         </div>
-        <div class="livebar"><span class="live">312 leaders in office</span><span>41 matches running</span><span>Today's crisis: Japan energy shock</span></div>
-        <div class="pick-line" id="pickLine" aria-live="polite">Your country: <b>not picked yet</b>. Tap a gold country on the globe, or choose in section 4.</div>
+        <div class="livebar"><span class="live">World #128 is live</span><span>4 of 10 countries led by players</span><span>6 run by bots, free to take</span></div>
+        <div class="pick-line" id="pickLine" aria-live="polite">Your country: <b>not picked yet</b>. Tap a gold country on the globe, or choose in section 3.</div>
       </div>
       <div>
         <div class="globe-box">
@@ -367,51 +365,33 @@ footer a{color:var(--ink-2)}
         </div>
       </div>
       <div class="steps">
-        <div class="step g"><span class="k">1</span><h3>Choose how to play</h3><p>Quick match with strangers, today's Daily Crisis, or a private room with friends.</p><div class="chips"><span class="chip">Section 3</span></div></div>
-        <div class="step g"><span class="k">2</span><h3>Pick your country</h3><p>Every country starts from real data. Bots take the empty seats, so the world is always full.</p><div class="chips"><span class="chip">Section 4</span></div></div>
-        <div class="step g"><span class="k">3</span><h3>Play 12 rounds</h3><p>Each round is one quarter. Set your budget, give up to 3 orders, watch the replay, answer requests.</p><div class="chips"><span class="chip">Sections 5–6</span></div></div>
-        <div class="step g"><span class="k">4</span><h3>Read the Chronicle</h3><p>Your match becomes a simulated newspaper. Scores and rankings update.</p><div class="chips"><span class="chip">Sections 7–8</span></div></div>
+        <div class="step g"><span class="k">1</span><h3>Press Start</h3><p>No modes to choose. Start takes you straight into the world that is running now.</p><div class="chips"><span class="chip">Section 1</span></div></div>
+        <div class="step g"><span class="k">2</span><h3>Pick your country</h3><p>Take any country nobody leads yet. Bots hold the free countries until a player takes them.</p><div class="chips"><span class="chip">Section 3</span></div></div>
+        <div class="step g"><span class="k">3</span><h3>Play 12 rounds</h3><p>Everyone in the world plays together. Each round is one quarter: budget, up to 3 orders, replay, requests.</p><div class="chips"><span class="chip">Sections 4–5</span></div></div>
+        <div class="step g"><span class="k">4</span><h3>Read the Chronicle</h3><p>The world's history becomes a simulated newspaper. Scores and rankings update.</p><div class="chips"><span class="chip">Sections 6–7</span></div></div>
       </div>
     </div>
   </section>
 
-  <!-- 3 MODES -->
-  <section id="modes">
-    <div class="wrap">
-      <div class="shead">
-        <div>
-          <p class="eyebrow"><span class="n">3</span>Choose how to play</p>
-          <h2>Pick a way in</h2>
-          <p class="lede">One primary card (Quick match) and three smaller ones. A returning player sees their unfinished match here.</p>
-        </div>
-      </div>
-      <div class="modes">
-        <div class="mode g dark"><h3>Quick match</h3><p>Join a world with other leaders. Starts in under 60 seconds; bots fill the empty seats.</p><div class="meta"><span class="chip">Standard · 12 rounds</span><span class="chip">~30 min</span></div><a class="btn" href="#countries">Find a match</a></div>
-        <div class="mode g"><h3>Daily Crisis</h3><p>Same country and crisis for everyone today. Solo against 9 bots.</p><div class="meta"><span class="chip">JPN · energy shock</span><span class="chip">Streak 4</span></div><a class="btn sm" href="#match">Play today</a></div>
-        <div class="mode g"><h3>Private room</h3><p>Create a room, share the code, play with up to 9 friends.</p><div class="meta"><span class="chip">Code K7Q2M</span><span class="chip">Invite link</span></div><a class="btn sm" href="#countries">Create room</a></div>
-        <div class="mode g"><h3>Continue</h3><p>Async match. You have 9 hours to give your orders for round 5.</p><div class="meta"><span class="chip">Round 5/12</span><span class="chip">Your turn</span></div><a class="btn sm" href="#match">Open match</a></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4 COUNTRIES -->
+  <!-- 3 COUNTRIES -->
   <section id="countries">
     <div class="wrap">
       <div class="shead">
         <div>
-          <p class="eyebrow"><span class="n">4</span>Lobby · pick your country</p>
+          <p class="eyebrow"><span class="n">3</span>Pick your country</p>
           <h2>Who will you lead?</h2>
-          <p class="lede">The same list appears on the globe. Taken seats show the player. Picking a card flies the globe in section 1 to that country.</p>
+          <p class="lede">Everyone who presses Start lands here and joins the same world. Free countries are open; taken ones show their leader. Picking a card flies the globe in section 1 to that country.</p>
         </div>
         <ul class="notes">
-          <li><span class="n">4</span><span><b>Card</b> shows starting strength, weakness and difficulty, so a new player can choose quickly.</span></li>
-          <li><span class="n">4</span><span><b>Ready bar</b> at the bottom shows who is in. The host starts; bots fill the rest.</span></li>
+          <li><span class="n">3</span><span><b>Card</b> shows starting strength, weakness and difficulty, so a new player can choose quickly.</span></li>
+          <li><span class="n">3</span><span><b>Free country</b> is run by a bot until you take it. You take over from the current round.</span></li>
+          <li><span class="n">3</span><span><b>World full</b> (10 players): the next player who presses Start opens a new world.</span></li>
         </ul>
       </div>
       <div class="cgrid" id="cgrid"></div>
       <div class="lobby-foot g">
-        <div class="seats"><span class="chip">Room K7Q2M</span><span class="chip">4 of 10 humans</span><span class="chip">Kabir ✓</span><span class="chip">Sana ✓</span><span class="chip">Ishan …</span><span class="chip" id="youChip">You: choosing</span></div>
-        <a class="btn primary" href="#match" id="readyBtn">Ready</a>
+        <div class="seats"><span class="chip">World #128 · round 2 of 12</span><span class="chip">Kabir</span><span class="chip">Sana</span><span class="chip">Ishan</span><span class="chip">Tom</span><span class="chip" id="youChip">You: choosing</span></div>
+        <a class="btn primary" href="#match" id="readyBtn">Enter the world</a>
       </div>
     </div>
   </section>
@@ -421,7 +401,7 @@ footer a{color:var(--ink-2)}
     <div class="wrap">
       <div class="shead">
         <div>
-          <p class="eyebrow"><span class="n">5</span>Inside a match</p>
+          <p class="eyebrow"><span class="n">4</span>Inside the world</p>
           <h2>The match screen</h2>
           <p class="lede">In the real game this opens full-screen. Left is you, right is the country you picked on the globe, bottom is what you decide this round.</p>
         </div>
@@ -506,12 +486,12 @@ footer a{color:var(--ink-2)}
     <div class="wrap">
       <div class="req-wrap">
         <div>
-          <p class="eyebrow"><span class="n">6</span>When someone asks you for help</p>
+          <p class="eyebrow"><span class="n">5</span>When someone asks you for help</p>
           <h2>Russia decides</h2>
           <p class="lede">India is at war with Pakistan and asks Russia for air defence. This is what the Russia player sees. The cost of saying yes and the cost of saying no are both shown before the choice.</p>
           <ul class="notes" style="margin-top:18px">
-            <li><span class="n">6</span><span><b>Arrives</b> as a toast in the Inbox, then opens as this card.</span></li>
-            <li><span class="n">6</span><span><b>Accept, Counter or Decline.</b> Answering is free and does not use an order slot.</span></li>
+            <li><span class="n">5</span><span><b>Arrives</b> as a toast in the Inbox, then opens as this card.</span></li>
+            <li><span class="n">5</span><span><b>Accept, Counter or Decline.</b> Answering is free and does not use an order slot.</span></li>
           </ul>
         </div>
         <div class="modal g" role="group" aria-labelledby="reqTitle">
@@ -540,7 +520,7 @@ footer a{color:var(--ink-2)}
     <div class="wrap">
       <div class="shead">
         <div>
-          <p class="eyebrow"><span class="n">7</span>After the match</p>
+          <p class="eyebrow"><span class="n">6</span>After the match</p>
           <h2>The World Chronicle</h2>
           <p class="lede">The match is written up as a simulated newspaper with the final standings. It has its own link, so players share it.</p>
         </div>
@@ -574,7 +554,7 @@ footer a{color:var(--ink-2)}
               <li><b>5</b><span class="code">USA</span><span>Kabir <span class="tt">Hawk</span></span><b class="tab">574</b></li>
               <li><b>…</b><span></span><span class="tt">5 more leaders</span><span></span></li>
             </ol>
-            <div class="after"><a class="btn primary sm" href="#start">Rematch</a><button class="btn sm" type="button" id="shareBtn">Copy share link</button></div>
+            <div class="after"><a class="btn primary sm" href="#start">Play again</a><button class="btn sm" type="button" id="shareBtn">Copy share link</button></div>
             <p class="tt" id="shareMsg" aria-live="polite" style="margin:8px 0 0"></p>
           </aside>
         </div>
@@ -588,14 +568,14 @@ footer a{color:var(--ink-2)}
     <div class="wrap">
       <div class="shead">
         <div>
-          <p class="eyebrow"><span class="n">8</span>Rankings and leader profile</p>
+          <p class="eyebrow"><span class="n">7</span>Rankings and leader profile</p>
           <h2>Who leads best</h2>
-          <p class="lede">Rank 1 is the leader who improved their country most, not the biggest army. Tables by season, by country and for today's Daily Crisis.</p>
+          <p class="lede">Rank 1 is the leader who improved their country most, not the biggest army. Tables for the season, for each country and for this week.</p>
         </div>
       </div>
       <div class="rk">
         <div class="tablebox g">
-          <div class="tabs" role="group" aria-label="Leaderboard"><button type="button" aria-pressed="true" data-lb="global">Global</button><button type="button" aria-pressed="false" data-lb="country">Best of India</button><button type="button" aria-pressed="false" data-lb="daily">Daily Crisis</button></div>
+          <div class="tabs" role="group" aria-label="Leaderboard"><button type="button" aria-pressed="true" data-lb="global">Global</button><button type="button" aria-pressed="false" data-lb="country">Best of India</button><button type="button" aria-pressed="false" data-lb="daily">This week</button></div>
           <table><thead><tr><th>#</th><th>Leader</th><th>Country</th><th>Tier</th><th style="text-align:right">Rating</th></tr></thead><tbody id="lb"></tbody></table>
         </div>
         <div class="profile g">
@@ -743,7 +723,7 @@ const CDATA = [
   {iso:"RUS",diff:"Hard",gdp:"$2.1T",gr:"0.9%",strong:"energy, grain, arms",weak:"sanctions, tech imports",force:80,nuke:true,taken:"Ishan"},
   {iso:"PAK",diff:"Hard",gdp:"$0.4T",gr:"2.7%",strong:"large army",weak:"debt, energy imports",force:48,nuke:true},
   {iso:"SAU",diff:"Easy",gdp:"$1.1T",gr:"3.5%",strong:"oil, cash reserves",weak:"food and arms imports",force:44},
-  {iso:"DEU",diff:"Medium",gdp:"$4.7T",gr:"0.4%",strong:"tech, reputation",weak:"energy imports",force:40},
+  {iso:"DEU",diff:"Medium",gdp:"$4.7T",gr:"0.4%",strong:"tech, reputation",weak:"energy imports",force:40,taken:"Tom"},
   {iso:"JPN",diff:"Hard",gdp:"$4.2T",gr:"0.7%",strong:"tech, money",weak:"energy and food imports",force:55},
   {iso:"BRA",diff:"Easy",gdp:"$2.3T",gr:"2.2%",strong:"food, minerals",weak:"infrastructure",force:38},
   {iso:"GBR",diff:"Medium",gdp:"$3.8T",gr:"1.2%",strong:"finance, reputation",weak:"food and energy imports",force:58,nuke:true}
@@ -773,11 +753,10 @@ function pick(iso, fly){
   if(c.taken){ line.innerHTML = `<b>${SEATS[iso].name}</b> is taken by ${c.taken}. Pick a free country.`; return; }
   myPick = iso;
   cgrid.querySelectorAll(".cc").forEach(b => { const on=b.dataset.iso===iso; b.classList.toggle("sel",on); b.querySelector("[data-lead]").textContent = on ? "Your pick ✓" : ""; });
-  line.innerHTML = `Your country: <b>${SEATS[iso].name}</b>. Press Ready in section 4 when you are set.`;
+  line.innerHTML = `Your country: <b>${SEATS[iso].name}</b>. Press Enter the world in section 3.`;
   document.getElementById("youChip").textContent = "You: " + SEATS[iso].name;
   hero.select(iso); if(fly) hero.flyTo(iso);
 }
-document.getElementById("joinForm").addEventListener("submit", e => { e.preventDefault(); const v=document.getElementById("joinCode").value.trim(); document.getElementById("pickLine").innerHTML = v ? `Joining room <b>${v.toUpperCase()}</b>… (dummy)` : "Type a 6-letter room code to join."; });
 
 /* ---------- Section 5: match screen ---------- */
 const TARGETS = {

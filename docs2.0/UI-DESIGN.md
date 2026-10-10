@@ -82,6 +82,8 @@ The header from 1.0 gets one new item: **Play** (with a small live dot when the 
 ## 4. Screens
 
 ### 4.1 Hub — `/play`
+
+> **Changed by D-9 (2026-10-10):** the Play page scrolls and has no mode cards. Order: Start (hero + globe) → How it works → Pick your country (joins the live world) → match. See the updated prototype `all_refrence-ui/prototype-statecraft/`. The wireframe below is kept for the later modes.
 The globe slowly turns behind; 10 seat countries are softly outlined; tiny live dots mark countries in matches right now ("312 leaders in office").
 
 ```
