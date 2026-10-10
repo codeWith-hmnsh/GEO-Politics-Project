@@ -340,6 +340,8 @@ footer a{color:var(--ink-2)}
         <p class="lede">Lead one of ten real countries against friends or bots. Every decision you make lands on someone else's economy, and they answer back.</p>
         <div class="ctas">
           <a class="btn primary" href="#countries">Start</a>
+          <a class="btn" href="#countries" id="createRoom">Create room</a>
+          <form class="join" id="joinForm" aria-label="Join a room"><input id="joinCode" maxlength="6" placeholder="Room code" aria-label="Room code"><button type="submit">Join</button></form>
         </div>
         <div class="livebar"><span class="live">World #128 is live</span><span>4 of 10 countries led by players</span><span>6 run by bots, free to take</span></div>
         <div class="pick-line" id="pickLine" aria-live="polite">Your country: <b>not picked yet</b>. Tap a gold country on the globe, or choose in section 3.</div>
@@ -365,7 +367,7 @@ footer a{color:var(--ink-2)}
         </div>
       </div>
       <div class="steps">
-        <div class="step g"><span class="k">1</span><h3>Press Start</h3><p>No modes to choose. Start takes you straight into the world that is running now.</p><div class="chips"><span class="chip">Section 1</span></div></div>
+        <div class="step g"><span class="k">1</span><h3>Start or join a room</h3><p>Start puts you in the live world. Create room or a room code puts you in a world with your friends.</p><div class="chips"><span class="chip">Section 1</span></div></div>
         <div class="step g"><span class="k">2</span><h3>Pick your country</h3><p>Take any country nobody leads yet. Bots hold the free countries until a player takes them.</p><div class="chips"><span class="chip">Section 3</span></div></div>
         <div class="step g"><span class="k">3</span><h3>Play 12 rounds</h3><p>Everyone in the world plays together. Each round is one quarter: budget, up to 3 orders, replay, requests.</p><div class="chips"><span class="chip">Sections 4–5</span></div></div>
         <div class="step g"><span class="k">4</span><h3>Read the Chronicle</h3><p>The world's history becomes a simulated newspaper. Scores and rankings update.</p><div class="chips"><span class="chip">Sections 6–7</span></div></div>
@@ -757,6 +759,8 @@ function pick(iso, fly){
   document.getElementById("youChip").textContent = "You: " + SEATS[iso].name;
   hero.select(iso); if(fly) hero.flyTo(iso);
 }
+document.getElementById("createRoom").addEventListener("click", () => { document.getElementById("pickLine").innerHTML = "Room <b>K7Q2M</b> created. Share the code with friends, then pick your country (dummy)."; });
+document.getElementById("joinForm").addEventListener("submit", e => { e.preventDefault(); const v=document.getElementById("joinCode").value.trim(); document.getElementById("pickLine").innerHTML = v ? `Joined room <b>${v.toUpperCase().replace(/[^A-Z0-9]/g,"")}</b>. Pick your country in section 3 (dummy).` : "Type the 6-letter room code your friend sent."; });
 
 /* ---------- Section 5: match screen ---------- */
 const TARGETS = {

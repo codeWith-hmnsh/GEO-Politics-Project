@@ -236,7 +236,7 @@ Priority: **P0** MVP must · **P1** MVP should · **P2** later.
 | **D-6** | Mode name | "Statecraft" (alternatives: "World Leaders", "Situation Room"). |
 | **D-7** | Supabase now | Needed from G2. G0–G1 run without it. The owner creates the project and keys. |
 | **D-8** | Nuclear | No playable strike; deterrence + alert posture only. |
-| **D-9** | Entry flow | **Decided by the owner (2026-10-10):** no mode choice. One Start button takes every player into the shared world that is running now; they pick any free country (bots hold free countries and hand them over from the current round). When all 10 countries have players, the next Start opens a new world. Daily Crisis, private rooms and Async (FR-H-02, FR-H-05, FR-H-06) leave the MVP and become later options. |
+| **D-9** | Entry flow | **Decided by the owner (2026-10-10):** no mode cards. The hero has **Start** (joins the shared world that is running now), **Create room** and **Join with code** (a private world with friends, FR-H-02). Players then pick any free country (bots hold free countries and hand them over from the current round). When all 10 countries have players, the next Start opens a new world. Daily Crisis and Async (FR-H-05, FR-H-06) leave the MVP and become later options. |
 
 ## 15. Risks and mitigations
 
