@@ -1,0 +1,608 @@
+<title>Statecraft Match Screen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: one full-screen match. Globe fills the centre. Top: world, round, timer, who is online.
+   Bottom: one long leader strip (you, money, budget, goods, orders, End turn) with the action dock above it.
+   Everything else opens on demand (drawer, popovers) and closes again, so the globe stays clear. */
+:root{
+  color-scheme: light;
+  --paper:#F3F1EC; --paper-2:#EAE7DF; --sky:#D7E3EA;
+  --ink:#11232B; --ink-strong:#0F1D24; --ink-2:#4A5A61; --ink-3:#5E6B70;
+  --line:rgba(17,35,43,.10); --glass:rgba(255,255,255,.88); --glass-edge:rgba(255,255,255,.75);
+  --night:rgba(16,24,30,.9); --on-night:#F3F1EC; --white:#FFFFFF;
+  --conflict:#E5484D; --ally:#2FA36B; --neutral:#4C74D9; --mixed:#E8A21C; --crisis:#E57A3A;
+  --gold:#F2B33D; --gold-deep:#B9821A; --wire:#7A5C2E; --wire-paper:#FBF7EE;
+  --ocean-1:#CFE0E8; --ocean-2:#9FBCCB; --land:#F4F0E6;
+  --shadow:0 16px 44px rgba(17,35,43,.13), 0 2px 6px rgba(17,35,43,.06);
+  --font-ui:"Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-display:"Fraunces", Georgia, "Times New Roman", serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-ui);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--neutral);outline-offset:2px}
+.tab{font-variant-numeric:tabular-nums}
+.g{background:var(--glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--glass-edge);border-radius:16px;box-shadow:var(--shadow)}
+.code{display:inline-grid;place-items:center;min-width:38px;height:22px;padding:0 6px;border-radius:7px;background:var(--ink-strong);color:var(--white);font-size:10.5px;font-weight:800;letter-spacing:.06em}
+.code.gold{background:var(--gold);color:var(--ink-strong)}
+.lbl{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--white);border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px}
+.btn:hover{border-color:rgba(17,35,43,.3)}
+.btn.dark{background:var(--ink-strong);color:var(--white);border-color:var(--ink-strong)}
+.btn.red{background:var(--conflict);color:var(--white);border-color:var(--conflict)}
+.iconbtn{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--glass-edge);background:var(--glass);box-shadow:var(--shadow);position:relative;font-weight:800}
+.badge{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:9px;background:var(--conflict);color:var(--white);font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px}
+.st-stable{background:rgba(47,163,107,.14);color:#1F7A4F}
+.st-tension{background:rgba(232,162,28,.18);color:#8A5D08}
+.st-crisis{background:rgba(229,122,58,.18);color:#9A4513}
+.st-war{background:rgba(229,72,77,.15);color:#A8272C}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%}
+.on{background:var(--ally)} .away{background:var(--mixed)} .bot{background:#B8C0C4}
+
+/* App frame */
+.app{position:relative;height:100%;min-height:640px;overflow:hidden;background:radial-gradient(90% 75% at 50% 42%,#DCE7ED 0%,#E8EDEE 45%,var(--paper) 100%)}
+#globe{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none}
+#globe:active{cursor:grabbing}
+
+/* Top bar */
+.top{position:absolute;left:16px;right:16px;top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:5;pointer-events:none}
+.top > *{pointer-events:auto}
+.world{display:flex;align-items:center;gap:10px;padding:7px 14px 7px 8px}
+.world i{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 32%,var(--white),var(--ocean-2) 48%,var(--ink-2));box-shadow:inset -2px -3px 5px rgba(17,35,43,.25)}
+.world b{display:block;font-size:13.5px;line-height:1.2}
+.world small{color:var(--ink-3);font-weight:600;font-size:12px}
+.clock{display:flex;align-items:center;gap:12px;padding:6px 14px 6px 8px}
+.timer{position:relative;width:38px;height:38px}
+.timer svg{width:38px;height:38px;transform:rotate(-90deg)}
+.timer span{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:800}
+.phase{font-size:11px;font-weight:800;letter-spacing:.12em}
+.tension{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--ink-3);padding-left:12px;border-left:1px solid var(--line)}
+.segs{display:flex;gap:3px}
+.segs i{width:13px;height:8px;border-radius:3px;background:var(--paper-2)}
+.right{display:flex;align-items:center;gap:8px}
+.online{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border-radius:999px}
+.stack{display:flex}
+.stack span{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:9.5px;font-weight:800;color:var(--white);border:2px solid var(--white);margin-left:-7px;position:relative}
+.stack span:first-child{margin-left:0}
+.stack span::after{content:"";position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:var(--ally);border:1.5px solid var(--white)}
+.stack span.botc::after{background:#B8C0C4}
+.online b{font-size:12.5px}
+.ticker{position:absolute;left:50%;transform:translateX(-50%);top:calc(68px + env(safe-area-inset-top,0px));z-index:4;max-width:min(560px,calc(100% - 32px));display:flex;gap:8px;align-items:center;padding:6px 14px;border-radius:999px;background:var(--wire-paper);border:1px solid rgba(122,92,46,.18);box-shadow:var(--shadow);font-family:var(--font-display);font-style:italic;color:var(--wire);font-size:13.5px;white-space:nowrap;overflow:hidden}
+.ticker small{font-family:var(--font-ui);font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.14em;border:1px solid var(--wire);border-radius:4px;padding:1px 5px;flex:none}
+.ticker span{overflow:hidden;text-overflow:ellipsis}
+
+/* Popovers */
+.pop{position:absolute;top:calc(62px + env(safe-area-inset-top,0px));right:16px;width:min(320px,calc(100% - 32px));z-index:9;padding:12px}
+.pop h4{margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+.lrow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 4px;border-radius:9px;font-size:13px}
+.lrow:hover{background:rgba(17,35,43,.04)}
+.lrow small{color:var(--ink-3);font-size:11.5px}
+.lrow.me{background:rgba(242,179,61,.16)}
+.req{border:1px solid var(--line);background:var(--white);border-radius:12px;padding:10px;margin-bottom:8px;font-size:13px}
+.req p{margin:4px 0 8px;color:var(--ink-2);font-size:12.5px}
+.req .row{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Country card (when you tap a country) */
+.ccard{position:absolute;right:16px;top:50%;transform:translateY(-62%);width:290px;z-index:6;padding:14px}
+.ccard .head{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.ccard .head b{display:block;font-size:16px;line-height:1.2}
+.ccard .head small{color:var(--ink-3);font-weight:600}
+.x{margin-left:auto;border:0;background:var(--paper-2);border-radius:50%;width:26px;height:26px;font-weight:800;flex:none}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12.5px;margin:0 0 8px}
+.kv dt{color:var(--ink-3)} .kv dd{margin:0;text-align:right;font-weight:700}
+.why{margin:0 0 10px;padding-left:16px;font-size:12px;color:var(--ink-2)}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.quick .btn{padding:7px 8px;font-size:12px}
+.quick .btn.full{grid-column:1/-1}
+
+/* Replay cards */
+.replay{position:absolute;left:50%;transform:translateX(-50%);top:calc(112px + env(safe-area-inset-top,0px));width:min(380px,calc(100% - 32px));display:grid;gap:6px;z-index:7;pointer-events:none}
+.ev{background:var(--night);color:var(--on-night);border-radius:12px;padding:9px 12px;font-size:13px;box-shadow:var(--shadow);animation:pop .35s cubic-bezier(.2,1.15,.4,1) both}
+.ev b{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.ev .dl{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.ev .dl span{font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.12)}
+@keyframes pop{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+
+/* Bottom: dock + drawer + strip */
+.bottom{position:absolute;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+.bottom > *{pointer-events:auto}
+.dock{display:flex;gap:3px;padding:4px;border-radius:999px;overflow-x:auto;max-width:100%;scrollbar-width:none}
+.dock button{border:0;background:transparent;padding:8px 15px;border-radius:999px;font-weight:700;font-size:13.5px;color:var(--ink-2);white-space:nowrap;display:inline-flex;gap:7px;align-items:center}
+.dock button svg{width:15px;height:15px}
+.dock button[aria-pressed="true"]{background:var(--ink-strong);color:var(--white)}
+.drawer{width:min(940px,100%);max-height:min(46vh,420px);overflow:auto;padding:14px 16px;animation:up .28s cubic-bezier(.2,1.15,.4,1) both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.drawer .dh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.drawer .dh b{font-size:16px}
+.drawer .dh small{color:var(--ink-3);font-weight:600;margin-left:6px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:8px}
+.acard{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:11px 12px;border-radius:13px;border:1px solid var(--line);background:var(--white);min-width:0}
+.acard:hover{border-color:var(--ink-2)}
+.acard b{font-size:13.5px}
+.acard small{font-size:11.5px;color:var(--ink-3)}
+.acard .eff{font-size:12px;color:var(--ink-2)}
+.acard.red b{color:#A8272C}
+.acard .add{margin-top:6px;font-size:11.5px;font-weight:800;color:var(--ink)}
+.hint{font-size:12.5px;color:var(--ink-3);padding:10px;border:1px dashed var(--line);border-radius:11px}
+.sliders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
+.sl{display:grid;grid-template-columns:110px minmax(0,1fr) 92px;gap:10px;align-items:center;font-size:13px}
+.sl input{width:100%;accent-color:var(--ink-strong)}
+.sl .amt{text-align:right;font-weight:700}
+.forecast{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--paper-2);font-size:12.5px}
+.forecast b{font-weight:800}
+.strike{display:grid;gap:8px;max-width:520px}
+.ttype{display:flex;flex-wrap:wrap;gap:5px}
+.ttype button{border:1px solid var(--line);background:var(--white);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700}
+.ttype button[aria-pressed="true"]{background:var(--ink-strong);color:var(--white);border-color:var(--ink-strong)}
+.sinfo{font-size:12.5px;color:var(--ink-2);background:var(--paper-2);border-radius:10px;padding:8px 10px}
+.sinfo.warn{background:rgba(229,72,77,.1);color:#8E2226}
+.hold{position:relative;overflow:hidden;border:0;border-radius:12px;padding:11px;background:var(--conflict);color:var(--white);font-weight:800;user-select:none;-webkit-user-select:none;touch-action:none}
+.hold i{position:absolute;inset:0;width:calc(var(--p,0)*100%);background:rgba(17,35,43,.35)}
+.hold span{position:relative}
+
+.strip{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:stretch;padding:0;border-radius:20px;overflow:hidden}
+.strip > div{padding:12px 16px;min-width:0}
+.me{display:flex;align-items:center;gap:12px;border-right:1px solid var(--line)}
+.avatar{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--ink-strong);color:var(--white);box-shadow:0 0 0 3px var(--gold);flex:none;font-size:15px}
+.me b{display:block;font-size:15px;line-height:1.2}
+.me small{display:flex;align-items:center;gap:6px;color:var(--ink-3);font-weight:600;font-size:12px;margin-top:2px}
+.stats{display:flex;align-items:center;gap:22px;overflow-x:auto;scrollbar-width:thin}
+.stat{display:flex;flex-direction:column;white-space:nowrap}
+.stat .v{font-size:17px;font-weight:800;line-height:1.25}
+.stat .v.big{font-size:21px}
+.stat .d{font-size:11px;font-weight:800}
+.up{color:#1F7A4F} .dn{color:#B4282D}
+.vsep{width:1px;align-self:stretch;background:var(--line);flex:none}
+.goods{display:grid;grid-template-columns:auto 64px auto;gap:2px 8px;align-items:center;font-size:11.5px;white-space:nowrap}
+.goods .t{height:6px;border-radius:6px;background:var(--paper-2);overflow:hidden}
+.goods .t i{display:block;height:100%;border-radius:6px;transition:width .6s}
+.goods .p{font-weight:800;text-align:right}
+.orders{display:flex;align-items:center;gap:10px;border-left:1px solid var(--line);background:rgba(255,255,255,.55)}
+.slots{display:flex;flex-direction:column;gap:4px;width:230px}
+.slot{display:flex;align-items:center;gap:6px;height:24px;padding:0 6px 0 9px;border-radius:8px;border:1px dashed rgba(17,35,43,.22);font-size:11.5px;color:var(--ink-3);min-width:0}
+.slot.full{border-style:solid;border-color:var(--line);background:var(--white);color:var(--ink);font-weight:600}
+.slot span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot button{border:0;background:none;font-weight:800;color:var(--ink-3);padding:0 2px}
+.endturn{border:0;border-radius:14px;background:var(--ink-strong);color:var(--white);font-weight:800;font-size:14px;padding:0 18px;min-height:80px;min-width:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.endturn small{font-weight:600;font-size:11px;opacity:.75}
+.endturn[disabled]{background:var(--paper-2);color:var(--ink-3);cursor:default}
+
+/* Briefing */
+.brief{position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:rgba(243,241,236,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.brief .card{width:min(520px,100%);padding:28px;border-radius:22px}
+.brief .k{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.brief h1{font-family:var(--font-display);font-weight:600;font-size:clamp(40px,7vw,64px);line-height:1;margin:8px 0 6px;letter-spacing:-.01em}
+.brief .sub{color:var(--ink-2);margin:0 0 18px}
+.brief ol{margin:0 0 16px;padding-left:20px;display:grid;gap:6px}
+.goal{display:flex;gap:8px;align-items:center;font-size:13px;padding:10px 12px;border-radius:12px;background:rgba(242,179,61,.16);margin-bottom:18px}
+.brief .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(200px + env(safe-area-inset-bottom,0px));background:var(--night);color:var(--on-night);padding:9px 14px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:var(--shadow);z-index:12;max-width:calc(100% - 32px)}
+
+/* Small screens: stack instead of overlay */
+@media (max-width:860px){
+  .app{height:auto;min-height:100%;overflow:visible;display:flex;flex-direction:column}
+  #globe{position:relative;height:58vh;min-height:360px;order:2}
+  .top{position:relative;left:auto;right:auto;top:auto;padding:12px 12px 0;flex-wrap:wrap;order:1}
+  .clock{order:3;width:100%;justify-content:space-between}
+  .ticker{position:relative;left:auto;transform:none;top:auto;margin:8px 12px 0;order:1;max-width:none}
+  .ccard{position:relative;right:auto;top:auto;transform:none;width:auto;margin:0 12px 10px;order:3}
+  .replay{top:auto;bottom:auto;position:fixed;top:12px}
+  .bottom{position:relative;left:auto;right:auto;bottom:auto;padding:0 12px 16px;order:4}
+  .strip{grid-template-columns:minmax(0,1fr)}
+  .me{border-right:0;border-bottom:1px solid var(--line)}
+  .orders{border-left:0;border-top:1px solid var(--line)}
+  .slots{flex:1;width:auto}
+  .endturn{min-height:64px}
+  .sliders{grid-template-columns:minmax(0,1fr)}
+  .sl{grid-template-columns:96px minmax(0,1fr) 80px}
+  .toast{position:fixed;bottom:16px}
+  .pop{position:fixed}
+}
+@media (prefers-reduced-motion:reduce){.ev,.drawer{animation:none}}
+</style>
+
+<div class="app" id="app">
+  <canvas id="globe" aria-label="Shared world globe. Drag to rotate. Tap a country to see it."></canvas>
+
+  <div class="top">
+    <div class="world g"><i aria-hidden="true"></i><div><b>World #128</b><small class="tab">Round <span id="rnd">5</span> of 12 · <span id="qtr">Q4 2027</span></small></div></div>
+    <div class="clock g">
+      <div class="timer"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="none" stroke="var(--paper-2)" stroke-width="4"/><circle id="ring" cx="20" cy="20" r="16" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-dasharray="100.53" stroke-dashoffset="0"/></svg><span class="tab" id="secs">90</span></div>
+      <span class="phase" id="phase">ORDERS</span>
+      <span class="tension">TENSION <span class="segs" id="segs"><i></i><i></i><i></i><i></i><i></i></span><b class="tab" id="tval" style="color:var(--ink)">62</b></span>
+    </div>
+    <div class="right">
+      <button type="button" class="online g" id="onlineBtn" aria-expanded="false" aria-controls="onlinePop"><span class="stack" id="stack"></span><b><span id="onCount">6</span> online</b></button>
+      <button type="button" class="iconbtn" id="inboxBtn" aria-label="Requests" aria-expanded="false" aria-controls="inboxPop">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="badge" id="inboxBadge">2</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="ticker" aria-live="polite"><small>SIMULATED</small><span id="ticker">US halts energy exports to India; fuel prices expected to rise</span></div>
+
+  <div class="pop g" id="onlinePop" hidden>
+    <h4><span class="lbl">Leaders in this world</span><button type="button" class="x" data-close="onlinePop" aria-label="Close">×</button></h4>
+    <div id="onlineList"></div>
+  </div>
+  <div class="pop g" id="inboxPop" hidden>
+    <h4><span class="lbl">Requests for you</span><button type="button" class="x" data-close="inboxPop" aria-label="Close">×</button></h4>
+    <div id="inboxList"></div>
+  </div>
+
+  <div class="ccard g" id="ccard" hidden></div>
+  <div class="replay" id="replay" aria-live="polite"></div>
+
+  <div class="bottom">
+    <div class="drawer g" id="drawer" hidden></div>
+    <div class="dock g" id="dock" role="group" aria-label="What do you want to do?"></div>
+    <div class="strip g">
+      <div class="me">
+        <div class="avatar" aria-hidden="true">HY</div>
+        <div><b>Himanshu</b><small><span class="code gold">IND</span>Leader of India</small></div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="orders">
+        <div class="slots" id="slots"></div>
+        <button type="button" class="endturn" id="endturn" disabled>End turn<small id="endSub">0 of 3 orders</small></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <div class="brief" id="brief">
+    <div class="card g" role="dialog" aria-modal="true" aria-labelledby="briefTitle">
+      <div class="k">World #128 · Q4 2027 · you take office</div>
+      <h1 id="briefTitle">You lead India</h1>
+      <p class="sub">1.44 billion people · GDP $4.2T · approval 54%</p>
+      <div class="lbl" style="margin-bottom:8px">Your situation</div>
+      <ol>
+        <li>The US stopped energy exports to you. Energy supply is at 71%.</li>
+        <li>Pakistan attacked in the north. You are at war.</li>
+        <li>Russia offered air defence. The offer is in your requests.</li>
+      </ol>
+      <div class="goal"><span class="code gold">GOAL</span>Raise health above 70 before the election in round 6.</div>
+      <div class="row"><span style="font-size:12.5px;color:var(--ink-3)">Simulated world. Real starting data.</span><button type="button" class="btn dark" id="takeOffice">Take office</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script>
+const WORLD = __WORLD_JSON__;
+(function(){
+"use strict";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const css = getComputedStyle(document.documentElement), tok = n => css.getPropertyValue(n).trim();
+const C = { ocean1:tok("--ocean-1"), ocean2:tok("--ocean-2"), land:tok("--land"), gold:tok("--gold"), goldDeep:tok("--gold-deep"), ink:tok("--ink"), conflict:tok("--conflict"), ally:tok("--ally"), white:tok("--white"),
+  status:{stable:"rgba(47,163,107,.28)",tension:"rgba(232,162,28,.55)",crisis:"rgba(229,122,58,.62)",war:"rgba(229,72,77,.62)"}, you:"rgba(242,179,61,.88)" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+
+const SEATS = {
+  USA:{id:"840",name:"United States",short:"US",ll:[-98,39],leader:"Kabir",state:"on",color:"#3F63D8"},
+  CHN:{id:"156",name:"China",short:"China",ll:[104,35],leader:"Sana",state:"on",color:"#E57A3A"},
+  IND:{id:"356",name:"India",short:"India",ll:[79,22],leader:"You",state:"on",color:"#B9821A"},
+  RUS:{id:"643",name:"Russia",short:"Russia",ll:[95,61],leader:"Ishan",state:"on",color:"#C25A84"},
+  PAK:{id:"586",name:"Pakistan",short:"Pakistan",ll:[69,30],leader:"Bot",state:"bot",color:"#5E6B70"},
+  SAU:{id:"682",name:"Saudi Arabia",short:"Saudi Arabia",ll:[45,24],leader:"Bot",state:"bot",color:"#5E6B70"},
+  DEU:{id:"276",name:"Germany",short:"Germany",ll:[10,51],leader:"Tom",state:"away",color:"#2FA36B"},
+  JPN:{id:"392",name:"Japan",short:"Japan",ll:[138,37],leader:"Bot",state:"bot",color:"#5E6B70"},
+  BRA:{id:"076",name:"Brazil",short:"Brazil",ll:[-52,-10],leader:"Ana",state:"on",color:"#17A2B8"},
+  GBR:{id:"826",name:"United Kingdom",short:"UK",ll:[-2,54],leader:"Bot",state:"bot",color:"#5E6B70"}
+};
+const REL = {
+  USA:{rel:-35,trust:20,status:"tension",why:["Stopped energy exports to you (round 3)","You put a 25% tariff on US goods (round 4)"]},
+  PAK:{rel:-70,trust:5,status:"war",why:["At war since round 5","Offensive on your northern border"]},
+  RUS:{rel:40,trust:62,status:"stable",why:["Defence partner","Offered you air defence (round 5)"]},
+  CHN:{rel:-15,trust:35,status:"tension",why:["Border tension","Large trade partner"]},
+  SAU:{rel:30,trust:55,status:"stable",why:["Sells you oil (contract, round 4)"]},
+  DEU:{rel:20,trust:50,status:"stable",why:["Buys your software services"]},
+  JPN:{rel:25,trust:58,status:"crisis",why:["Energy shortage at home"]},
+  BRA:{rel:15,trust:45,status:"stable",why:["Food trade partner"]},
+  GBR:{rel:10,trust:40,status:"stable",why:["Finance partner"]}
+};
+const STATUS = {}; for (const k in REL) STATUS[k] = REL[k].status;
+const byId = {}; for (const k in SEATS) byId[SEATS[k].id] = k;
+const countries = topojson.feature(WORLD, WORLD.objects.countries).features;
+const borders = topojson.mesh(WORLD, WORLD.objects.countries, (a,b) => a !== b);
+const featOf = {}; for (const f of countries) if (byId[f.id]) featOf[byId[f.id]] = f;
+
+/* ---------- Globe ---------- */
+const canvas = $("globe"), ctx = canvas.getContext("2d");
+const proj = d3.geoOrthographic().clipAngle(90).precision(.6), path = d3.geoPath(proj, ctx), grat = d3.geoGraticule10();
+const rot = [-40,-18];
+let w=0,h=0,r=0,cx=0,cy=0,dpr=1, selected=null, anim=null, down=null, lastInput=-1e9;
+const ARCS = [{from:"SAU",to:"IND",kind:"supply",ph:0},{from:"USA",to:"IND",kind:"embargo",ph:.3},{from:"RUS",to:"IND",kind:"help",ph:.6}];
+const narrow = () => innerWidth <= 860;
+function resize(){
+  const b = canvas.getBoundingClientRect(); dpr = Math.min(devicePixelRatio||1, 2); w=b.width; h=b.height;
+  canvas.width = Math.max(1,Math.round(w*dpr)); canvas.height = Math.max(1,Math.round(h*dpr));
+  if (narrow()) { r = Math.min(w,h)/2*.9; cx=w/2; cy=h/2; }
+  else { const topR=70, botR=200, avail=h-topR-botR; r = Math.min(w*.42, avail/2*.98); cx=w/2; cy=topR+avail/2+10; }
+}
+const front = ll => d3.geoDistance(ll,[-rot[0],-rot[1]]) < Math.PI/2 - .12;
+function rr(x,y,w2,h2,q){ ctx.beginPath(); ctx.moveTo(x+q,y); ctx.arcTo(x+w2,y,x+w2,y+h2,q); ctx.arcTo(x+w2,y+h2,x,y+h2,q); ctx.arcTo(x,y+h2,x,y,q); ctx.arcTo(x,y,x+w2,y,q); ctx.closePath(); }
+function draw(t){
+  if(!w) return;
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+  proj.scale(r).translate([cx,cy]).rotate(rot);
+  const halo=ctx.createRadialGradient(cx,cy,r*.92,cx,cy,r*1.15); halo.addColorStop(0,"rgba(184,219,255,.6)"); halo.addColorStop(1,"rgba(184,219,255,0)");
+  ctx.fillStyle=halo; ctx.beginPath(); ctx.arc(cx,cy,r*1.15,0,Math.PI*2); ctx.fill();
+  const og=ctx.createRadialGradient(cx-r*.35,cy-r*.4,r*.1,cx,cy,r); og.addColorStop(0,C.ocean1); og.addColorStop(1,C.ocean2);
+  ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle=og; ctx.fill();
+  ctx.beginPath(); path(grat); ctx.strokeStyle="rgba(255,255,255,.3)"; ctx.lineWidth=.6; ctx.stroke();
+  ctx.beginPath(); for(const f of countries) path(f); ctx.fillStyle=C.land; ctx.fill();
+  for(const iso in SEATS){ const col = iso==="IND" ? C.you : C.status[STATUS[iso]]; if(col){ ctx.beginPath(); path(featOf[iso]); ctx.fillStyle=col; ctx.fill(); } }
+  ctx.beginPath(); path(borders); ctx.strokeStyle="rgba(255,255,255,.95)"; ctx.lineWidth=.7; ctx.stroke();
+  ctx.beginPath(); path(featOf.IND); ctx.strokeStyle=C.goldDeep; ctx.lineWidth=1.6; ctx.stroke();
+  if(selected && selected!=="IND"){ ctx.beginPath(); path(featOf[selected]); ctx.strokeStyle=C.ink; ctx.lineWidth=2; ctx.setLineDash([5,3]); ctx.stroke(); ctx.setLineDash([]); }
+  for(const a of ARCS){
+    const A=SEATS[a.from].ll, B=SEATS[a.to].ll, ip=d3.geoInterpolate(A,B), pts=[]; for(let k=0;k<=48;k++) pts.push(ip(k/48));
+    ctx.beginPath(); path({type:"LineString",coordinates:pts}); ctx.lineWidth=2.2;
+    if(a.kind==="supply"){ ctx.strokeStyle=C.goldDeep; ctx.setLineDash([7,6]); ctx.lineDashOffset=reduce?0:-t/45; }
+    else if(a.kind==="embargo"){ ctx.strokeStyle=C.conflict; ctx.setLineDash([3,5]); ctx.lineDashOffset=0; }
+    else { ctx.strokeStyle=C.ally; ctx.setLineDash([]); }
+    ctx.stroke(); ctx.setLineDash([]);
+    if(!reduce){ const p=ip(((t/2600)+a.ph)%1); if(front(p)){ const q=proj(p); ctx.beginPath(); ctx.arc(q[0],q[1],3.2,0,Math.PI*2); ctx.fillStyle=ctx.strokeStyle; ctx.fill(); } }
+  }
+  const g=[74.5,33.2]; if(front(g)){ const q=proj(g); const gr=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],24); gr.addColorStop(0,"rgba(229,72,77,.85)"); gr.addColorStop(1,"rgba(229,72,77,0)"); ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(q[0],q[1],24,0,Math.PI*2); ctx.fill();
+    if(!reduce){ const k=(t%1600)/1600; ctx.beginPath(); ctx.arc(q[0],q[1],6+k*22,0,Math.PI*2); ctx.strokeStyle="rgba(229,72,77,"+(.7*(1-k))+")"; ctx.lineWidth=1.5; ctx.stroke(); } }
+  const sh=ctx.createRadialGradient(cx-r*.42,cy-r*.42,r*.15,cx,cy,r*1.02); sh.addColorStop(0,"rgba(255,255,255,.14)"); sh.addColorStop(.7,"rgba(17,35,43,0)"); sh.addColorStop(1,"rgba(17,35,43,.24)");
+  ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle=sh; ctx.fill();
+  ctx.font="700 11px Manrope, system-ui, sans-serif"; ctx.textBaseline="middle";
+  for(const iso in SEATS){ const s=SEATS[iso]; if(!front(s.ll)) continue; const q=proj(s.ll), mine=iso==="IND";
+    ctx.beginPath(); ctx.arc(q[0],q[1],5,0,Math.PI*2); ctx.fillStyle=mine?C.gold:(s.state==="bot"?"#B8C0C4":C.ally); ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle=C.white; ctx.stroke();
+    const label = mine ? "You" : s.leader==="Bot" ? s.short+" · Bot" : s.leader;
+    const tw=ctx.measureText(label).width, bx=q[0]+9, by=q[1]-10;
+    ctx.fillStyle = mine ? "rgba(242,179,61,.95)" : "rgba(255,255,255,.92)"; rr(bx,by,tw+12,20,10); ctx.fill();
+    ctx.fillStyle=C.ink; ctx.fillText(label,bx+6,by+10.5);
+  }
+}
+function frame(t){
+  if(anim){ const p=Math.min(1,(t-anim.start)/anim.dur), e=d3.easeCubicInOut(p); rot[0]=anim.from[0]+(anim.to[0]-anim.from[0])*e; rot[1]=anim.from[1]+(anim.to[1]-anim.from[1])*e; if(p>=1) anim=null; }
+  draw(t); requestAnimationFrame(frame);
+}
+function flyTo(iso){ const ll=SEATS[iso].ll; let tx=-ll[0]; while(tx-rot[0]>180) tx-=360; while(rot[0]-tx>180) tx+=360; const to=[tx,Math.max(-45,Math.min(45,-ll[1]*.7))]; if(reduce){ rot[0]=to[0]; rot[1]=to[1]; } else anim={start:performance.now(),from:rot.slice(),to,dur:1300}; }
+new ResizeObserver(()=>{ resize(); draw(performance.now()); }).observe(canvas);
+canvas.addEventListener("pointerdown",e=>{ down={x:e.clientX,y:e.clientY,r:rot.slice(),moved:false}; anim=null; });
+canvas.addEventListener("pointermove",e=>{ if(!down) return; const dx=e.clientX-down.x, dy=e.clientY-down.y; if(!down.moved && Math.abs(dx)+Math.abs(dy)>5){ down.moved=true; try{canvas.setPointerCapture(e.pointerId);}catch(_){} } if(!down.moved) return; const k=80/r; rot[0]=down.r[0]+dx*k; rot[1]=Math.max(-70,Math.min(70,down.r[1]-dy*k)); });
+const endDrag=e=>{ if(!down) return; if(!down.moved && e.type==="pointerup"){ const b=canvas.getBoundingClientRect(), ll=proj.invert([e.clientX-b.left,e.clientY-b.top]);
+  if(ll && isFinite(ll[0]) && d3.geoDistance(ll,[-rot[0],-rot[1]])<Math.PI/2){ let hit=null; for(const iso in featOf) if(d3.geoContains(featOf[iso],ll)){ hit=iso; break; } if(hit) selectCountry(hit); else closeCard(); } } down=null; };
+canvas.addEventListener("pointerup",endDrag); canvas.addEventListener("pointercancel",endDrag);
+requestAnimationFrame(frame);
+
+/* ---------- Game state ---------- */
+const st = {treasury:41.2,revenue:96.0,spending:103.4,approval:54,growth:5.8,inflation:7.1,debt:84,tension:62,energy:71,food:104,tech:63,minerals:88,round:5};
+let orders=[], submitted=false, openCat=null, strike=null, secs=90;
+const inbox=[{id:1,from:"RUS",title:"Russia offers air defence",text:"Air-defence deployment for 3 rounds. They ask: lift your tariff on Russian energy."},{id:2,from:"BRA",title:"Brazil proposes a food deal",text:"Food supply +10% for 4 rounds at world price."}];
+const wire=["US halts energy exports to India; fuel prices expected to rise","Saudi Arabia agrees to supply India with oil","Pakistan launches offensive on India's northern border"];
+
+const ICON = {
+  budget:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
+  build:'<path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/>',
+  economy:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.5-.6-3-1.6M12 6v2M12 16v2"/>',
+  trade:'<path d="M2 20h20"/><path d="M4 16l2-6h12l2 6"/><path d="M9 10V6h6v4"/>',
+  diplomacy:'<path d="M11 17l2 2a1 1 0 0 0 3-3"/><path d="M14 14l2.5 2.5a1 1 0 0 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0L12 10.4a1 1 0 0 1-3-3L11.8 4.6a5.8 5.8 0 0 1 8 0L21 6"/><path d="M3 6l1.2-1.2a5.8 5.8 0 0 1 4.4-1.7"/><path d="M3 14l5 5"/>',
+  military:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'
+};
+const CATS = {
+  budget:{label:"Budget"},
+  build:{label:"Build",scope:"self",sub:"Projects take a few rounds, then help for good",actions:[
+    {l:"Hospitals programme",e:"Health +8 · approval +3",c:"$16.8B · 2 rounds",d:{treasury:-16.8,approval:2},w:"India launches national hospitals programme"},
+    {l:"Schools and universities",e:"Education +8 · growth later",c:"$21.0B · 3 rounds",d:{treasury:-21,approval:1},w:"India expands universities in budget push"},
+    {l:"Highways and rail",e:"Infrastructure +10 · growth +0.3",c:"$33.6B · 3 rounds",d:{treasury:-33.6,growth:.1},w:"India starts new freight corridor"},
+    {l:"Solar power plants",e:"Energy supply +6%",c:"$29.4B · 2 rounds",d:{treasury:-29.4,energy:3},w:"India breaks ground on solar parks"},
+    {l:"Fighter jets",e:"Air force +8",c:"$25.2B · 3 rounds",d:{treasury:-25.2},w:"India orders new fighter squadrons"},
+    {l:"Air-defence systems",e:"Air defence +10",c:"$21.0B · 2 rounds",d:{treasury:-21},w:"India buys air-defence batteries"}]},
+  economy:{label:"Economy",scope:"self",sub:"Money, prices and the world market",actions:[
+    {l:"Buy oil on the world market",e:"Energy supply +12%",c:"$6.1B at today's price",d:{treasury:-6.1,energy:12},w:"India buys emergency crude cargoes"},
+    {l:"Sell surplus food",e:"Food −3%",c:"+$3.2B income",d:{treasury:3.2,food:-3},w:"India sells wheat surplus abroad"},
+    {l:"Fuel subsidy",e:"Approval +5 · oil use +10%",c:"$8.4B",d:{treasury:-8.4,approval:5,energy:-4},w:"India cuts fuel prices with new subsidy"},
+    {l:"Ask the IMF for help",e:"Spending caps for 4 rounds · approval −6",c:"+$126B now",d:{treasury:126,approval:-6,debt:3},w:"India agrees IMF support programme"},
+    {l:"Print money",e:"Inflation +4",c:"+$84B now",d:{treasury:84,inflation:4},w:"Central bank expands money supply"}]},
+  trade:{label:"Trade",scope:"target",sub:"Acts on the country you tapped",actions:[
+    {l:t=>`Trade deal with ${t}`,e:"Both: growth +0.2",c:"Needs their yes",d:{},w:t=>`India offers ${t} a trade deal`},
+    {l:t=>`25% tariff on ${t}`,e:"Your prices rise a little",c:"Revenue +$2B",d:{treasury:2,inflation:.3,tension:2},w:t=>`India raises tariffs on ${t} goods to 25%`},
+    {l:t=>`Stop food exports to ${t}`,e:"Their food supply drops",c:"You lose export income",d:{treasury:-1.5,tension:4},w:t=>`India halts grain exports to ${t}`},
+    {l:t=>`Sanction ${t}`,e:"Their growth −1 · relation −30",c:"Your exports −8%",d:{growth:-.1,tension:4},w:t=>`India announces sanctions on ${t}`}]},
+  diplomacy:{label:"Diplomacy",scope:"target",sub:"Requests and treaties; they answer next round",actions:[
+    {l:t=>`Ask ${t} for military help`,e:"They choose yes or no",c:"Free to ask",d:{},w:t=>`India asks ${t} for military support`},
+    {l:t=>`Ask ${t} for oil`,e:"You set the price",c:"Free to ask",d:{},w:t=>`India seeks oil supply deal with ${t}`},
+    {l:t=>`Alliance with ${t}`,e:"Attack on one = call to arms",c:"Needs their yes",d:{},w:t=>`India proposes defence pact to ${t}`},
+    {l:t=>`Ceasefire with ${t}`,e:"Tension −5 if they accept",c:"Needs their yes",d:{},w:t=>`India offers ${t} a ceasefire`}]},
+  military:{label:"Military",scope:"target",sub:"Heavy costs. Every strike raises world tension",actions:[
+    {l:t=>`Strike ${t}`,e:"Choose a target, then hold to confirm",c:"Tension +6 to +12",strike:true},
+    {l:t=>`Naval blockade of ${t}`,e:"Their sea trade −50%",c:"Tension +8",d:{tension:8},w:t=>`Indian navy blockades ${t} ports`},
+    {l:t=>`Cyber operation on ${t}`,e:"Their infrastructure −3",c:"40% chance they find out",d:{tension:2},w:t=>`Outages reported across ${t}; origin unclear`},
+    {l:t=>`Send arms to ${t}`,e:"Their army +5",c:"Your army −5",d:{},w:t=>`India ships arms to ${t}`},
+    {l:"Mobilise troops",e:"Readiness +25",c:"$4.2B per round · tension +4",d:{treasury:-4.2,tension:4},w:"India mobilises reserve divisions",self:true}]}
+};
+const STRIKE = [
+  {k:"Military base",t:6,c:"Tension +6 · reputation −4"},
+  {k:"Energy site",t:8,c:"Tension +8 · reputation −8 · world oil price rises"},
+  {k:"Infrastructure",t:8,c:"Tension +8 · reputation −8"},
+  {k:"City",t:12,c:"Tension +12 · reputation −20 · all relations −10",warn:"Striking cities breaks international humanitarian law. Other leaders will react."}
+];
+const BUDGET = [["Health",2.1],["Education",4.6],["Infrastructure",3.0],["Defense",2.4],["Welfare",3.2],["Research & energy",0.8]];
+const budgetVals = BUDGET.map(b=>b[1]); let taxVal = 15;
+const quarter = () => ({rev: 4200*taxVal/100/4, spend: 4200*budgetVals.reduce((a,b)=>a+b,0)/100/4});
+
+/* ---------- Render ---------- */
+function renderTop(){
+  const tv=Math.round(st.tension); $("tval").textContent=tv;
+  const col = tv>=75?"var(--conflict)":tv>=50?"var(--mixed)":"var(--neutral)";
+  [...$("segs").children].forEach((el,i)=>{ el.style.background = tv>i*20 ? col : ""; });
+  $("rnd").textContent=st.round; const q=4+(st.round-5); $("qtr").textContent="Q"+(((q-1)%4)+1)+" "+(2027+Math.floor((q-1)/4));
+  const humans = Object.entries(SEATS).filter(([k,s])=>s.state!=="bot");
+  $("stack").innerHTML = humans.slice(0,5).map(([k,s])=>`<span style="background:${s.color}" title="${esc(s.leader)} · ${s.name}">${k}</span>`).join("");
+  $("onCount").textContent = humans.filter(([k,s])=>s.state==="on").length;
+  $("onlineList").innerHTML = Object.entries(SEATS).map(([k,s])=>{
+    const tag = s.state==="on"?'<span class="dot on"></span>':s.state==="away"?'<span class="dot away"></span>':'<span class="dot bot"></span>';
+    const who = k==="IND"?"You":s.leader==="Bot"?"Bot · free to take":s.leader;
+    const st2 = s.state==="on"?"Online":s.state==="away"?"Away":"Bot";
+    return `<div class="lrow${k==="IND"?" me":""}"><span class="code${k==="IND"?" gold":""}">${k}</span><span>${esc(s.name)}<br><small>${esc(who)}</small></span><span title="${st2}">${tag}</span></div>`; }).join("");
+  $("inboxBadge").textContent=inbox.length; $("inboxBadge").hidden=!inbox.length;
+  $("inboxList").innerHTML = inbox.length ? inbox.map(m=>`<div class="req"><span class="code">${m.from}</span> <b>${esc(m.title)}</b><p>${esc(m.text)}</p><div class="row"><button type="button" class="btn dark" data-acc="${m.id}">Accept</button><button type="button" class="btn" data-dec="${m.id}">Decline</button></div></div>`).join("") : `<p class="hint">No requests waiting.</p>`;
+}
+function stat(label,val,delta,big){ return `<div class="stat"><span class="lbl">${label}</span><span class="v tab${big?" big":""}">${val}</span>${delta?`<span class="d ${delta[0]==="+"?"up":"dn"}">${delta}</span>`:""}</div>`; }
+function renderStats(){
+  const goods=[["Energy",st.energy],["Food",st.food],["Tech",st.tech],["Minerals",st.minerals]];
+  const {rev, spend} = quarter(), bal = rev - spend;
+  $("stats").innerHTML =
+    stat("Treasury","$"+st.treasury.toFixed(1)+"B","",true) +
+    `<div class="stat"><span class="lbl">This quarter</span><span class="v tab" style="font-size:14px">In $${rev.toFixed(1)}B · Out $${spend.toFixed(1)}B</span><span class="d ${bal>=0?"up":"dn"}">${bal>=0?"+":"−"}$${Math.abs(bal).toFixed(1)}B ${bal>=0?"surplus":"deficit"}</span></div>` +
+    '<span class="vsep"></span>' +
+    stat("Approval",Math.round(st.approval)+"%") + stat("Growth",st.growth.toFixed(1)+"%") + stat("Inflation",st.inflation.toFixed(1)+"%") + stat("Debt",Math.round(st.debt)+"%") +
+    '<span class="vsep"></span>' +
+    `<div class="goods">${goods.map(([n,v])=>{ const c=v>=100?"var(--ally)":v>=85?"var(--neutral)":v>=60?"var(--mixed)":"var(--conflict)"; return `<span>${n}</span><span class="t"><i style="width:${Math.min(100,v)}%;background:${c}"></i></span><span class="p tab">${Math.round(v)}%</span>`; }).join("")}</div>`;
+}
+function renderDock(){
+  $("dock").innerHTML = Object.entries(CATS).map(([k,v])=>`<button type="button" data-cat="${k}" aria-pressed="${openCat===k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>${v.label}</button>`).join("");
+}
+function renderSlots(){
+  let s=""; for(let i=0;i<3;i++){ const o=orders[i]; s += o ? `<div class="slot full"><span title="${esc(o.text)}">${esc(o.text)}</span>${submitted?"":`<button type="button" data-rm="${i}" aria-label="Remove order">×</button>`}</div>` : `<div class="slot"><span>Order ${i+1}: empty</span></div>`; }
+  $("slots").innerHTML=s;
+  $("endturn").disabled = submitted || !orders.length;
+  $("endturn").firstChild.textContent = submitted ? "Waiting…" : "End turn";
+  $("endSub").textContent = submitted ? "3 leaders still deciding" : orders.length+" of 3 orders";
+}
+const val = (x,t) => typeof x==="function" ? x(t) : x;
+function renderDrawer(){
+  const d=$("drawer"); if(!openCat){ d.hidden=true; return; } d.hidden=false;
+  const C2=CATS[openCat];
+  if(openCat==="budget"){
+    d.innerHTML = `<div class="dh"><div><b>Budget</b><small>Free to change. Applies every round.</small></div><button type="button" class="x" data-closedrawer aria-label="Close">×</button></div>
+      <div class="sliders">
+        <label class="sl" for="tax"><span>Tax level</span><input id="tax" type="range" min="10" max="35" step="0.5" value="${taxVal}"><span class="amt tab" id="amt-tax"></span></label>
+        ${BUDGET.map((b,i)=>`<label class="sl" for="b${i}"><span>${b[0]}</span><input id="b${i}" data-b="${i}" type="range" min="0" max="${(b[1]*2.5).toFixed(1)}" step="0.1" value="${budgetVals[i]}"><span class="amt tab" id="amt-b${i}"></span></label>`).join("")}
+      </div>
+      <div class="forecast" id="fc"></div>`;
+    updateBudget();
+    return;
+  }
+  const isT = C2.scope==="target", tgt = selected && selected!=="IND" ? selected : null, tn = tgt ? SEATS[tgt].short : "";
+  let body;
+  if(strike){
+    const ty=STRIKE[strike.type], chance = ["USA","RUS","CHN"].includes(tgt)?62:41;
+    body = `<div class="strike"><div class="ttype">${STRIKE.map((x,i)=>`<button type="button" data-ty="${i}" aria-pressed="${i===strike.type}">${x.k}</button>`).join("")}</div>
+      <div class="sinfo">Interception chance about ${chance}%. Costs you: ${ty.c}.</div>${ty.warn?`<div class="sinfo warn">${ty.warn}</div>`:""}
+      <button type="button" class="hold" id="hold"><i></i><span>Hold to confirm strike on ${esc(SEATS[tgt].name)}</span></button>
+      <button type="button" class="btn" data-cancelstrike style="justify-self:start">Cancel</button></div>`;
+  } else {
+    const list = C2.actions.filter(a => !isT || a.self || tgt);
+    body = (isT && !tgt ? `<p class="hint" style="margin:0 0 8px">Tap a country on the globe to choose who this acts on.</p>` : "") +
+      (list.length ? `<div class="cards">${list.map(a=>{ const i=C2.actions.indexOf(a); return `<button type="button" class="acard${a.strike?" red":""}" data-a="${i}"><b>${esc(val(a.l,tn))}</b><span class="eff">${esc(a.e)}</span><small>${esc(a.c)}</small><span class="add">${a.strike?"Plan strike →":"+ Add to orders"}</span></button>`; }).join("")}</div>` : "");
+  }
+  d.innerHTML = `<div class="dh"><div><b>${C2.label}${isT&&tgt?" · "+esc(SEATS[tgt].name):""}</b><small>${esc(C2.sub)}</small></div><button type="button" class="x" data-closedrawer aria-label="Close">×</button></div>${body}`;
+}
+function updateBudget(){
+  const total = budgetVals.reduce((a,b)=>a+b,0);
+  const spend = 4200*total/100/4, rev = 4200*taxVal/100/4, bal = rev-spend;
+  const healthD = (budgetVals[0]-BUDGET[0][1])*3, apprD = (budgetVals[4]-BUDGET[4][1])*2 - (taxVal-15)*.8;
+  $("amt-tax").textContent = taxVal.toFixed(1)+"% GDP";
+  budgetVals.forEach((v,i)=>{ $("amt-b"+i).textContent = "$"+(4200*v/100/4).toFixed(1)+"B"; });
+  const sg = x => (x>=0?"+":"−");
+  $("fc").innerHTML = `<span>Next round:</span><span>Revenue <b class="tab">$${rev.toFixed(1)}B</b></span><span>Spending <b class="tab">$${spend.toFixed(1)}B</b></span><span class="${bal>=0?"up":"dn"}"><b class="tab">${sg(bal)}$${Math.abs(bal).toFixed(1)}B</b></span><span>Health <b class="${healthD>=0?"up":"dn"}">${sg(healthD)}${Math.abs(healthD).toFixed(1)}</b></span><span>Approval <b class="${apprD>=0?"up":"dn"}">${sg(apprD)}${Math.abs(apprD).toFixed(1)}</b></span>`;
+}
+function renderCard(){
+  const c=$("ccard"); if(!selected || selected==="IND"){ c.hidden=true; return; }
+  const s=SEATS[selected], R=REL[selected], st2=s.state==="on"?"Online":s.state==="away"?"Away":"Bot";
+  c.hidden=false;
+  c.innerHTML = `<div class="head"><span class="code">${selected}</span><div><b>${esc(s.name)}</b><small><span class="dot ${s.state==="on"?"on":s.state==="away"?"away":"bot"}"></span> ${esc(s.leader==="Bot"?"Bot (free to take)":s.leader)} · ${st2}</small></div><button type="button" class="x" data-closecard aria-label="Close">×</button></div>
+    <dl class="kv"><dt>Relation with you</dt><dd class="tab">${R.rel>0?"+":""}${R.rel}</dd><dt>Trust</dt><dd class="tab">${R.trust}</dd><dt>Status</dt><dd><span class="pill st-${R.status}">${R.status[0].toUpperCase()+R.status.slice(1)}</span></dd></dl>
+    <ul class="why">${R.why.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+    <div class="quick"><button type="button" class="btn" data-open="trade">Trade</button><button type="button" class="btn" data-open="diplomacy">Ask for help</button><button type="button" class="btn" data-open="trade" data-hint="Sanction">Sanction</button><button type="button" class="btn red" data-open="military" data-strike="1">Strike</button></div>`;
+}
+function renderAll(){ renderTop(); renderStats(); renderDock(); renderSlots(); renderDrawer(); renderCard(); }
+
+/* ---------- Actions ---------- */
+function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>t.hidden=true,2400); }
+function selectCountry(iso){ selected=iso; strike=null; renderCard(); renderDrawer(); }
+function closeCard(){ selected=null; strike=null; renderCard(); renderDrawer(); }
+function openDrawer(cat){ openCat = openCat===cat ? null : cat; strike=null; renderDock(); renderDrawer(); }
+function addOrder(o){
+  if(submitted) return toast("Orders are locked. Wait for the next round.");
+  if(orders.length>=3) return toast("All 3 order slots are full. Remove one first.");
+  orders.push(o); renderSlots(); toast("Added: "+o.text);
+}
+$("dock").addEventListener("click", e=>{ const b=e.target.closest("[data-cat]"); if(b) openDrawer(b.dataset.cat); });
+$("drawer").addEventListener("click", e=>{
+  if(e.target.closest("[data-closedrawer]")){ openCat=null; strike=null; renderDock(); renderDrawer(); return; }
+  if(e.target.closest("[data-cancelstrike]")){ strike=null; renderDrawer(); return; }
+  const ty=e.target.closest("[data-ty]"); if(ty){ strike.type=+ty.dataset.ty; renderDrawer(); return; }
+  const a=e.target.closest("[data-a]"); if(!a) return;
+  const act=CATS[openCat].actions[+a.dataset.a], tn = selected && selected!=="IND" ? SEATS[selected].short : "";
+  if(act.strike){ strike={type:0}; renderDrawer(); return; }
+  addOrder({text:val(act.l,tn), w:val(act.w,tn), d:act.d||{}, cat:CATS[openCat].label});
+});
+$("drawer").addEventListener("input", e=>{
+  const el=e.target; if(el.id==="tax") taxVal=+el.value; else if(el.dataset.b) budgetVals[+el.dataset.b]=+el.value; else return;
+  updateBudget(); renderStats();
+});
+let holdRaf=null;
+function confirmStrike(){ const ty=STRIKE[strike.type], tn=SEATS[selected].short; strike=null; addOrder({text:`Strike ${tn}: ${ty.k.toLowerCase()}`, w:`India strikes ${ty.k.toLowerCase()} targets in ${tn} (simulated)`, d:{tension:ty.t}, cat:"War"}); renderDrawer(); }
+$("drawer").addEventListener("pointerdown", e=>{ const hb=e.target.closest("#hold"); if(!hb) return; const t0=performance.now(), dur=reduce?400:1200;
+  const step=t=>{ const p=Math.min(1,(t-t0)/dur); hb.style.setProperty("--p",p); if(p<1) holdRaf=requestAnimationFrame(step); else { holdRaf=null; confirmStrike(); } }; holdRaf=requestAnimationFrame(step); });
+const stopHold=()=>{ if(holdRaf){ cancelAnimationFrame(holdRaf); holdRaf=null; const hb=$("hold"); if(hb) hb.style.setProperty("--p",0); } };
+["pointerup","pointerleave","pointercancel"].forEach(ev=>$("drawer").addEventListener(ev,stopHold));
+$("drawer").addEventListener("keydown", e=>{ if(e.target.id==="hold" && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); confirmStrike(); } });
+$("ccard").addEventListener("click", e=>{
+  if(e.target.closest("[data-closecard]")) return closeCard();
+  const b=e.target.closest("[data-open]"); if(!b) return;
+  openCat=b.dataset.open; strike = b.dataset.strike ? {type:0} : null; renderDock(); renderDrawer();
+});
+$("slots").addEventListener("click", e=>{ const b=e.target.closest("[data-rm]"); if(b){ orders.splice(+b.dataset.rm,1); renderSlots(); } });
+$("endturn").addEventListener("click", ()=>submit());
+
+function togglePop(id, btn){ const p=$(id), open=p.hidden; ["onlinePop","inboxPop"].forEach(x=>$(x).hidden=true); p.hidden=!open; $("onlineBtn").setAttribute("aria-expanded", id==="onlinePop" && open); $("inboxBtn").setAttribute("aria-expanded", id==="inboxPop" && open); }
+$("onlineBtn").addEventListener("click", ()=>togglePop("onlinePop"));
+$("inboxBtn").addEventListener("click", ()=>togglePop("inboxPop"));
+document.addEventListener("click", e=>{ const c=e.target.closest("[data-close]"); if(c) $(c.dataset.close).hidden=true; });
+$("inboxList").addEventListener("click", e=>{
+  const a=e.target.closest("[data-acc]"), d=e.target.closest("[data-dec]"); if(!a && !d) return;
+  const id=+(a||d).dataset[a?"acc":"dec"], i=inbox.findIndex(m=>m.id===id), m=inbox[i]; inbox.splice(i,1);
+  if(a){ toast(m.from==="RUS" ? "Accepted. Russian air defence arrives next round." : "Accepted. Food supply +10% from next round."); if(m.from==="BRA") st.food+=10; }
+  else toast(`Declined. ${SEATS[m.from].name} relation −15.`);
+  renderTop(); renderStats();
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ if(!$("brief").hidden) return; if(openCat){ openCat=null; strike=null; renderDock(); renderDrawer(); } else if(!$("onlinePop").hidden||!$("inboxPop").hidden){ $("onlinePop").hidden=$("inboxPop").hidden=true; } else closeCard(); } });
+
+/* ---------- Round ---------- */
+const RING=100.53;
+setInterval(()=>{ if(submitted || !$("brief").hidden) return; secs=Math.max(0,secs-1); $("secs").textContent=secs; $("ring").style.strokeDashoffset=RING*(1-secs/90); $("ring").style.stroke = secs<=10?"var(--conflict)":"var(--ink)"; if(secs===0) submit(true); },1000);
+function submit(auto){
+  if(submitted) return; submitted=true; openCat=null; strike=null;
+  $("phase").textContent="WAITING"; renderDock(); renderDrawer(); renderSlots();
+  if(auto && !orders.length) toast("Time is up. No new orders this round.");
+  setTimeout(resolve, 1400);
+}
+const OTHERS=[{t:"Russia deploys air defence to India",d:["Air defence +15"]},{t:"US raises tariffs on Indian steel",d:["Growth −0.1","Tension +2"]},{t:"Pakistan front holds this round",d:["Approval −2 (war weariness)"]},{t:"Brazil and China sign grain deal",d:["World food price −3%"]}];
+const LBL={treasury:"Treasury",approval:"Approval",growth:"Growth",inflation:"Inflation",debt:"Debt",tension:"Tension",energy:"Energy",food:"Food"};
+function resolve(){
+  $("phase").textContent="REPLAY";
+  const evs=[];
+  for(const o of orders){ const chips=[]; for(const k in o.d){ st[k]=(st[k]||0)+o.d[k]; const v=o.d[k]; chips.push(`${LBL[k]||k} ${v>0?"+":"−"}${k==="treasury"?"$"+Math.abs(v).toFixed(1)+"B":Math.abs(v)}`); } evs.push({h:o.cat,t:o.w,d:chips}); wire.push(o.w); }
+  const ot=OTHERS[(st.round-5)%OTHERS.length]; evs.push({h:"World",t:ot.t,d:ot.d}); wire.push(ot.t);
+  st.tension=Math.max(0,Math.min(100,st.tension-3)); { const q=quarter(); st.treasury=Math.max(0,st.treasury+q.rev-q.spend+15); } st.energy=Math.max(30,st.energy-2); st.inflation=Math.max(0,st.inflation-.2);
+  const box=$("replay"); box.innerHTML="";
+  evs.forEach((ev,i)=>setTimeout(()=>{ const el=document.createElement("div"); el.className="ev"; el.innerHTML=`<b>${esc(ev.h)}</b>${esc(ev.t)}${ev.d.length?`<div class="dl">${ev.d.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}`; box.appendChild(el); if(i===0) flyTo("IND"); }, reduce?0:i*700));
+  setTimeout(()=>{ box.innerHTML=""; st.round=Math.min(12,st.round+1); orders=[]; submitted=false; secs=90; $("phase").textContent="ORDERS"; $("secs").textContent=secs; $("ring").style.strokeDashoffset=0; tick=wire.length-1; $("ticker").textContent=wire[tick]; renderAll(); toast("Round "+st.round+" begins."); }, (reduce?0:evs.length*700)+2800);
+}
+let tick=0; setInterval(()=>{ if(submitted) return; tick=(tick+1)%wire.length; $("ticker").textContent=wire[tick]; }, 6000);
+
+/* ---------- Enter ---------- */
+$("takeOffice").addEventListener("click", ()=>{ $("brief").hidden=true; toast("Tap a country on the globe, or pick what to do from the bar below."); });
+renderAll();
+flyTo("IND");
+$("takeOffice").focus();
+})();
+</script>
