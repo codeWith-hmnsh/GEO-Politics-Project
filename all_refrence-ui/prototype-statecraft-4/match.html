@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Statecraft Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/sc.css">
+<style>
+/* Match screen: the globe fills the screen; glass panels float over it (UI-DESIGN §5.5).
+   Left = the other leaders, right = your decisions, top = time and resources. */
+html,body{height:100%;overflow:hidden}
+body{background:radial-gradient(120% 90% at 50% 40%,#FBFAF7 0,#F3F1EC 55%,#E9E5DC 100%)}
+#globe{position:fixed;inset:0;z-index:0}
+#globe canvas{opacity:0;transition:opacity 900ms var(--ease-out)}
+#globe.globe-ready canvas{opacity:1}
+.glabel{display:flex;align-items:center;gap:6px;padding:4px 9px 4px 5px;border-radius:999px;background:rgba(255,255,255,.88);box-shadow:var(--shadow-sm);font-size:11.5px;font-weight:700;white-space:nowrap;transition:opacity 300ms;pointer-events:auto;cursor:pointer;border:1px solid rgba(255,255,255,.8)}
+.glabel.me{background:var(--ink-strong);color:var(--white);box-shadow:0 0 0 2px var(--gold),var(--shadow-sm)}
+.glabel .flag{width:18px;height:12px}
+.gpin{font-size:11px;font-weight:700;background:var(--night);color:var(--paper);padding:5px 9px;border-radius:8px;white-space:nowrap;box-shadow:var(--shadow-sm);max-width:220px}
+
+/* top bar */
+.top{position:fixed;z-index:20;top:calc(14px + env(safe-area-inset-top,0px));left:16px;right:16px;display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start;pointer-events:none}
+.top>*{pointer-events:auto}
+.me-chip{display:flex;align-items:center;gap:12px;padding:8px 14px 8px 8px;justify-self:start}
+.me-chip .who b{display:block;font-size:13px;letter-spacing:.12em;font-weight:800}
+.me-chip .who small{font-size:11.5px;color:var(--ink-3)}
+.res{display:flex;gap:16px;align-items:center;padding-left:12px;border-left:1px solid var(--line)}
+.res .k{font-size:10.5px;font-weight:800;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase;display:block}
+.res .v{font-size:19px;font-weight:800}
+.pcdots{display:flex;gap:4px;margin-top:4px}
+.pcdots i{width:10px;height:10px;border-radius:50%;background:var(--ink-strong);transition:background var(--d-small),transform var(--d-small)}
+.pcdots i.used{background:var(--paper-3)}
+.clock{display:flex;align-items:center;gap:12px;padding:8px 16px 8px 10px}
+.ring{position:relative;width:46px;height:46px}
+.ring svg{width:46px;height:46px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:4}
+.ring .bg{stroke:var(--paper-3)}
+.ring .fg{stroke:var(--ink);stroke-linecap:round;transition:stroke 300ms}
+.ring.hurry .fg{stroke:var(--conflict)}
+.ring span{position:absolute;inset:0;display:grid;place-items:center;font-size:12.5px;font-weight:800}
+.clock .yr{font-family:var(--font-display);font-size:26px;font-weight:600;line-height:1}
+.clock small{display:block;font-size:11.5px;color:var(--ink-3);font-weight:600}
+.top-right{justify-self:end;display:flex;gap:8px;align-items:center}
+.rankchip{display:flex;align-items:center;gap:8px;padding:9px 14px;font-weight:800}
+.rankchip small{font-size:10.5px;letter-spacing:.12em;color:var(--ink-3)}
+
+/* left rail */
+.rail{position:fixed;z-index:15;left:16px;top:96px;width:272px;max-height:calc(100% - 300px);overflow:auto;padding:16px}
+.rail h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.rows{display:grid;margin-top:10px;position:relative}
+.row{display:grid;grid-template-columns:18px 34px 1fr auto;align-items:center;gap:9px;padding:8px 6px;border-radius:12px;transition:background 400ms}
+.row.me{background:rgba(242,179,61,.16);box-shadow:inset 0 0 0 1px rgba(242,179,61,.5)}
+.row.glow{background:rgba(242,179,61,.38)}
+.row .n{font-weight:800;color:var(--ink-3);font-size:13px}
+.row .nm{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:6px;min-width:0}
+.row .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .sub{display:flex;gap:6px;align-items:center;margin-top:2px}
+.row .pw{font-weight:800;font-size:15px;text-align:right}
+.lockdot{width:8px;height:8px;border-radius:50%;border:2px solid var(--ink-3);display:inline-block}
+.lockdot.on{background:var(--ally);border-color:var(--ally)}
+.rail .counts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.rail .counts div{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.rail .counts b{font-size:17px;display:block}
+.rail .counts small{font-size:11px;color:var(--ink-3);font-weight:700}
+
+/* news */
+.news{position:fixed;z-index:14;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:340px;padding:14px 16px}
+.news .t{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.news .t span{font-size:11px;letter-spacing:.14em;font-weight:800;color:var(--wire);text-transform:uppercase}
+.news ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.news li{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;cursor:pointer}
+.news li .ic{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:rgba(122,92,46,.1);color:var(--wire)}
+.news li .ic svg{width:13px;height:13px}
+.news li p{font-family:var(--font-display);font-style:italic;font-size:14.5px;line-height:1.3;color:#3d2f18}
+.news li small{display:block;font-family:var(--font-ui);font-style:normal;font-size:11px;color:var(--ink-3);margin-top:2px}
+
+/* command panel */
+.cmd{position:fixed;z-index:16;right:16px;top:96px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:420px;display:flex;flex-direction:column;overflow:hidden;padding:0}
+.steps{display:flex;gap:2px;padding:10px 10px 0;border-bottom:1px solid var(--line)}
+.steps button{flex:1;padding:10px 4px 12px;font-size:12.5px;font-weight:700;color:var(--ink-3);border-bottom:2px solid transparent;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+.steps button .num{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:var(--paper-2);color:var(--ink-2)}
+.steps button.on{color:var(--ink);border-color:var(--ink-strong)}
+.steps button.on .num{background:var(--ink-strong);color:var(--white)}
+.steps button.done .num{background:var(--ally);color:var(--white)}
+.steps button .badge{position:absolute;top:4px;right:10px;width:16px;height:16px;border-radius:50%;background:var(--conflict);color:#fff;font-size:10px;display:grid;place-items:center}
+.pane{flex:1;overflow:auto;padding:18px 18px 22px;scroll-behavior:smooth}
+.pane h2{font-family:var(--font-display);font-size:24px;font-weight:600;letter-spacing:-.01em}
+.pane .lead{color:var(--ink-2);font-size:14px;margin-top:6px}
+.sec{margin-top:18px}
+.sec>.lbl{font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.vote{border-radius:16px;padding:14px;background:linear-gradient(135deg,#1A2C35,#0F1D24);color:var(--paper);position:relative;overflow:hidden}
+.vote .eyebrow{color:rgba(243,241,236,.7)}
+.vote h4{font-family:var(--font-display);font-size:19px;font-weight:600;margin:6px 0}
+.vote .gb{font-size:12.5px;color:rgba(243,241,236,.75)}
+.vote .opts{display:flex;gap:6px;margin-top:12px}
+.vote .opts button{flex:1;min-height:38px;border-radius:999px;border:1px solid rgba(243,241,236,.3);font-weight:700;font-size:13px}
+.vote .opts button.on{background:var(--gold);color:var(--ink-strong);border-color:var(--gold)}
+.vote.done{padding:10px 14px}
+.warn{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(232,162,28,.12);border:1px solid rgba(232,162,28,.35);margin-top:8px}
+.warn svg{width:18px;height:18px;color:#a76f05;margin-top:2px}
+.warn b{font-size:13.5px}
+.warn .cards{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.crisis{border:1px solid var(--line-2);border-radius:16px;padding:14px;background:var(--white)}
+.crisis h4{font-size:16px;font-weight:800}
+.crisis p{font-size:13.5px;color:var(--ink-2);margin-top:4px}
+.crisis .choices{display:grid;gap:6px;margin-top:10px}
+.crisis .choices button{text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--paper);font-weight:700;font-size:13.5px;transition:border-color var(--d-small),background var(--d-small)}
+.crisis .choices button small{display:block;font-weight:600;color:var(--ink-3);font-size:12px;margin-top:2px}
+.crisis .choices button.on{border-color:var(--ink-strong);background:var(--white);box-shadow:inset 0 0 0 1px var(--ink-strong)}
+.advisors{display:grid;gap:8px}
+.adv{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start}
+.adv .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--paper-2);font-size:11px;font-weight:800;color:var(--ink-2)}
+.adv b{font-size:12px;color:var(--ink-3);display:block;font-weight:700}
+.adv p{font-size:13.5px}
+.mission{padding:12px 14px;border-radius:14px;background:var(--paper);border:1px solid var(--line)}
+.bar{height:8px;border-radius:999px;background:var(--paper-3);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));border-radius:999px;transition:width 600ms var(--ease-out)}
+
+.stack{display:flex;height:12px;border-radius:999px;overflow:hidden;margin:6px 0 4px;box-shadow:inset 0 0 0 1px var(--line)}
+.stack i{display:block;height:100%;transition:flex-grow 300ms var(--ease-out)}
+.mrow{display:grid;grid-template-columns:118px 1fr 74px;gap:10px;align-items:center;padding:4px 0}
+.mrow label{font-size:13px;font-weight:700}
+.mrow .val{text-align:right;font-weight:800;font-size:13.5px}
+.mrow .val small{display:block;font-weight:700;font-size:11px}
+.fcast{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.fcast span{font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--paper);border:1px solid var(--line)}
+
+.slots{display:flex;gap:6px}
+.slots i{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink-strong)}
+.slots i.full{background:var(--ink-strong)}
+.slots i.lockd{border-color:var(--paper-3);background:var(--paper-2)}
+.building{border:1px solid var(--line-2);border-radius:14px;padding:12px;background:var(--white);display:grid;gap:6px}
+.building .pb{height:6px;border-radius:999px;background:var(--paper-3);overflow:hidden}
+.building .pb i{display:block;height:100%;background:var(--ink-strong)}
+.ptiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ptile{position:relative;text-align:left;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--white);display:grid;gap:4px;overflow:hidden;transition:transform var(--d-small) var(--ease-out),box-shadow var(--d-small)}
+.ptile:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.ptile::after{content:"";position:absolute;inset:0;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(242,179,61,.14),transparent 60%);opacity:0;transition:opacity 200ms;pointer-events:none}
+.ptile:hover::after{opacity:1}
+.ptile b{font-size:13.5px}
+.ptile small{font-size:12px;color:var(--ink-2)}
+.ptile .cost{font-size:12px;font-weight:800;color:var(--ink-3)}
+.ptile[disabled]{opacity:.45}
+.ptile .why{font-size:11px;color:var(--conflict);font-weight:700}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cardparams{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.cardparams select{font-size:12px;font-weight:700;border:1px solid var(--line-2);border-radius:999px;padding:3px 8px;background:var(--paper)}
+
+.drawer{position:fixed;z-index:60;inset:0;display:flex;justify-content:flex-end;background:rgba(15,29,36,.28);opacity:0;pointer-events:none;transition:opacity 250ms}
+.drawer.open{opacity:1;pointer-events:auto}
+.drawer .sheet{width:min(520px,100%);height:100%;background:var(--paper);box-shadow:var(--shadow);transform:translateX(30px);transition:transform 320ms var(--ease-out);display:flex;flex-direction:column}
+.drawer.open .sheet{transform:none}
+.drawer .sh{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.drawer .sh h3{font-family:var(--font-display);font-size:22px;font-weight:600;flex:1}
+.drawer .sb{overflow:auto;padding:16px 20px 30px;display:grid;gap:18px}
+.drawer input[type=search]{width:100%;height:42px;border-radius:999px;border:1px solid var(--line-2);padding:0 16px;background:var(--white)}
+
+.inbox{display:grid;gap:10px}
+.prop{border:1px solid var(--line-2);border-radius:16px;background:var(--white);padding:12px 14px;display:grid;gap:8px;transform-style:preserve-3d}
+.prop .ph{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13.5px}
+.prop .ph .st{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.prop .tr{display:grid;grid-template-columns:62px 1fr;gap:6px;font-size:13px}
+.prop .tr b{color:var(--ink-3);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+.prop .acts{display:flex;gap:6px}
+.prop.flip{animation:flip 420ms var(--ease-out)}
+@keyframes flip{from{transform:rotateY(80deg);opacity:.2}to{transform:none;opacity:1}}
+.typing{display:inline-flex;gap:3px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--ink-3);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.st-accepted{color:var(--ally)} .st-rejected{color:var(--conflict)} .st-countered{color:#b47a0a} .st-pending{color:var(--ink-3)} .st-expired{color:var(--ink-3)}
+.composer{border:1px dashed var(--line-2);border-radius:16px;padding:14px;background:linear-gradient(180deg,#fff,var(--paper));display:grid;gap:10px}
+.composer .rowc{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:start}
+.composer .rowc>b{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding-top:6px}
+.terms{display:flex;flex-wrap:wrap;gap:6px}
+.term-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 6px 5px 10px;border-radius:999px;background:var(--ink-strong);color:#fff;font-size:12.5px;font-weight:700}
+.term-chip button{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;font-size:12px;line-height:18px}
+.adder{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.adder select,.adder input{height:30px;border-radius:999px;border:1px solid var(--line-2);background:var(--white);padding:0 10px;font-size:12.5px;font-weight:600}
+.adder input{width:70px}
+.meter{height:8px;border-radius:999px;background:linear-gradient(90deg,var(--conflict),var(--mixed),var(--ally));position:relative}
+.meter i{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--ink-strong);transform:translate(-50%,-50%);transition:left 300ms var(--ease-out)}
+
+.tray{border-top:1px solid var(--line);padding:12px 14px calc(14px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.72);display:grid;gap:10px}
+.tray .tt{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.orders{display:flex;gap:6px;flex-wrap:wrap;min-height:30px;align-items:center}
+.ord{display:inline-flex;align-items:center;gap:6px;padding:5px 6px 5px 10px;border-radius:10px;background:var(--white);border:1px solid var(--line-2);font-size:12px;font-weight:700;animation:pop 320ms var(--ease-out)}
+.ord button{width:18px;height:18px;border-radius:50%;background:var(--paper-2);font-size:12px;line-height:18px;color:var(--ink-2)}
+.ord.facedown{background:var(--ink-strong);color:transparent;border-color:var(--ink-strong)}
+.ord.facedown button{opacity:0}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.lockbtn{width:100%;min-height:50px;font-size:15.5px}
+.lockbtn.waiting{background:var(--paper-2);color:var(--ink-2);box-shadow:none}
+
+/* overlays */
+.ov{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:20px;background:rgba(243,241,236,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity 350ms}
+.ov.open{opacity:1;pointer-events:auto}
+.ov .box{width:min(980px,100%);max-height:calc(100% - 20px);overflow:auto;padding:28px}
+.pickgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.pick{text-align:left;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--white);display:grid;gap:8px;transition:transform var(--d-small) var(--ease-out),box-shadow var(--d-small),border-color var(--d-small)}
+.pick:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm)}
+.pick.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.pick .ph{display:flex;align-items:center;gap:10px}
+.pick b{font-size:16px}
+.pick small{font-size:12.5px;color:var(--ink-2)}
+.diff{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.opts-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px}
+.hero-yr{font-family:var(--font-display);font-size:clamp(44px,7vw,84px);font-weight:600;letter-spacing:-.03em;line-height:1}
+
+.reveal{position:fixed;inset:0;z-index:50;pointer-events:none}
+.moves{position:absolute;left:50%;top:104px;transform:translateX(-50%);display:flex;gap:10px;perspective:900px;flex-wrap:wrap;justify-content:center;width:min(980px,calc(100% - 40px))}
+.mv{width:148px;min-height:96px;border-radius:14px;background:var(--white);box-shadow:var(--shadow);padding:10px 12px;display:grid;gap:6px;transform:rotateY(90deg);opacity:0;transition:transform 520ms var(--ease-out),opacity 300ms}
+.mv.show{transform:none;opacity:1}
+.mv .ph{display:flex;gap:6px;align-items:center;font-size:12px;font-weight:800}
+.mv p{font-size:12.5px;font-weight:700;line-height:1.3}
+.mv.me{box-shadow:0 0 0 2px var(--gold),var(--shadow)}
+.prices{position:absolute;left:50%;top:228px;transform:translateX(-50%);display:flex;gap:10px;opacity:0;transition:opacity 300ms}
+.prices.show{opacity:1}
+.prices span{padding:7px 12px;border-radius:999px;background:var(--night);color:var(--paper);font-size:13px;font-weight:700}
+.bigstamp{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-6deg) scale(1.6);opacity:0;font-size:30px;font-weight:800;letter-spacing:.16em;border:3px solid currentColor;padding:8px 18px;border-radius:8px;background:rgba(255,255,255,.85);transition:transform 380ms cubic-bezier(.2,1.6,.4,1),opacity 200ms}
+.bigstamp.show{opacity:1;transform:translate(-50%,-50%) rotate(-6deg) scale(1)}
+.skip{position:fixed;z-index:51;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);pointer-events:auto}
+
+.result h2{display:flex;align-items:baseline;gap:10px}
+.rrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.rrow .l{font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rrow .v{font-weight:800;font-size:15px;text-align:right;min-width:70px}
+.whybtn{font-size:12px;font-weight:800;color:var(--neutral);padding:4px 8px;border-radius:8px}
+.whybtn:hover{background:rgba(76,116,217,.1)}
+.why{grid-column:1/-1;display:grid;gap:0;padding:6px 0 4px 8px}
+.wnode{position:relative;border:1px solid var(--line-2);border-radius:12px;background:var(--white);padding:9px 12px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;gap:10px;opacity:0;transform:translateY(-4px);animation:nodeIn 300ms var(--ease-out) forwards}
+.wnode small{font-weight:600;color:var(--ink-3)}
+.wnode.root{background:var(--ink-strong);color:#fff;border-color:var(--ink-strong)}
+.wnode.root small{color:rgba(255,255,255,.7)}
+.wlink{width:2px;height:16px;margin-left:22px;background:linear-gradient(var(--ink-3),var(--ink-3));transform-origin:top;transform:scaleY(0);animation:grow 250ms var(--ease-out) forwards}
+@keyframes nodeIn{to{opacity:1;transform:none}}
+@keyframes grow{to{transform:scaleY(1)}}
+.why .also{font-size:12.5px;color:var(--ink-2);margin-top:8px}
+.fva{margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(76,116,217,.08);font-size:13px;font-weight:600}
+
+.end .podium{display:grid;gap:8px;margin-top:16px}
+.end .prow{display:grid;grid-template-columns:30px 40px 1fr auto auto;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--white);border:1px solid var(--line)}
+.end .prow.win{background:linear-gradient(90deg,rgba(242,179,61,.3),rgba(255,255,255,.9));border-color:var(--gold)}
+.end .prow .sc{font-size:20px;font-weight:800}
+.breakdown{display:flex;height:14px;border-radius:999px;overflow:hidden;margin-top:8px}
+.breakdown i{display:block;height:100%}
+.timeline{display:grid;gap:0;margin-top:10px}
+.tl{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:10px 0;border-bottom:1px dashed rgba(122,92,46,.25)}
+.tl .y{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--wire)}
+.tl p{font-family:var(--font-display);font-style:italic;font-size:15px;color:#3d2f18}
+.tl small{display:block;font-size:12px;color:var(--ink-2);margin-top:2px}
+.share{padding:22px;border-radius:18px;background:var(--wire-paper);border:1px solid rgba(122,92,46,.25);box-shadow:var(--shadow);display:grid;gap:10px;position:relative;overflow:hidden}
+.share::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#cfe3f2,#7aa2bd 55%,#3d6a85);opacity:.35}
+.share .big{font-family:var(--font-display);font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1.05}
+.share .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.share .stats div{background:rgba(255,255,255,.7);border-radius:10px;padding:8px 10px}
+.share .stats b{font-size:18px;display:block}
+.share .stats small{font-size:11px;color:var(--ink-3);font-weight:700}
+.twocol{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;margin-top:18px}
+#confetti{position:fixed;inset:0;z-index:80;pointer-events:none}
+
+.mobile-world{display:none}
+@media (max-width:1100px){
+  .rail{width:240px}
+  .cmd{width:380px}
+  .news{display:none}
+}
+@media (max-width:820px){
+  .top{grid-template-columns:1fr auto;left:10px;right:10px;top:calc(8px + env(safe-area-inset-top,0px))}
+  .top-right{display:none}
+  .me-chip{padding:6px 10px 6px 6px;gap:8px}
+  .me-chip .who{display:none}
+  .res{gap:10px;padding-left:8px}
+  .res .v{font-size:15px}
+  .clock{padding:6px 12px 6px 8px}
+  .clock .yr{font-size:20px}
+  .ring,.ring svg{width:38px;height:38px}
+  .rail{display:none}
+  .rail.sheet-open{display:block;left:10px;right:10px;width:auto;top:74px;max-height:50%;z-index:30}
+  .mobile-world{display:inline-flex;position:fixed;z-index:17;left:10px;top:76px}
+  #globe{bottom:52%}
+  .cmd{left:0;right:0;width:auto;top:auto;bottom:0;height:56%;border-radius:22px 22px 0 0}
+  .pickgrid{grid-template-columns:1fr}
+  .twocol{grid-template-columns:1fr}
+  .moves{top:80px;gap:6px}
+  .mv{width:calc(33% - 6px);min-height:84px;padding:8px}
+  .mv p{font-size:11.5px}
+  .prices{top:auto;bottom:58%;flex-wrap:wrap;justify-content:center;width:100%}
+  .ov .box{padding:20px}
+}
+</style>
+</head>
+<body>
+<div id="globe" aria-label="Globe showing the world of this match" role="img"></div>
+
+<header class="top">
+  <div class="glass me-chip" id="meChip"></div>
+  <div class="glass clock" aria-live="off">
+    <div class="ring" id="ring"><svg viewBox="0 0 46 46"><circle class="bg" cx="23" cy="23" r="20"/><circle class="fg" id="ringFg" cx="23" cy="23" r="20" stroke-dasharray="125.66" stroke-dashoffset="0"/></svg><span id="ringT" class="tab">2:00</span></div>
+    <div><div class="yr tab" id="year">2026</div><small id="turnOf">Turn 1 of 12</small></div>
+  </div>
+  <div class="top-right">
+    <div class="glass rankchip" id="rankChip"></div>
+    <button class="icon-btn" id="worldBtn" title="World view (V)" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg></button>
+    <button class="icon-btn" id="soundBtn" title="Sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path id="soundWave" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
+    <button class="icon-btn" id="pauseBtn" title="Pause the timer (solo only)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
+  </div>
+</header>
+
+<button class="btn btn-glass btn-sm mobile-world" id="mWorld">World ranking</button>
+
+<aside class="glass rail" id="rail" aria-label="The other leaders">
+  <h3>World Power Index <button class="btn-ghost btn-sm btn" id="tableBtn" style="min-height:26px;padding:0 8px;font-size:11px;letter-spacing:.08em">WORLD TABLE</button></h3>
+  <div class="rows" id="rows"></div>
+  <div class="counts" id="counts"></div>
+</aside>
+
+<section class="paper news" id="news" aria-label="World news">
+  <div class="t"><span>World news · <b id="newsYear"></b></span><span class="stamp" style="font-size:9px;color:var(--wire)">Simulated</span></div>
+  <ul id="newsList"></ul>
+</section>
+
+<main class="glass cmd" id="cmd" aria-label="Your decisions">
+  <nav class="steps" id="steps" role="tablist"></nav>
+  <div class="pane" id="pane" role="tabpanel"></div>
+  <div class="tray">
+    <div class="tt"><span>Your orders · <span id="trayYear"></span></span><span class="tab" id="traySum"></span></div>
+    <div class="orders" id="orders"></div>
+    <button class="btn btn-primary lockbtn" id="lockBtn">Lock turn <span class="kbd" style="color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.3)">L</span></button>
+  </div>
+</main>
+
+<div class="reveal" id="reveal" hidden>
+  <div class="moves" id="moves"></div>
+  <div class="prices" id="prices"></div>
+  <div class="bigstamp" id="stamp"></div>
+</div>
+<button class="btn btn-glass btn-sm skip" id="skipBtn" hidden>Skip ▸▸</button>
+
+<div class="drawer" id="drawer" aria-hidden="true"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle"><div class="sh"><h3 id="drawerTitle">All actions</h3><button class="icon-btn" data-close aria-label="Close">✕</button></div><div class="sb" id="drawerBody"></div></div></div>
+
+<div class="ov" id="startOv"><div class="glass box" id="startBox"></div></div>
+<div class="ov" id="endOv"><div class="glass box end" id="endBox"></div></div>
+<canvas id="confetti" hidden></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="assets/engine.js"></script>
+<script src="assets/ui.js"></script>
+<script src="assets/globe.js"></script>
+<script>
+(() => {
+const SC = window.Statecraft;
+const U = window.SCUI;
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const SEATS = SC.SEATS;
+const GROUP_NAME = { economy: "Economy", trade: "Trade", energy: "Energy", food: "Food", people: "People", diplomacy: "Diplomacy" };
+const MIN_NAME = { industry: "Industry & Jobs", infrastructure: "Infrastructure", agriculture: "Agriculture", energy: "Energy", education: "Education", welfare: "Health & Welfare", defence: "Defence" };
+const MIN_COL = { industry: "#3F63D8", infrastructure: "#17A2B8", agriculture: "#5E9E3A", energy: "#E8A21C", education: "#7A4FD0", welfare: "#C25A84", defence: "#5E6B70" };
+const EVENT_PLACE = { "energy.hormuz": [26.6, 56.3], "energy.pipeline": [55, 15], "energy.opecCut": [48.2, 16.4], "energy.mildWinter": [55, 40], "food.monsoon": [22, 79], "food.drought": [34.7, 113.6], "food.locusts": [9, 42], "food.exportBans": [20, 30], "trade.chipControls": [24, 120.9], "trade.portStrike": [30.5, 32.3], "trade.currencyShock": [40.7, -74], "trade.supplyShift": [12, 105], "general.heatwave": [32, 10], "general.financialPanic": [40.7, -74], "general.pandemicScare": [30.6, 114.3], "general.techBreakthrough": [37.4, -122] };
+const ICONS = {
+  energy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+  food: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22V8M12 8c0-3 2-5 5-5 0 3-2 5-5 5zM12 12c0-3-2-5-5-5 0 3 2 5 5 5zM12 16c0-3 2-5 5-5 0 3-2 5-5 5z"/></svg>',
+  tech: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>',
+  trade: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 20h20M5 20l2-8h10l2 8M9 12V6h6v6"/></svg>',
+  diplomacy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m11 17 2 2a1 1 0 0 0 3-3M14 14l2.5 2.5a1 1 0 0 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0l-.9.9a2 2 0 0 1-2.8-2.8L12 4.9a5 5 0 0 1 7 0l1.6 1.6a5 5 0 0 1 0 7L19 15M2 9l4 4M8 15l-6-6"/></svg>',
+  unrest: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>',
+  disaster: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19"/></svg>',
+  economy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 3v18h18M7 15l4-4 3 3 6-6"/></svg>',
+  vote: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 12 2 2 4-4M5 7h14v13H5zM8 7V4h8v3"/></svg>',
+  project: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 20h20M4 20V10l8-6 8 6v10M9 20v-6h6v6"/></svg>',
+};
+const WARN_ICON = ICONS.unrest;
+
+// ───────────── state ─────────────
+let S = null; // { world, me, difficulty, plan, orders, proposals, step, locked, timeLeft, paused, worldView, prevWorld }
+let globe = null;
+const layers = { mine: [], world: [], labels: [] };
+const cardName = (id) => SC.CARD_BY_ID.get(id)?.name || SC.PROJECT_BY_ID.get(id)?.name || id;
+
+function newMatch(me, scenario, difficulty, seed) {
+  const world = SC.createWorld(SC.SEED_2026, { matchId: `proto-${seed}`, seed, scenario });
+  S = { world, me, difficulty, step: "brief", worldView: false, paused: false, leader: U.LEADERS[me], portrait: SEATS.indexOf(me) };
+  startTurn(true);
+}
+
+function bots() { return SEATS.filter((s) => s !== S.me); }
+
+function startTurn(first) {
+  const w = S.world;
+  S.plan = SC.planBots(w, bots(), S.difficulty);
+  S.orders = {};
+  S.proposals = S.plan.proposals.filter((p) => p.to === S.me && p.status === "pending").map((p) => ({ ...p, inbox: true }));
+  S.locked = false;
+  S.phase = "plan";
+  S.timeLeft = SC.rules.TURN_SECONDS(w.turn);
+  S.forecastNext = null;
+  S.botLocks = {};
+  S.step = "brief";
+  renderAll();
+  refreshGlobe();
+  if (!first) globe.flyTo(...U_PLACE(S.me), { duration: 1200 });
+  scheduleForecast();
+}
+const U_PLACE = (iso) => SCGlobe.PLACES[iso];
+
+// ───────────── timer ─────────────
+setInterval(() => {
+  if (!S || S.locked || S.paused || $("#startOv").classList.contains("open") || $("#endOv").classList.contains("open")) return;
+  S.timeLeft = Math.max(0, S.timeLeft - 1);
+  renderClock();
+  if (S.timeLeft <= 10 && S.timeLeft > 0) U.sound.flip();
+  if (S.timeLeft === 0) lockTurn(true);
+}, 1000);
+
+function renderClock() {
+  const total = SC.rules.TURN_SECONDS(S.world.turn);
+  const k = S.timeLeft / total;
+  $("#ringFg").setAttribute("stroke-dashoffset", String(125.66 * (1 - k)));
+  $("#ringT").textContent = `${Math.floor(S.timeLeft / 60)}:${String(S.timeLeft % 60).padStart(2, "0")}`;
+  $("#ring").classList.toggle("hurry", S.timeLeft <= 10);
+  $("#year").textContent = S.world.ended ? S.world.year - 1 : S.world.year;
+  $("#turnOf").textContent = S.locked ? "Waiting for leaders…" : `Turn ${Math.min(12, S.world.turn)} of 12${S.paused ? " · paused" : ""}`;
+}
+
+// ───────────── derived ─────────────
+const me = () => S.world.countries[S.me];
+function pcLeft() {
+  const used = (S.orders.cards || []).reduce((t, c) => t + (SC.CARD_BY_ID.get(c.cardId)?.pc || 0), 0) + (S.orders.proposalsSent || 0);
+  return me().pc - used;
+}
+function moneyCommitted() {
+  const w = S.world, c = me();
+  let m = 0;
+  for (const k of S.orders.cards || []) m += SC.cardCost(w, S.me, SC.CARD_BY_ID.get(k.cardId), k.params);
+  for (const p of S.orders.projects || []) m += SC.projectCost(c, p) / SC.PROJECT_BY_ID.get(p).turns;
+  return m;
+}
+
+// ───────────── top + rail ─────────────
+function renderTop() {
+  const c = me();
+  $("#meChip").innerHTML = `${U.portrait(S.portrait, U.SEAT[S.me], 38)}<div class="who"><b>${U.flag(S.me)} ${U.SHORT[S.me].toUpperCase()}</b><small>${esc(S.leader)}</small></div>
+    <div class="res"><div><span class="k">Treasury</span><span class="v tab" id="treas">${U.money(c.treasury - moneyCommitted())}</span></div>
+    <div><span class="k">Political capital</span><div class="pcdots" aria-label="${pcLeft()} of ${c.pc} political capital left">${Array.from({ length: c.pc }, (_, i) => `<i class="${i >= pcLeft() ? "used" : ""}"></i>`).join("")}</div></div></div>`;
+  const r = SC.ranks(S.world);
+  const r0 = SC.ranks(S.world, 0);
+  const d = r0[S.me] - r[S.me];
+  $("#rankChip").innerHTML = `<small>POWER</small> #${r[S.me]} ${d ? `<span class="delta ${d > 0 ? "up" : "down"}">${d > 0 ? "▲" : "▼"}${Math.abs(d)}</span>` : ""}`;
+  renderClock();
+}
+
+function renderRail(prevOrder) {
+  const w = S.world;
+  const r = SC.ranks(w);
+  const order = [...SEATS].sort((a, b) => r[a] - r[b]);
+  const rows = $("#rows");
+  const firstPos = {};
+  if (prevOrder) $$(".row", rows).forEach((el) => (firstPos[el.dataset.iso] = el.getBoundingClientRect().top));
+  rows.innerHTML = order.map((s) => {
+    const p = w.power[s].at(-1);
+    const t = SC.trend(w, s, "economy");
+    const locked = S.locked ? true : s === S.me ? false : !!S.botLocks?.[s];
+    return `<div class="row ${s === S.me ? "me" : ""}" data-iso="${s}"><span class="n">${r[s]}</span>${U.portrait(SEATS.indexOf(s), U.SEAT[s], 30)}
+      <div><div class="nm">${U.flag(s)}<span>${U.SHORT[s]}</span></div><div class="sub"><span class="trend ${t}">${t === "improving" ? "▲" : t === "worsening" ? "▼" : "●"} ${t}</span></div></div>
+      <div style="text-align:right"><div class="pw tab">${p.toFixed(1)}</div><span class="lockdot ${locked ? "on" : ""}" title="${locked ? "Locked" : "Thinking"}"></span></div></div>`;
+  }).join("");
+  if (prevOrder && !U.reduce) {
+    $$(".row", rows).forEach((el) => {
+      const before = firstPos[el.dataset.iso];
+      if (before === undefined) return;
+      const dy = before - el.getBoundingClientRect().top;
+      if (!dy) return;
+      el.animate([{ transform: `translateY(${dy}px)` }, { transform: "none" }], { duration: 700, easing: "cubic-bezier(.22,1.2,.36,1)" });
+      if (el.dataset.iso === S.me && dy > 0) {
+        el.classList.add("glow");
+        setTimeout(() => el.classList.remove("glow"), 1400);
+      }
+    });
+  }
+  const mine = w.treaties.filter((t) => t.a === S.me || t.b === S.me).length;
+  const sanctions = SEATS.reduce((t, a) => t + SEATS.filter((b) => b !== a && w.pairs[a][b].sanction).length, 0);
+  const tariffs = SEATS.reduce((t, a) => t + SEATS.filter((b) => b !== a && w.pairs[a][b].tariff > 0).length, 0);
+  const led = SC.REGIONS.filter((x) => w.regions[x].leader === S.me).length;
+  $("#counts").innerHTML = `<div><b class="tab">${w.treaties.length}</b><small>Treaties · ${mine} yours</small></div><div><b class="tab">${sanctions}</b><small>Sanctions</small></div><div><b class="tab">${tariffs}</b><small>Tariffs</small></div><div><b class="tab">${led}/8</b><small>Regions you lead</small></div>`;
+}
+
+function renderNews() {
+  const last = S.world.history.at(-1);
+  $("#newsYear").textContent = last ? last.year : "Briefing";
+  const items = last ? last.news.slice(0, 3) : [{ headline: SC.SCENARIOS[S.world.scenario].brief, icon: "economy" }];
+  $("#newsList").innerHTML = items.map((n, i) => `<li data-i="${i}"><span class="ic">${ICONS[n.icon] || ICONS.economy}</span><p>${esc(n.headline)}<small>${n.place ? esc(n.place) + " · " : n.iso3 ? U.SHORT[n.iso3] + " · " : ""}${last ? last.year : S.world.year}</small></p></li>`).join("");
+  $$("#newsList li").forEach((li) => li.addEventListener("click", () => {
+    const n = items[Number(li.dataset.i)];
+    const ll = n.place && last?.eventId && EVENT_PLACE[last.eventId] && n.icon !== "diplomacy" ? EVENT_PLACE[last.eventId] : n.iso3 ? U_PLACE(n.iso3) : null;
+    if (ll) globe.flyTo(ll[0], ll[1], { duration: 1100 });
+  }));
+}
+
+// ───────────── steps ─────────────
+const STEPS = [["brief", "Brief"], ["budget", "Budget"], ["projects", "Projects"], ["actions", "Actions"], ["diplomacy", "Diplomacy"]];
+function stepDone(k) {
+  const o = S.orders;
+  return k === "brief" ? !!(o.vote || (o.crisis && Object.keys(o.crisis).length)) : k === "budget" ? !!(o.budget || o.taxRate !== undefined) : k === "projects" ? !!o.projects?.length : k === "actions" ? !!o.cards?.length : k === "diplomacy" ? S.proposals.some((p) => !p.inbox || p.status !== "pending") : false;
+}
+function renderSteps() {
+  const inboxPending = S.proposals.filter((p) => p.inbox && p.status === "pending").length;
+  $("#steps").innerHTML = STEPS.map(([k, n], i) => `<button role="tab" aria-selected="${S.step === k}" class="${S.step === k ? "on" : ""} ${stepDone(k) ? "done" : ""}" data-step="${k}"><span class="num">${stepDone(k) ? "✓" : i + 1}</span>${n}${k === "diplomacy" && inboxPending ? `<span class="badge">${inboxPending}</span>` : ""}</button>`).join("");
+  $$("#steps button").forEach((b) => b.addEventListener("click", () => { if (S.phase === "result") return; S.step = b.dataset.step; U.sound.click(); renderSteps(); renderPane(); }));
+}
+
+function renderPane() {
+  const pane = $("#pane");
+  pane.scrollTop = 0;
+  ({ brief: paneBrief, budget: paneBudget, projects: paneProjects, actions: paneActions, diplomacy: paneDiplomacy })[S.step](pane);
+}
+
+// ── ① Brief ──
+function paneBrief(pane) {
+  const w = S.world, c = me();
+  const last = w.history.at(-1);
+  const ev = last?.eventId ? SC.EVENT_BY_ID.get(last.eventId) : null;
+  const title = ev ? ev.title : w.turn === 1 ? SC.SCENARIOS[w.scenario].name : quietTitle();
+  const body = ev ? "" : w.turn === 1 ? SC.SCENARIOS[w.scenario].brief : "";
+  let h = `<div class="eyebrow">${w.year} · Briefing</div><h2 style="margin-top:6px">${esc(title)}</h2>${body ? `<p class="lead">${esc(body)}</p>` : ""}
+    <div class="fcast" style="margin-top:12px"><span>Oil ${w.price.energy.toFixed(0)}</span><span>Food ${w.price.food.toFixed(0)}</span><span>Chips ${w.price.tech.toFixed(0)}</span><span>Tension ${w.tension.toFixed(0)}</span></div>`;
+  if (w.vote) {
+    const res = SC.RESOLUTION_BY_ID.get(w.vote.resolutionId);
+    const v = S.orders.vote;
+    h += `<div class="sec"><div class="vote ${v ? "done" : ""}"><div class="eyebrow">World Vote · passes with 4 of 6</div>${v ? `<h4 style="font-size:15px">You voted ${U.cap(v)} on “${esc(res.title(w.vote.target, w))}”</h4><button class="btn btn-sm btn-ghost" style="color:var(--paper)" id="revote">Change</button>` : `<h4>${esc(res.title(w.vote.target, w))}</h4><div class="gb">Good for ${esc(res.goodFor)} · Bad for ${esc(res.badFor)}</div><div class="opts">${["yes", "no", "abstain"].map((x) => `<button data-v="${x}">${U.cap(x)}</button>`).join("")}</div>`}</div></div>`;
+  }
+  const warns = w.warnings[S.me] || [];
+  if (warns.length) h += `<div class="sec"><div class="lbl">Early warnings</div>${warns.map((x) => `<div class="warn">${WARN_ICON}<div><b>${esc(x.text)}</b><div class="cards">${x.cards.map((id) => `<button class="chip" data-card="${id}">${esc(cardName(id))}</button>`).join("")}</div></div></div>`).join("")}</div>`;
+  for (const id of w.pendingCrises[S.me] || []) {
+    const cr = SC.CRISIS_BY_ID.get(id);
+    const chosen = S.orders.crisis?.[id];
+    h += `<div class="sec"><div class="lbl">Your call <span class="faint" style="letter-spacing:0;text-transform:none;font-weight:600">If you do not choose: ${esc(cr.choices.find((x) => x.id === cr.defaultChoice).label)}</span></div><div class="crisis"><h4>${esc(cr.title)}</h4><p>${esc(cr.body)}</p><div class="choices">${cr.choices.map((ch) => `<button class="${chosen === ch.id ? "on" : ""}" data-crisis="${id}" data-choice="${ch.id}">${esc(ch.label)}<small>${esc(ch.forecast)}</small></button>`).join("")}</div>
+      <div class="advisors" style="margin-top:12px">${advisor("FI", "Finance", cr.advisors.finance)}${advisor("FO", "Foreign Affairs", cr.advisors.foreign)}${advisor("PE", "People", cr.advisors.people)}</div></div></div>`;
+  }
+  if (!(w.pendingCrises[S.me] || []).length) h += `<div class="sec"><div class="lbl">Advisors</div><div class="advisors">${advisorLines().join("")}</div></div>`;
+  const prog = SC.MISSIONS[S.me].progress(w, c);
+  h += `<div class="sec"><div class="mission"><div class="eyebrow">Your mission</div><div style="font-weight:800;margin-top:4px">${esc(SC.MISSIONS[S.me].text)}</div><div class="bar"><i style="width:${(prog * 100).toFixed(0)}%"></i></div><small class="faint">${(prog * 100).toFixed(0)}% · worth up to 120 points</small></div></div>`;
+  pane.innerHTML = h;
+  $$("[data-v]", pane).forEach((b) => b.addEventListener("click", () => { S.orders.vote = b.dataset.v; U.sound.place(); afterChange(); }));
+  $("#revote", pane)?.addEventListener("click", () => { delete S.orders.vote; afterChange(); });
+  $$("[data-crisis]", pane).forEach((b) => b.addEventListener("click", () => { (S.orders.crisis ||= {})[b.dataset.crisis] = b.dataset.choice; U.sound.place(); afterChange(); }));
+  $$("[data-card]", pane).forEach((b) => b.addEventListener("click", () => { S.step = "actions"; S.focusCard = b.dataset.card; renderSteps(); renderPane(); }));
+}
+function quietTitle() {
+  const c = me();
+  if (c.goods.energy.supplyRatio < 0.97) return "Energy is short at home";
+  if (c.goods.food.supplyRatio < 0.97) return "Food is short at home";
+  if (c.unemployment > c.unemployment0 + 0.5) return "Jobs are getting harder to find";
+  return "A year to build";
+}
+function advisor(av, who, line) { return `<div class="adv"><span class="av">${av}</span><div><b>${who}</b><p>${esc(line)}</p></div></div>`; }
+function advisorLines() {
+  const c = me(), w = S.world;
+  const imp = c.importBill.toFixed(1);
+  const fin = c.balancePct < -3 ? `We run a deficit of ${(-c.balancePct).toFixed(1)}% of GDP. Spend with care.` : `The treasury holds ${U.money(c.treasury)}. We have room to invest.`;
+  const short = SC.GOODS.filter((g) => c.goods[g].demand > c.goods[g].prod).sort((a, b) => (c.goods[b].demand - c.goods[b].prod) - (c.goods[a].demand - c.goods[a].prod))[0];
+  const seller = short ? SEATS.filter((s) => s !== S.me && w.countries[s].goods[short].prod > w.countries[s].goods[short].demand).sort((a, b) => w.pairs[S.me][b].relations - w.pairs[S.me][a].relations)[0] : null;
+  const fo = short && seller ? `${U.SHORT[seller]} has spare ${short === "tech" ? "chips" : short}. A long contract would protect us from price swings.` : "Our partners are steady. A summit could build trust for later deals.";
+  const pe = `Unemployment is ${c.unemployment.toFixed(1)}%, inflation ${c.inflation.toFixed(1)}%. Our import bill is ${imp}% of GDP.`;
+  return [advisor("FI", "Finance", fin), advisor("FO", "Foreign Affairs", fo), advisor("PE", "People", pe)];
+}
+
+// ── ② Budget ──
+function paneBudget(pane) {
+  const c = me();
+  const b = Object.assign({}, c.budget, S.orders.budget || {});
+  const tax = S.orders.taxRate ?? c.taxRate;
+  const revenue = (c.gdp * tax) / 100;
+  const total = SC.MINISTRIES.reduce((t, m) => t + b[m], 0);
+  let h = `<div class="eyebrow">${S.world.year} · Budget</div><h2 style="margin-top:6px">Where the money goes</h2><p class="lead">Revenue ${U.money(revenue)} · spending ${U.money((c.gdp * total) / 100)}. Changes cost no political capital.</p>
+    <div class="stack" aria-hidden="true">${SC.MINISTRIES.map((m) => `<i style="flex-grow:${b[m]};background:${MIN_COL[m]}"></i>`).join("")}</div>
+    <div class="sec"><div class="mrow"><label for="tax">Tax</label><input class="slider ${tax !== c.taxRate ? "changed" : ""}" id="tax" type="range" min="10" max="35" step="0.5" value="${tax}"><div class="val tab">${tax.toFixed(1)}%<small class="faint">of GDP</small></div></div></div>
+    <div class="sec">${SC.MINISTRIES.map((m) => {
+      const v = b[m], base = c.baseline[m], max = +(base * 3).toFixed(2);
+      const d = ((v - c.budget[m]) * c.gdp) / 100;
+      return `<div class="mrow"><label for="m-${m}" style="display:flex;gap:6px;align-items:center"><i style="width:8px;height:8px;border-radius:50%;background:${MIN_COL[m]}"></i>${MIN_NAME[m]}</label><input class="slider ${Math.abs(v - c.budget[m]) > 0.001 ? "changed" : ""}" id="m-${m}" data-m="${m}" type="range" min="0" max="${max}" step="${(base / 20).toFixed(3)}" value="${v}" style="--fill:${(v / max) * 100}%"><div class="val tab">${U.money((c.gdp * v) / 100)}${Math.abs(d) >= 0.5 ? `<small class="delta ${d > 0 ? "up" : "down"}">${d > 0 ? "+" : "−"}${U.money(Math.abs(d))}</small>` : `<small class="faint">${v.toFixed(1)}%</small>`}</div></div>`;
+    }).join("")}</div>
+    <div class="sec"><div class="lbl">Forecast next year <span class="faint" style="letter-spacing:0;text-transform:none;font-weight:600">if nobody else reacts</span></div><div class="fcast" id="fcast">${forecastChips()}</div></div>
+    <div class="sec" style="display:flex;gap:8px"><button class="btn btn-glass btn-sm" id="resetB">Reset to last year</button></div>`;
+  pane.innerHTML = h;
+  $("#tax", pane).addEventListener("input", (e) => { S.orders.taxRate = +e.target.value; if (S.orders.taxRate === c.taxRate) delete S.orders.taxRate; softRender(); });
+  $$("[data-m]", pane).forEach((el) => el.addEventListener("input", (e) => {
+    const m = el.dataset.m;
+    S.orders.budget = Object.assign({}, S.orders.budget || {}, { [m]: +e.target.value });
+    if (Math.abs(S.orders.budget[m] - c.budget[m]) < 0.0005) delete S.orders.budget[m];
+    if (!Object.keys(S.orders.budget).length) delete S.orders.budget;
+    softRender();
+  }));
+  $("#resetB", pane).addEventListener("click", () => { delete S.orders.budget; delete S.orders.taxRate; afterChange(); });
+}
+let softT = 0;
+function softRender() {
+  cancelAnimationFrame(softT);
+  softT = requestAnimationFrame(() => {
+    const keep = document.activeElement?.id;
+    const st = $("#pane").scrollTop;
+    renderPane();
+    $("#pane").scrollTop = st;
+    if (keep) document.getElementById(keep)?.focus();
+    renderTop(); renderTray(); renderSteps();
+    scheduleForecast();
+  });
+}
+function forecastChips() {
+  const f = S.forecastNext;
+  if (!f) return `<span class="faint">Calculating…</span>`;
+  const a = me(), b = f.countries[S.me];
+  const items = [
+    ["Growth", b.growth - a.growth, 2, false, "%"],
+    ["Unemployment", b.unemployment - a.unemployment, 2, true, " pts"],
+    ["Inflation", b.inflation - a.inflation, 2, true, " pts"],
+    ["Stability", b.stability - a.stability, 1, false, ""],
+    ["Energy supply", (b.goods.energy.supplyRatio - a.goods.energy.supplyRatio) * 100, 1, false, " pts"],
+    ["Treasury", b.treasury - a.treasury, 0, false, "B"],
+  ].sort((x, y) => Math.abs(y[1]) / (y[0] === "Treasury" ? 50 : 1) - Math.abs(x[1]) / (x[0] === "Treasury" ? 50 : 1)).slice(0, 3);
+  return items.map(([n, d, dg, inv, u]) => `<span>${n} ${U.deltaHtml(d, { d: dg, invert: inv, unit: u === "B" ? "" : u })}${u === "B" ? "B" : ""}</span>`).join("");
+}
+let fT = 0;
+function scheduleForecast() {
+  clearTimeout(fT);
+  fT = setTimeout(() => {
+    const accepted = S.proposals.filter((p) => p.status === "accepted");
+    S.forecastNext = SC.forecast(S.world, S.me, S.orders, accepted);
+    const el = $("#fcast");
+    if (el) el.innerHTML = forecastChips();
+  }, 150);
+}
+
+// ── ③ Projects ──
+function paneProjects(pane) {
+  const c = me(), w = S.world;
+  const starting = S.orders.projects || [];
+  const used = c.projects.length + starting.length;
+  const nextAt = c.slots === 1 ? "2nd slot at GDP +10%" : c.slots === 2 ? "3rd slot at GDP +25%" : "All slots open";
+  let h = `<div class="eyebrow">${w.year} · Projects</div><h2 style="margin-top:6px">Build capabilities</h2>
+    <div class="sec"><div class="lbl">Slots <span style="display:flex;gap:10px;align-items:center;letter-spacing:0;text-transform:none"><span class="slots">${[0, 1, 2].map((i) => `<i class="${i < used ? "full" : i >= c.slots ? "lockd" : ""}"></i>`).join("")}</span><span class="faint" style="font-weight:600">${nextAt}</span></span></div>`;
+  if (c.projects.length) h += c.projects.map((p) => { const d = SC.PROJECT_BY_ID.get(p.id); const done = d.turns - p.turnsLeft; return `<div class="building"><div style="display:flex;justify-content:space-between"><b>${esc(d.name)}</b><span class="faint tab" style="font-weight:700;font-size:12px">${done} / ${d.turns} years${p.paused ? " · paused" : ""}</span></div><div class="pb"><i style="width:${(done / d.turns) * 100}%"></i></div><small class="muted">${esc(d.capability)} when complete</small></div>`; }).join("");
+  if (starting.length) h += starting.map((id) => `<div class="building" style="border-color:var(--gold)"><b>${esc(cardName(id))} <span class="chip" style="height:22px;margin-left:6px">Starting this year</span></b></div>`).join("");
+  if (c.completed.length) h += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${c.completed.map((id) => `<span class="chip">✓ ${esc(cardName(id))}</span>`).join("")}</div>`;
+  h += `</div><div class="sec"><div class="lbl">Start a project</div><div class="ptiles">${SC.PROJECTS.map((p) => {
+    let legal = used >= c.slots ? "No free slot" : SC.projectLegal(w, S.me, p.id);
+    if (starting.includes(p.id)) legal = "Starting";
+    const cost = SC.projectCost(c, p.id);
+    return `<button class="ptile" data-p="${p.id}" ${legal !== true ? "disabled" : ""}><b>${esc(p.name)}</b><small>${esc(p.capability)}</small><span class="cost tab">${U.money(cost)} · ${p.turns} yr${p.turns > 1 ? "s" : ""}</span>${legal !== true && legal !== "No free slot" ? `<span class="why">${esc(legal)}</span>` : ""}</button>`;
+  }).join("")}</div></div>`;
+  pane.innerHTML = h;
+  $$(".ptile", pane).forEach((el) => {
+    el.addEventListener("pointermove", (e) => { const r = el.getBoundingClientRect(); el.style.setProperty("--mx", e.clientX - r.left + "px"); el.style.setProperty("--my", e.clientY - r.top + "px"); });
+    el.addEventListener("click", () => { (S.orders.projects ||= []).push(el.dataset.p); U.sound.place(); U.toast(`${cardName(el.dataset.p)} added to your orders`); afterChange(); });
+  });
+}
+
+// ── ④ Actions ──
+function paneActions(pane) {
+  const w = S.world, c = me();
+  const ids = c.shownCards;
+  const played = new Set((S.orders.cards || []).map((x) => x.cardId));
+  let h = `<div class="eyebrow">${w.year} · Actions</div><h2 style="margin-top:6px">Suggested for this year</h2><p class="lead">${pcLeft()} political capital left. Pick the moves that matter now.</p><div class="sec cards">`;
+  h += ids.map((id) => cardTile(id, played.has(id))).join("");
+  h += `</div><div class="sec"><button class="btn btn-glass" id="allBtn" style="width:100%">All actions (${SC.CARDS.length}) <span class="kbd">A</span></button></div>`;
+  pane.innerHTML = h;
+  bindCards(pane);
+  $("#allBtn", pane).addEventListener("click", openAll);
+  if (S.focusCard) {
+    const el = $(`[data-card-id="${S.focusCard}"]`, pane);
+    if (el) { el.scrollIntoView({ block: "center" }); el.animate([{ boxShadow: "0 0 0 3px var(--gold)" }, { boxShadow: "0 0 0 0 transparent" }], { duration: 1400 }); }
+    else openAll(S.focusCard);
+    S.focusCard = null;
+  }
+}
+function cardTile(id, isPlayed) {
+  const card = SC.CARD_BY_ID.get(id);
+  if (id === "diplomacy.proposeDeal") return `<button class="acard deal g-diplomacy" data-deal="1"><span class="grp">Diplomacy</span><span class="nm">✚ Propose deal</span><span class="sm">Offer a trade, money or a pledge to another leader.</span><span class="fc">1 political capital</span></button>`;
+  const params = card.defaults ? card.defaults(S.world, S.me) || {} : {};
+  const legal = isPlayed ? "Already in your orders" : pcLeft() < card.pc ? `Not enough political capital (needs ${card.pc})` : SC.cardLegal(S.world, S.me, id, params);
+  const cost = SC.cardCost(S.world, S.me, card, params);
+  const pselect = card.params.map((k) => paramSelect(k, params, id)).join("");
+  return `<div class="acard g-${card.group} ${isPlayed ? "played" : ""} ${legal !== true && !isPlayed ? "locked" : ""}" data-card-id="${id}" tabindex="0" role="button" aria-disabled="${legal !== true}"><span class="grp">${GROUP_NAME[card.group]}</span><span class="pc">${Array.from({ length: card.pc }, () => "<i></i>").join("")}</span><span class="nm">${esc(card.name)}</span><span class="sm">${esc(card.summary)}</span>${pselect ? `<div class="cardparams">${pselect}</div>` : ""}<span class="fc">${legal === true ? (cost ? U.money(cost) + " · " : "") + "Tap to add" : esc(legal)}</span></div>`;
+}
+function paramSelect(kind, params, id) {
+  const o = (v, l, sel) => `<option value="${v}" ${sel ? "selected" : ""}>${esc(l)}</option>`;
+  if (kind === "target" || kind === "targetOrRegion") {
+    const opts = SEATS.filter((s) => s !== S.me).map((s) => o(s, U.SHORT[s], params.target === s));
+    const regs = kind === "targetOrRegion" ? SC.REGIONS.map((r) => o("R:" + r, SC.REGION_DEFS[r].name, params.region === r)) : [];
+    return `<select data-param="${kind}" data-for="${id}" aria-label="Target">${opts.join("")}${regs.join("")}</select>`;
+  }
+  if (kind === "region") return `<select data-param="region" data-for="${id}" aria-label="Region">${SC.REGIONS.map((r) => o(r, SC.REGION_DEFS[r].name, params.region === r)).join("")}</select>`;
+  if (kind === "rate") return `<select data-param="rate" data-for="${id}" aria-label="Rate">${o(10, "10%", params.rate !== 25)}${o(25, "25%", params.rate === 25)}</select>`;
+  if (kind === "good") return `<select data-param="good" data-for="${id}" aria-label="Good">${SC.GOODS.map((g) => o(g, g === "tech" ? "chips" : g, params.good === g)).join("")}</select>`;
+  if (kind === "units") return `<select data-param="units" data-for="${id}" aria-label="Units">${[2, 4, 6, 8].map((u) => o(u, u + " units", (params.units || 4) === u)).join("")}</select>`;
+  return "";
+}
+const cardParamsDraft = {};
+function bindCards(root) {
+  $$("select[data-param]", root).forEach((sel) => {
+    sel.addEventListener("click", (e) => e.stopPropagation());
+    sel.addEventListener("change", () => {
+      const id = sel.dataset.for, k = sel.dataset.param;
+      const d = (cardParamsDraft[id] ||= {});
+      if (k === "targetOrRegion") { delete d.target; delete d.region; if (sel.value.startsWith("R:")) d.region = sel.value.slice(2); else d.target = sel.value; }
+      else d[k === "target" ? "target" : k] = isNaN(+sel.value) ? sel.value : +sel.value;
+    });
+  });
+  $$(".acard", root).forEach((el) => {
+    const go = () => {
+      if (el.dataset.deal) { S.step = "diplomacy"; S.compose = { to: null }; renderSteps(); renderPane(); closeDrawer(); return; }
+      if (el.classList.contains("locked") || el.classList.contains("played")) { U.toast(el.querySelector(".fc").textContent); return; }
+      const id = el.dataset.cardId;
+      const card = SC.CARD_BY_ID.get(id);
+      const params = Object.assign({}, card.defaults ? card.defaults(S.world, S.me) || {} : {}, cardParamsDraft[id] || {});
+      const ok = SC.cardLegal(S.world, S.me, id, params);
+      if (ok !== true) { U.toast(ok); return; }
+      (S.orders.cards ||= []).push({ cardId: id, params });
+      U.sound.place();
+      flyToTray(el);
+      previewCardOnGlobe(id, params);
+      afterChange();
+      closeDrawer();
+    };
+    el.addEventListener("click", go);
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  });
+}
+function flyToTray(el) {
+  if (U.reduce) return;
+  const r = el.getBoundingClientRect(), t = $("#orders").getBoundingClientRect();
+  const ghost = el.cloneNode(true);
+  Object.assign(ghost.style, { position: "fixed", left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px", zIndex: 95, margin: 0, pointerEvents: "none" });
+  document.body.appendChild(ghost);
+  ghost.animate([{ transform: "none", opacity: 1 }, { transform: `translate(${t.left - r.left + 20}px,${t.top - r.top}px) scale(.25)`, opacity: 0.2 }], { duration: 480, easing: "cubic-bezier(.65,0,.35,1)" }).onfinish = () => ghost.remove();
+}
+function openAll(focus) {
+  const played = new Set((S.orders.cards || []).map((x) => x.cardId));
+  const groups = ["economy", "trade", "energy", "food", "people", "diplomacy"];
+  $("#drawerTitle").textContent = "All actions";
+  $("#drawerBody").innerHTML = `<input type="search" id="cardSearch" placeholder="Search actions" aria-label="Search actions">` + groups.map((g) => `<div data-group="${g}"><div class="eyebrow" style="margin-bottom:8px;color:var(--g-${g})">${GROUP_NAME[g]}</div><div class="cards">${SC.CARDS.filter((k) => k.group === g && k.id !== "diplomacy.cancelTreaty").map((k) => cardTile(k.id, played.has(k.id))).join("")}</div></div>`).join("");
+  bindCards($("#drawerBody"));
+  $("#cardSearch").addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase();
+    $$("#drawerBody .acard").forEach((el) => (el.style.display = !q || el.textContent.toLowerCase().includes(q) ? "" : "none"));
+  });
+  openDrawer();
+  if (typeof focus === "string") setTimeout(() => $(`#drawerBody [data-card-id="${focus}"]`)?.scrollIntoView({ block: "center" }), 350);
+}
+function openDrawer() { const d = $("#drawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false"); setTimeout(() => $("#drawer [data-close]").focus(), 50); }
+function closeDrawer() { const d = $("#drawer"); d.classList.remove("open"); d.setAttribute("aria-hidden", "true"); }
+$("#drawer").addEventListener("click", (e) => { if (e.target.id === "drawer" || e.target.closest("[data-close]")) closeDrawer(); });
+
+// ── ⑤ Diplomacy ──
+function paneDiplomacy(pane) {
+  const w = S.world;
+  const inbox = S.proposals.filter((p) => p.inbox);
+  const mine = S.proposals.filter((p) => !p.inbox);
+  let h = `<div class="eyebrow">${w.year} · Diplomacy</div><h2 style="margin-top:6px">Deals</h2><p class="lead">A proposal costs 1 political capital. Answers are free. Bots answer in a moment.</p>`;
+  h += `<div class="sec"><div class="lbl">Inbox</div><div class="inbox">${inbox.length ? inbox.map(propCard).join("") : `<p class="faint" style="font-size:13.5px">No offers yet this year.</p>`}</div></div>`;
+  h += `<div class="sec"><div class="lbl">Your proposals</div><div class="inbox">${mine.length ? mine.map(propCard).join("") : ""}</div></div>`;
+  h += `<div class="sec">${S.compose ? composer() : `<button class="btn btn-glass" id="newProp" style="width:100%" ${pcLeft() < 1 ? "disabled" : ""}>✚ New proposal · 1 political capital</button>`}</div>`;
+  h += `<div class="sec"><div class="lbl">Active treaties</div>${w.treaties.filter((t) => t.a === S.me || t.b === S.me).map((t) => `<div class="building"><b>${U.flag(t.a === S.me ? t.b : t.a)} ${U.SHORT[t.a === S.me ? t.b : t.a]}</b><small class="muted">You give: ${(t.a === S.me ? t.aGives : t.bGives).map(SC.termText).join(", ") || "—"} · You get: ${(t.a === S.me ? t.bGives : t.aGives).map(SC.termText).join(", ") || "—"} · ${t.turnsLeft} yr left</small></div>`).join("") || `<p class="faint" style="font-size:13.5px">No treaties yet.</p>`}</div>`;
+  pane.innerHTML = h;
+  $("#newProp", pane)?.addEventListener("click", () => { S.compose = { to: null }; renderPane(); });
+  bindComposer(pane);
+  $$("[data-pact]", pane).forEach((b) => b.addEventListener("click", () => answerInbox(b.dataset.pid, b.dataset.pact)));
+}
+function propCard(p) {
+  const other = p.inbox ? p.from : p.to;
+  const youGive = p.inbox ? p.wants : p.gives;
+  const youGet = p.inbox ? p.gives : p.wants;
+  const status = p.thinking ? `<span class="st st-pending"><span class="typing"><i></i><i></i><i></i></span></span>` : `<span class="st st-${p.status}">${p.counterOf ? "Counter · " : ""}${p.status}</span>`;
+  const acts = p.inbox && p.status === "pending" ? `<div class="acts"><button class="btn btn-sm btn-primary" data-pact="accept" data-pid="${p.id}">Accept</button><button class="btn btn-sm btn-glass" data-pact="counter" data-pid="${p.id}">Counter</button><button class="btn btn-sm btn-ghost" data-pact="reject" data-pid="${p.id}">Reject</button></div>`
+    : p.counterOf && p.status === "pending" ? `<div class="acts"><button class="btn btn-sm btn-primary" data-pact="acceptc" data-pid="${p.id}">Accept counter</button><button class="btn btn-sm btn-ghost" data-pact="rejectc" data-pid="${p.id}">Reject</button></div>` : "";
+  const trust = S.world.pairs[S.me][other].trust;
+  return `<div class="prop ${p.justChanged ? "flip" : ""}"><div class="ph">${U.flag(other)} ${p.inbox ? `${U.SHORT[other]} proposes` : `To ${U.SHORT[other]}`} ${status}</div>
+    <div class="tr"><b>You give</b><span>${youGive.map(SC.termText).join(", ") || "—"}</span></div><div class="tr"><b>You get</b><span>${youGet.map(SC.termText).join(", ") || "—"}</span></div>
+    <div class="tr"><b>For</b><span>${p.turns} years · trust ${trust.toFixed(0)}</span></div>${acts}</div>`;
+}
+function answerInbox(pid, act) {
+  const p = S.proposals.find((x) => x.id === pid);
+  if (!p) return;
+  if (act === "accept") { p.status = "accepted"; U.sound.chime(); U.toast(`Pact with ${U.SHORT[p.from]} agreed`); }
+  if (act === "reject") { p.status = "rejected"; U.sound.click(); }
+  if (act === "acceptc") { p.status = "accepted"; U.sound.chime(); U.toast("Counter accepted"); }
+  if (act === "rejectc") { p.status = "rejected"; }
+  if (act === "counter") {
+    p.status = "countered";
+    S.compose = { to: p.from, gives: p.wants.map((t) => ({ ...t })), wants: p.gives.map((t) => ({ ...t })), turns: p.turns, free: true, parentId: p.id };
+  }
+  p.justChanged = true;
+  afterChange();
+  setTimeout(() => (p.justChanged = false), 500);
+}
+function composer() {
+  const c = S.compose;
+  const to = c.to;
+  const val = to ? valueFor(c) : null;
+  const termChips = (list, side) => list.map((t, i) => `<span class="term-chip">${esc(SC.termText(t))}<button data-rm="${side}:${i}" aria-label="Remove">×</button></span>`).join("");
+  return `<div class="composer"><div class="rowc"><b>To</b><div class="terms">${SEATS.filter((s) => s !== S.me).map((s) => `<button class="chip ${to === s ? "on" : ""}" data-to="${s}">${U.flag(s)} ${U.SHORT[s]}</button>`).join("")}</div></div>
+    <div class="rowc"><b>You give</b><div><div class="terms">${termChips(c.gives || [], "g")}</div>${adder("g")}</div></div>
+    <div class="rowc"><b>You want</b><div><div class="terms">${termChips(c.wants || [], "w")}</div>${adder("w")}</div></div>
+    <div class="rowc"><b>Years</b><div class="terms">${[2, 3, 4, 5].map((n) => `<button class="chip ${(c.turns || 3) === n ? "on" : ""}" data-turns="${n}">${n}</button>`).join("")}</div></div>
+    ${to ? `<div><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700"><span>Value for ${U.SHORT[to]}</span><span class="faint">${val > 0.15 ? "Likely yes" : val > -0.2 ? "Maybe — expect a counter" : "Likely no"}</span></div><div class="meter" style="margin-top:6px"><i style="left:${Math.max(4, Math.min(96, 50 + val * 60))}%"></i></div></div>` : ""}
+    <div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" id="sendProp" ${!to || !((c.gives || []).length + (c.wants || []).length) ? "disabled" : ""}>Send${c.free ? " counter" : " · 1 PC"}</button><button class="btn btn-ghost btn-sm" id="cancelProp">Cancel</button></div></div>`;
+}
+function adder(side) {
+  return `<div class="adder" style="margin-top:6px"><select data-add="${side}" aria-label="Add a term"><option value="">+ Add…</option><option value="energy">Energy units</option><option value="food">Food units</option><option value="tech">Chip units</option><option value="investment">Investment ($B)</option><option value="money">Grant ($B)</option><option value="tariffCut">Remove tariffs</option><option value="noSanction">Pledge: no sanctions</option></select><input type="number" min="1" max="30" value="4" data-amt="${side}" aria-label="Amount"></div>`;
+}
+function valueFor(c) {
+  const draft = { from: S.me, to: c.to, gives: c.gives || [], wants: c.wants || [], turns: c.turns || 3 };
+  const gain = SC.termsValue(S.world, c.to, draft.gives, draft.turns);
+  const cost = SC.termsCost(S.world, c.to, draft.wants, draft.turns);
+  const scale = Math.max(1, gain + cost);
+  return (gain - cost) / scale;
+}
+function bindComposer(pane) {
+  const c = S.compose;
+  if (!c) return;
+  $$("[data-to]", pane).forEach((b) => b.addEventListener("click", () => { c.to = b.dataset.to; renderPane(); }));
+  $$("[data-turns]", pane).forEach((b) => b.addEventListener("click", () => { c.turns = +b.dataset.turns; renderPane(); }));
+  $$("[data-rm]", pane).forEach((b) => b.addEventListener("click", () => { const [s, i] = b.dataset.rm.split(":"); (s === "g" ? c.gives : c.wants).splice(+i, 1); renderPane(); }));
+  $$("[data-add]", pane).forEach((sel) => sel.addEventListener("change", () => {
+    const side = sel.dataset.add, v = sel.value;
+    if (!v) return;
+    const amt = Math.max(1, +$(`[data-amt="${side}"]`, pane).value || 4);
+    const term = SC.GOODS.includes(v) ? { kind: "goods", good: v, units: Math.min(30, amt), priceAdj: 0 } : v === "investment" || v === "money" ? { kind: v, amount: Math.min(amt * 3, Math.round(me().gdp * 0.03)) } : v === "tariffCut" ? { kind: "tariffCut" } : { kind: "pledge", pledge: "noSanction" };
+    (side === "g" ? (c.gives ||= []) : (c.wants ||= [])).push(term);
+    renderPane();
+  }));
+  $("#cancelProp", pane)?.addEventListener("click", () => { S.compose = null; renderPane(); });
+  $("#sendProp", pane)?.addEventListener("click", sendProposal);
+}
+function sendProposal() {
+  const c = S.compose;
+  const p = { id: `${S.world.turn}-${S.me}-${c.to}-h${S.proposals.length}`, turn: S.world.turn, from: S.me, to: c.to, gives: c.gives || [], wants: c.wants || [], turns: c.turns || 3, status: "pending", parentId: c.parentId };
+  const legal = SC.proposalLegal(S.world, p);
+  if (legal !== true) { U.toast(legal); return; }
+  if (!c.free) S.orders.proposalsSent = (S.orders.proposalsSent || 0) + 1;
+  S.compose = null;
+  p.thinking = true;
+  S.proposals.push(p);
+  U.sound.place();
+  afterChange();
+  setTimeout(() => {
+    const out = SC.answerHumanProposal(S.world, { ...p, thinking: undefined });
+    p.thinking = false;
+    p.status = out[0].status;
+    p.justChanged = true;
+    if (out[1]) {
+      const ct = { ...out[1], counterOf: p.id, status: "pending" };
+      S.proposals.push(ct);
+    }
+    U.sound.knock();
+    U.toast(p.status === "accepted" ? `${U.SHORT[p.to]} accepts` : p.status === "countered" ? `${U.SHORT[p.to]} sends a counter` : `${U.SHORT[p.to]} says no`);
+    afterChange();
+    setTimeout(() => (p.justChanged = false), 500);
+  }, U.reduce ? 50 : 1300);
+}
+
+// ───────────── tray ─────────────
+function renderTray() {
+  const o = S.orders, c = me();
+  const chips = [];
+  if (o.taxRate !== undefined || o.budget) chips.push(["Budget", "budget"]);
+  for (const p of o.projects || []) chips.push([cardName(p), "p:" + p]);
+  (o.cards || []).forEach((k, i) => chips.push([cardName(k.cardId) + (k.params.target ? " → " + U.SHORT[k.params.target] : k.params.region ? " → " + SC.REGION_DEFS[k.params.region].name : ""), "c:" + i]));
+  for (const p of S.proposals.filter((x) => !x.inbox && !x.counterOf)) chips.push([`Deal → ${U.SHORT[p.to]} · ${p.thinking ? "…" : p.status}`, "d"]);
+  for (const p of S.proposals.filter((x) => (x.inbox || x.counterOf) && x.status === "accepted")) chips.push([`Pact with ${U.SHORT[p.inbox ? p.from : p.to]}`, "d"]);
+  if (o.vote) chips.push([`Vote: ${U.cap(o.vote)}`, "v"]);
+  $("#orders").innerHTML = chips.length ? chips.map(([t, k]) => `<span class="ord ${S.locked ? "facedown" : ""}">${esc(t)}${k !== "d" && !S.locked ? `<button data-rmo="${k}" aria-label="Remove">×</button>` : ""}</span>`).join("") : `<span class="faint" style="font-size:12.5px">Nothing yet. Doing nothing is a valid strategy.</span>`;
+  $("#traySum").textContent = `PC ${pcLeft()}/${c.pc} · ${U.money(moneyCommitted())} committed`;
+  $("#trayYear").textContent = S.world.year;
+  $$("[data-rmo]").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.rmo;
+    if (k === "budget") { delete o.budget; delete o.taxRate; }
+    else if (k === "v") delete o.vote;
+    else if (k.startsWith("p:")) o.projects = (o.projects || []).filter((x) => x !== k.slice(2));
+    else if (k.startsWith("c:")) o.cards.splice(+k.slice(2), 1);
+    U.sound.click();
+    afterChange();
+  }));
+  const lb = $("#lockBtn");
+  if (S.phase === "result") {
+    $("#orders").innerHTML = `<span class="faint" style="font-size:12.5px">Year resolved. Open any “Why?” to see what caused a change.</span>`;
+    lb.classList.remove("waiting");
+    lb.innerHTML = S.world.ended ? "See how the match ended ▸" : `Continue to ${S.world.year} ▸`;
+    return;
+  }
+  lb.classList.toggle("waiting", S.locked);
+  lb.innerHTML = S.locked ? `Waiting for ${bots().filter((s) => !S.botLocks[s]).length || "no"} leaders <span class="typing"><i></i><i></i><i></i></span>` : `Lock turn <span class="kbd" style="color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.3)">L</span>`;
+}
+
+function afterChange() { renderTop(); renderSteps(); renderPane(); renderTray(); scheduleForecast(); refreshMyLayer(); }
+function renderAll() { renderTop(); renderRail(); renderNews(); renderSteps(); renderPane(); renderTray(); }
+
+// ───────────── globe layers ─────────────
+function refreshGlobe() { refreshMyLayer(); applyWorldView(); setupLabels(); }
+function setupLabels() {
+  layers.labels.forEach((l) => l.remove());
+  layers.labels = SEATS.map((s) => {
+    const el = document.createElement("div");
+    el.className = "glabel" + (s === S.me ? " me" : "");
+    el.innerHTML = `${U.flag(s)}${U.SHORT[s]}`;
+    el.addEventListener("click", () => { S.step = "diplomacy"; if (s !== S.me) S.compose = { to: s }; renderSteps(); renderPane(); });
+    return globe.label(el, ...U_PLACE(s));
+  });
+}
+function refreshMyLayer() {
+  if (!globe) return;
+  layers.mine.forEach((x) => x.remove());
+  layers.mine = [];
+  const w = S.world;
+  for (const t of w.treaties.filter((t) => t.a === S.me || t.b === S.me)) {
+    for (const [seller, buyer, terms] of [[t.a, t.b, t.aGives], [t.b, t.a, t.bGives]]) for (const term of terms) if (term.kind === "goods") layers.mine.push(globe.flow(seller, buyer, term.good, { duration: 1 }));
+  }
+  for (const p of me().projects) layers.mine.push(globe.pin(...U_PLACE(S.me), { color: 0xf2b33d, size: 0.06 }));
+  if (S.previewArc) layers.mine.push(S.previewArc);
+}
+function previewCardOnGlobe(id, params) {
+  if (!params.target) return;
+  const kind = id.includes("sanction") || id.includes("embargo") || id.includes("tariff") || id.includes("pressure") ? "sanction" : "flow";
+  const arc = kind === "sanction" ? globe.sanction(S.me, params.target) : globe.flow(params.target, S.me, "energy");
+  setTimeout(() => arc.remove(), 2600);
+}
+function applyWorldView() {
+  if (!globe) return;
+  layers.world.forEach((x) => x.remove());
+  layers.world = [];
+  globe.untint();
+  if (!S.worldView) return;
+  const w = S.world;
+  for (const r of SC.REGIONS) {
+    const reg = w.regions[r];
+    if (reg.leader) globe.tint(r, U.SEAT_HEX[reg.leader], reg.sway[reg.leader] / 100, { spread: false });
+  }
+  for (const t of w.treaties) for (const [s, b, terms] of [[t.a, t.b, t.aGives], [t.b, t.a, t.bGives]]) for (const term of terms) if (term.kind === "goods" && s !== S.me && b !== S.me) layers.world.push(globe.flow(s, b, term.good, { duration: 1 }));
+  for (const a of SEATS) for (const b of SEATS) if (a !== b && w.pairs[a][b].sanction) layers.world.push(globe.sanction(a, b));
+}
+$("#worldBtn").addEventListener("click", toggleWorld);
+function toggleWorld() { S.worldView = !S.worldView; $("#worldBtn").setAttribute("aria-pressed", String(S.worldView)); $("#worldBtn").style.background = S.worldView ? "var(--ink-strong)" : ""; $("#worldBtn").style.color = S.worldView ? "#fff" : ""; applyWorldView(); U.toast(S.worldView ? "World view: influence, treaties and sanctions" : "Your view"); }
+
+// ───────────── lock + reveal ─────────────
+$("#lockBtn").addEventListener("click", () => {
+  if (S.phase === "result") return continueTurn();
+  if (!S.locked) lockTurn(false);
+});
+function continueTurn() {
+  if (S.world.ended) showEnd();
+  else startTurn(false);
+}
+async function lockTurn(auto) {
+  if (S.locked) return;
+  S.locked = true;
+  U.sound.lock();
+  closeDrawer();
+  renderTray(); renderClock();
+  if (auto) U.toast("Time is up: your turn locked");
+  // bots finish one by one
+  for (const s of bots()) {
+    await wait(U.reduce ? 10 : 180 + Math.random() * 380);
+    S.botLocks[s] = true;
+    renderRail(); renderTray();
+  }
+  await wait(250);
+  const prev = S.world;
+  const accepted = S.proposals.filter((p) => p.status === "accepted").map(({ inbox, counterOf, justChanged, thinking, ...p }) => p);
+  const orders = { [S.me]: S.orders };
+  const next = SC.closeTurn(prev, S.plan, orders, accepted);
+  S.prevWorld = prev;
+  S.world = next;
+  await reveal(prev, next);
+}
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+let skipping = false;
+$("#skipBtn").addEventListener("click", () => (skipping = true));
+const beat = (ms) => (skipping || U.reduce ? Promise.resolve() : wait(ms));
+
+async function reveal(prev, next) {
+  const rec = next.history.at(-1);
+  skipping = false;
+  $("#cmd").style.transition = "transform 420ms var(--ease-out),opacity 300ms";
+  $("#cmd").style.transform = "translateX(30px)"; $("#cmd").style.opacity = "0"; $("#cmd").style.pointerEvents = "none";
+  $("#news").style.opacity = "0";
+  $("#reveal").hidden = false; $("#skipBtn").hidden = false;
+  globe.flyTo(30, 60, { duration: 1300, distance: 3.9 });
+  // 1. six moves flip together
+  const moves = $("#moves");
+  moves.innerHTML = SEATS.map((s) => `<div class="mv ${s === S.me ? "me" : ""}"><div class="ph">${U.flag(s)} ${U.SHORT[s]}</div><p>${esc(rec.moves[s] || "Held steady")}</p></div>`).join("");
+  await beat(500);
+  $$(".mv", moves).forEach((el, i) => setTimeout(() => { el.classList.add("show"); U.sound.flip(); }, skipping || U.reduce ? 0 : i * 90));
+  await beat(1600);
+  // 2. flows and sanctions
+  const seen = new Set();
+  const temp = [];
+  for (const g of rec.globe) {
+    const k = `${g.kind}:${g.from}:${g.to}:${g.good || ""}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    if (g.kind === "flow") temp.push(globe.flow(g.from, g.to, g.good));
+    if (g.kind === "sanction") temp.push(globe.sanction(g.from, g.to));
+  }
+  await beat(1800);
+  // 3. world event
+  if (rec.eventId && EVENT_PLACE[rec.eventId]) {
+    const ll = EVENT_PLACE[rec.eventId];
+    globe.flyTo(ll[0], ll[1], { duration: 1100, distance: 3.5 });
+    temp.push(globe.pin(ll[0], ll[1], { color: 0xe5484d, size: 0.12 }));
+    const lab = document.createElement("div");
+    lab.className = "gpin";
+    lab.textContent = SC.EVENT_BY_ID.get(rec.eventId).title;
+    const l = globe.label(lab, ll[0], ll[1] + 4);
+    temp.push(l);
+    await beat(2000);
+  }
+  // 4. market prices
+  const pr = $("#prices");
+  const p0 = prev.price, p1 = next.price;
+  pr.innerHTML = [["Oil", "energy"], ["Food", "food"], ["Chips", "tech"]].map(([n, g]) => `<span>${n} ${p0[g].toFixed(0)} → <b>${p1[g].toFixed(0)}</b> ${p1[g] > p0[g] + 0.5 ? "▲" : p1[g] < p0[g] - 0.5 ? "▼" : ""}</span>`).join("");
+  pr.classList.add("show");
+  await beat(1300);
+  // 5. World Vote
+  if (rec.vote) {
+    const st = $("#stamp");
+    st.textContent = rec.vote.passed ? `Passed ${SEATS.filter((s) => rec.vote.votes[s] === "yes").length}–${SEATS.filter((s) => rec.vote.votes[s] === "no").length}` : "Vote failed";
+    st.style.color = rec.vote.passed ? "var(--ally)" : "var(--conflict)";
+    st.classList.add("show");
+    U.sound.lock();
+    await beat(1400);
+    st.classList.remove("show");
+  }
+  // 6. influence spread
+  const changed = SC.REGIONS.filter((r) => prev.regions[r].leader !== next.regions[r].leader || Math.abs(prev.regions[r].sway[S.me] - next.regions[r].sway[S.me]) > 3);
+  if (changed.length) {
+    for (const r of changed) { const ld = next.regions[r].leader; if (ld) globe.tint(r, U.SEAT_HEX[ld], next.regions[r].sway[ld] / 100); }
+    const tookOver = changed.filter((r) => next.regions[r].leader === S.me && prev.regions[r].leader !== S.me);
+    if (tookOver.length) { U.sound.rank(); U.toast(`You now lead ${tookOver.map((r) => SC.REGION_DEFS[r].name).join(", ")}`); }
+    await beat(1500);
+  }
+  // 7. back to you
+  pr.classList.remove("show");
+  globe.flyTo(...U_PLACE(S.me), { duration: 1200, distance: 3.4 });
+  const mine = rec.completed.filter((x) => x.iso3 === S.me);
+  if (mine.length) {
+    const st = $("#stamp");
+    st.textContent = "Completed";
+    st.style.color = "var(--gold-deep)";
+    st.classList.add("show");
+    U.sound.chime();
+    temp.push(globe.pin(...U_PLACE(S.me), { color: 0xf2b33d, size: 0.16 }));
+    U.toast(mine.map((x) => cardName(x.projectId)).join(", ") + " completed");
+    await beat(1300);
+    st.classList.remove("show");
+  }
+  await beat(500);
+  // done: hide reveal, show result sheet
+  $$(".mv", moves).forEach((el) => el.classList.remove("show"));
+  await beat(300);
+  $("#reveal").hidden = true; $("#skipBtn").hidden = true;
+  temp.forEach((x) => x.remove());
+  if (!S.worldView) globe.untint();
+  applyWorldView();
+  $("#news").style.opacity = "";
+  $("#cmd").style.transform = ""; $("#cmd").style.opacity = ""; $("#cmd").style.pointerEvents = "";
+  S.locked = false;
+  renderTop();
+  renderRail(true);
+  renderNews();
+  refreshMyLayer();
+  showResult(prev, next, rec);
+}
+
+// ───────────── result + why ─────────────
+function showResult(prev, next, rec) {
+  const a = prev.countries[S.me], b = next.countries[S.me];
+  const r0 = SC.ranks(prev)[S.me], r1 = SC.ranks(next)[S.me];
+  const rows = [
+    ["Growth", b.growth, b.growth - a.growth, (v) => v.toFixed(1) + "%", "growth", false, "economy"],
+    ["Unemployment", b.unemployment, b.unemployment - a.unemployment, (v) => v.toFixed(1) + "%", "unemployment", true, "development"],
+    ["Inflation", b.inflation, b.inflation - a.inflation, (v) => v.toFixed(1) + "%", "inflation", true, "stability"],
+    ["Energy supply", b.goods.energy.supplyRatio * 100, (b.goods.energy.supplyRatio - a.goods.energy.supplyRatio) * 100, (v) => Math.min(999, v).toFixed(0) + "%", "energy.supplyRatio", false, "security"],
+    ["Food supply", b.goods.food.supplyRatio * 100, (b.goods.food.supplyRatio - a.goods.food.supplyRatio) * 100, (v) => Math.min(999, v).toFixed(0) + "%", "food.supplyRatio", false, "security"],
+    ["Stability", b.stability, b.stability - a.stability, (v) => v.toFixed(0), "stability", false, "stability"],
+    ["Treasury", b.treasury, b.treasury - a.treasury, U.money, "treasury", false, null],
+    ["Influence", b.influence, b.influence - a.influence, (v) => v.toFixed(0), "influence", false, "diplomacy"],
+  ];
+  const pane = $("#pane");
+  const dropped = rec.dropped.filter((d) => d.iso3 === S.me);
+  const f = S.forecastNext?.countries?.[S.me];
+  let fva = "";
+  if (f) {
+    const fe = (f.goods.energy.supplyRatio - a.goods.energy.supplyRatio) * 100, ae = (b.goods.energy.supplyRatio - a.goods.energy.supplyRatio) * 100;
+    const fg = f.growth - a.growth, ag = b.growth - a.growth;
+    if (Math.abs(fg - ag) > 0.3) fva = `Forecast: growth ${U.signed(fg, 1)}. Actual: ${U.signed(ag, 1)} — ${Math.abs(fg - ag) > 0.3 ? "other leaders and the world moved too." : ""}`;
+    else if (Math.abs(fe - ae) > 2) fva = `Forecast: energy supply ${U.signed(fe, 0)} pts. Actual: ${U.signed(ae, 0)} pts.`;
+  }
+  pane.innerHTML = `<div class="result"><div class="eyebrow">${rec.year} · Your year</div><h2 style="margin-top:6px">${r1 < r0 ? `You climbed to #${r1}` : r1 > r0 ? `You slipped to #${r1}` : `You hold #${r1}`} <span class="delta ${r1 < r0 ? "up" : r1 > r0 ? "down" : "flat"}" style="font-size:15px">${r1 !== r0 ? (r1 < r0 ? "▲" : "▼") + Math.abs(r0 - r1) : ""}</span></h2>
+    <div class="sec" id="rrows">${rows.map(([n, v, d, fmt, field, inv, dim], i) => `<div class="rrow" data-i="${i}"><div class="l">${n}${dim ? `<span class="trend ${SC.trend(next, S.me, dim)}">${SC.trend(next, S.me, dim)}</span>` : ""}</div><div class="v tab" data-v="${i}">${fmt(v)}</div><div style="display:flex;gap:6px;align-items:center">${n === "Treasury" ? U.deltaHtml(d, { d: 0 }) : U.deltaHtml(d, { d: n === "Stability" || n === "Influence" || n.includes("supply") ? 0 : 1, invert: inv })}<button class="whybtn" data-why="${field}" data-i="${i}">Why?</button></div></div>`).join("")}</div>
+    ${dropped.length ? `<div class="warn">${WARN_ICON}<div><b>Orders that could not run</b><div class="muted" style="font-size:13px">${dropped.map((d) => esc(d.reason)).join("<br>")}</div></div></div>` : ""}
+    ${fva ? `<div class="fva">${esc(fva)}</div>` : ""}
+    <div class="sec" style="display:flex;gap:8px"><button class="btn btn-primary" id="contBtn" style="flex:1">${next.ended ? "See how the match ended" : `${next.year} begins ▸`}</button></div></div>`;
+  $$("#rrows .rrow").forEach((row, i) => {
+    const el = $(`[data-v="${i}"]`, row);
+    const [, v, d, fmt] = rows[i];
+    U.countUp(el, v, { from: v - d, duration: 700 + i * 80, format: fmt });
+    if (!U.reduce) row.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 360, delay: i * 80, fill: "backwards", easing: "cubic-bezier(.22,1,.36,1)" });
+  });
+  $$(".whybtn").forEach((b) => b.addEventListener("click", () => toggleWhy(b, rec)));
+  $("#contBtn").addEventListener("click", continueTurn);
+  S.phase = "result";
+  renderTray();
+  $$("#steps button").forEach((b) => b.classList.remove("on"));
+  if (r1 < r0) U.sound.rank();
+}
+
+function toggleWhy(btn, rec) {
+  const row = btn.closest(".rrow");
+  const open = row.querySelector(".why");
+  if (open) { open.remove(); btn.textContent = "Why?"; return; }
+  btn.textContent = "Close";
+  const field = `${S.me}.${btn.dataset.why}`;
+  const causes = rec.causes;
+  let top = causes.filter((c) => c.field === field && Math.abs(c.delta) >= 0.05).sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta));
+  if (btn.dataset.why.endsWith("supplyRatio")) {
+    const g = btn.dataset.why.split(".")[0];
+    top = causes.filter((c) => c.field === `${S.me}.${g}.supply` && Math.abs(c.delta) >= 0.05).sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta));
+  }
+  const main = top.slice(0, 3);
+  const rest = top.slice(3);
+  const nameOf = (c) => U.causeText(c, (id) => cardName(id));
+  let html = "";
+  if (!main.length) html = `<div class="wnode" style="animation-delay:0ms">Nothing big changed this one — it moved with the economy.<small></small></div>`;
+  main.forEach((c, k) => {
+    const chain = SC.whyChain(causes, c.id).filter((x) => x.label !== "budget" || x === c);
+    const nodes = chain.length > 1 ? chain : [c];
+    html += nodes.map((n, j) => `${j ? `<span class="wlink" style="animation-delay:${(k * 3 + j) * 120}ms"></span>` : k ? `<div style="height:10px"></div>` : ""}<div class="wnode ${j === 0 && nodes.length > 1 ? "root" : ""}" style="animation-delay:${(k * 3 + j) * 120}ms"><span>${esc(nameOf(n))}${n.actor && n.actor !== S.me && SEATS.includes(n.actor) ? ` <small>· ${U.SHORT[n.actor]}'s move</small>` : n.actor === "event" ? ` <small>· world event</small>` : ""}</span><small class="tab">${fmtDelta(n)}</small></div>`).join("");
+  });
+  if (rest.length) html += `<div class="also">Also: ${rest.slice(0, 4).map((c) => esc(nameOf(c))).join(" · ")}</div>`;
+  const learn = { growth: "Okun's law", unemployment: "Okun's law", inflation: "Inflation", "energy.supplyRatio": "Energy security", "food.supplyRatio": "Food security", stability: "Political stability", treasury: "Fiscal balance", influence: "Soft power" }[btn.dataset.why];
+  if (learn) html += `<div class="also">Learn: <span class="term" title="Opens the glossary in the full game">${learn}</span></div>`;
+  const div = document.createElement("div");
+  div.className = "why";
+  div.innerHTML = html;
+  row.appendChild(div);
+}
+function fmtDelta(c) {
+  const f = c.field.split(".").slice(1).join(".");
+  if (f === "treasury" || f === "debt") return (c.delta > 0 ? "+" : "−") + U.money(Math.abs(c.delta));
+  if (f.endsWith("supply") || f.endsWith("supplyRatio")) return (c.delta > 0 ? "+" : "") + c.delta.toFixed(1) + " pts";
+  if (["move", "treaty", "project", "crisis", "event", "budget"].includes(f)) return "";
+  return (c.delta > 0 ? "+" : "") + c.delta.toFixed(2);
+}
+
+// ───────────── end of match ─────────────
+function showEnd() {
+  const w = S.world;
+  const st = SC.standings(w);
+  const winner = st[0].iso3;
+  const mine = SC.leaderScore(w, S.me);
+  const r0 = SC.ranks(w, 0)[S.me], r1 = SC.ranks(w)[S.me];
+  const led = SC.REGIONS.filter((r) => w.regions[r].leader === S.me).map((r) => SC.REGION_DEFS[r].name);
+  const dims = SC.DIMENSIONS.map((d) => [d, w.dims[S.me].at(-1)[d] - w.dims[S.me][0][d]]).sort((a, b) => b[1] - a[1]);
+  const ach = achievement(w, dims, led);
+  const parts = [["Improvement", mine.improvement, "#3F63D8"], ["Mission", mine.mission, "#F2B33D"], ["Rank vs. par", mine.rankClimb, "#2FA36B"], ["Objectives", mine.objectives, "#7A4FD0"], ["Difficulty", mine.difficulty, "#5E6B70"]];
+  const pos = parts.filter((p) => p[1] > 0);
+  const tot = pos.reduce((t, p) => t + p[1], 0) || 1;
+  const hist = w.history.map((h) => ({ y: h.year, head: (h.news.find((n) => n.iso3 === S.me) || h.news[0] || { headline: "A quiet year" }).headline, move: h.moves[S.me] }));
+  $("#endBox").innerHTML = `<div class="eyebrow">${SC.SCENARIOS[w.scenario].name} · ${w.history[0].year}–${w.history.at(-1).year}</div>
+    <h2 class="hero-yr" style="margin-top:8px">${winner === S.me ? "You won." : `${U.SHORT[winner]} wins.`}</h2>
+    <p class="lead muted" style="margin-top:8px">${winner === S.me ? "Your country improved the most against the par line." : `You finished #${st.findIndex((x) => x.iso3 === S.me) + 1} with ${mine.total} points.`} Power rank #${r0} → #${r1}.</p>
+    <div class="twocol"><div>
+      <div class="eyebrow">Leader Score</div>
+      <div class="podium">${st.map((x, i) => `<div class="prow ${i === 0 ? "win" : ""}"><span style="font-weight:800;display:grid;place-items:center">${i === 0 ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="#F2B33D" stroke="#B9821A" stroke-width="1.2" aria-label="Winner"><path d="M3 18h18l-1.5-10-5 4L12 5l-2.5 7-5-4z"/></svg>' : i + 1}</span>${U.portrait(SEATS.indexOf(x.iso3), U.SEAT[x.iso3], 34)}<div><b>${U.flag(x.iso3)} ${U.SHORT[x.iso3]}</b>${x.iso3 === S.me ? ` <span class="chip" style="height:20px">You</span>` : ""}<div class="faint" style="font-size:12px">Power #${x.rank}</div></div><span></span><span class="sc tab" data-score="${x.score}">0</span></div>`).join("")}</div>
+      <div class="sec"><div class="eyebrow">Your ${mine.total} points</div><div class="breakdown">${pos.map((p) => `<i style="flex-grow:${p[1]};background:${p[2]}" title="${p[0]} ${p[1].toFixed(0)}"></i>`).join("")}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:12px;font-weight:700">${parts.map((p) => `<span><i class="dot" style="display:inline-block;color:${p[2]}"></i> ${p[0]} ${p[1] >= 0 ? "+" : ""}${p[1].toFixed(0)}</span>`).join("")}<span class="faint">Base 500</span></div></div>
+      <div class="sec"><div class="eyebrow">Your World History</div><div class="paper" style="padding:6px 16px;margin-top:8px"><div class="timeline">${hist.map((h) => `<div class="tl"><span class="y">${h.y}</span><div><p>${esc(h.head)}</p><small>Your move: ${esc(h.move || "Held steady")}</small></div></div>`).join("")}</div></div></div>
+    </div><div>
+      <div class="eyebrow">Share card</div>
+      <div class="share" style="margin-top:8px" id="shareCard"><div class="eyebrow" style="color:var(--wire)">My Statecraft</div>
+        <div style="display:flex;align-items:center;gap:12px">${U.portrait(S.portrait, U.SEAT[S.me], 52)}<div><div class="big">${U.flag(S.me, "lg")} ${U.SHORT[S.me]}</div><div class="faint" style="font-weight:700">${esc(S.leader)} · ${w.history[0].year}–${w.history.at(-1).year}</div></div></div>
+        <div class="stats"><div><b>#${r0} → #${r1}</b><small>Power rank</small></div><div><b>${mine.total}</b><small>Leader Score${winner === S.me ? " · Winner" : ""}</small></div><div><b>${led.length}</b><small>Regions led</small></div></div>
+        <p style="font-family:var(--font-display);font-style:italic;font-size:18px;color:#3d2f18">“${esc(ach)}”</p>
+        <small class="faint">statecraft · simulated match · ${esc(SC.SCENARIOS[w.scenario].name)}</small></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn btn-primary" id="copyBtn">Copy result</button><button class="btn btn-gold" id="rematchBtn">Rematch</button><button class="btn btn-glass" id="newBtn">New match</button><a class="btn btn-ghost" href="index.html">Play page</a></div>
+      <div class="sec"><div class="eyebrow">You met these ideas</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${["Okun's law", "Sanctions leakage", "Terms of trade", "Energy security", "Sphere of influence"].map((t) => `<span class="chip">${t}</span>`).join("")}</div></div>
+    </div></div>`;
+  $("#endOv").classList.add("open");
+  $$("#endBox [data-score]").forEach((el, i) => setTimeout(() => U.countUp(el, +el.dataset.score, { duration: 1100 }), 400 + (st.length - i) * 220));
+  if (winner === S.me) setTimeout(confetti, 400 + st.length * 220 + 600);
+  $("#copyBtn").addEventListener("click", () => {
+    const text = `My Statecraft: ${U.SHORT[S.me]} ${w.history[0].year}–${w.history.at(-1).year}. Power rank #${r0} → #${r1}. Leader Score ${mine.total}${winner === S.me ? " (winner)" : ""}. "${ach}"`;
+    navigator.clipboard?.writeText(text).then(() => U.toast("Copied"), () => U.toast(text));
+  });
+  $("#rematchBtn").addEventListener("click", () => { $("#endOv").classList.remove("open"); newMatch(S.me, w.scenario, S.difficulty, Math.floor(Math.random() * 1e9)); });
+  $("#newBtn").addEventListener("click", () => { $("#endOv").classList.remove("open"); showStart(); });
+}
+function achievement(w, dims, led) {
+  const c = w.countries[S.me];
+  if (led.length >= 2) return `Led ${led.slice(0, 2).join(" and ")}.`;
+  const best = dims[0][0];
+  if (best === "security" && c.completed.some((x) => ["nuclear", "solar", "refinery"].includes(x))) return "Built an energy shield for a generation.";
+  if (best === "development") return `Cut unemployment to ${c.unemployment.toFixed(1)}% and raised skills to ${c.skills.toFixed(0)}.`;
+  if (best === "diplomacy") return `Kept ${w.treaties.filter((t) => t.a === S.me || t.b === S.me).length} pacts alive and built trust.`;
+  if (best === "economy") return `Grew the economy to ${U.money(c.gdp)}.`;
+  return "Held the country steady through a turbulent decade.";
+}
+function confetti() {
+  if (U.reduce) return;
+  const cv = $("#confetti"); cv.hidden = false;
+  const g = cv.getContext("2d");
+  cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio;
+  const cols = ["#F2B33D", "#E57A3A", "#3F63D8", "#2FA36B", "#7A4FD0", "#D14D72"];
+  const ps = Array.from({ length: 160 }, () => ({ x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * 0.4, vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 4, r: Math.random() * 6.28, s: (4 + Math.random() * 6) * devicePixelRatio, c: cols[(Math.random() * cols.length) | 0] }));
+  const t0 = performance.now();
+  (function f(t) {
+    g.clearRect(0, 0, cv.width, cv.height);
+    for (const p of ps) { p.x += p.vx; p.y += p.vy * devicePixelRatio; p.r += 0.1; g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); }
+    if (t - t0 < 3200) requestAnimationFrame(f); else cv.hidden = true;
+  })(t0);
+}
+
+// ───────────── start overlay ─────────────
+const DIFF = { IND: "Medium", CHN: "Medium", USA: "Medium", RUS: "Hard", SAU: "Medium", JPN: "Hard" };
+const STRONG = { IND: "Growth, young workforce, food", CHN: "Industry, tech, reserves", USA: "Tech, energy, money", RUS: "Energy, food, military", SAU: "Oil, cash reserves", JPN: "Tech, money, skills" };
+const WEAK = { IND: "Oil imports, jobs", CHN: "Energy imports, ageing", USA: "Debt, stability", RUS: "Sanctions, tech imports", SAU: "Food, jobs beyond oil", JPN: "Energy imports, ageing, debt" };
+let pick = { me: "IND", scenario: "energyShock", difficulty: "normal", leader: "", portrait: 0 };
+function showStart() {
+  const box = $("#startBox");
+  const scen = Object.values(SC.SCENARIOS);
+  box.innerHTML = `<div class="eyebrow">Statecraft · Solo match vs 5 bots · ~20 minutes</div><h2 class="hero-yr" style="margin-top:10px">Who will you lead?</h2>
+    <div class="pickgrid">${SEATS.map((s) => `<button class="pick ${pick.me === s ? "on" : ""}" data-pick="${s}"><div class="ph">${U.flag(s, "lg")}<b>${U.NAMES[s]}</b><span class="diff" style="margin-left:auto">${DIFF[s]}</span></div><small><b style="font-size:12.5px">Strong:</b> ${STRONG[s]}<br><b style="font-size:12.5px">Weak:</b> ${WEAK[s]}</small><small style="color:var(--ink)"><b style="font-size:12.5px">Mission:</b> ${esc(SC.MISSIONS[s].text)}</small></button>`).join("")}</div>
+    <div class="opts-row"><span class="eyebrow">Scenario</span>${scen.map((x) => `<button class="chip ${pick.scenario === x.id ? "on" : ""}" data-scen="${x.id}">${x.name}</button>`).join("")}</div>
+    <div class="opts-row"><span class="eyebrow">Bots</span>${["easy", "normal", "hard"].map((d) => `<button class="chip ${pick.difficulty === d ? "on" : ""}" data-diff="${d}">${U.cap(d)}</button>`).join("")}</div>
+    <div class="opts-row"><span class="eyebrow">Leader</span><input id="leaderName" maxlength="20" placeholder="${esc(U.LEADERS[pick.me])}" value="${esc(pick.leader)}" style="height:38px;border-radius:999px;border:1px solid var(--line-2);padding:0 14px;background:#fff;width:200px" aria-label="Leader name"><div style="display:flex;gap:6px">${[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<button data-por="${i}" aria-label="Portrait ${i + 1}" style="border-radius:50%;${pick.portrait === i ? "outline:2px solid var(--gold);outline-offset:2px" : ""}">${U.portrait(i, U.SEAT[pick.me], 30)}</button>`).join("")}</div></div>
+    <div class="opts-row" style="margin-top:22px"><button class="btn btn-primary" id="beginBtn" style="min-width:220px">Take office ▸</button><a class="btn btn-ghost" href="index.html">Back to the Play page</a><span class="faint" style="font-size:12.5px">Every number comes from the real game engine.</span></div>`;
+  $("#startOv").classList.add("open");
+  $$("[data-pick]", box).forEach((b) => b.addEventListener("click", () => { pick.me = b.dataset.pick; U.sound.click(); showStart(); globe.flyTo(...U_PLACE(pick.me), { duration: 1000 }); }));
+  $$("[data-scen]", box).forEach((b) => b.addEventListener("click", () => { pick.scenario = b.dataset.scen; showStart(); }));
+  $$("[data-diff]", box).forEach((b) => b.addEventListener("click", () => { pick.difficulty = b.dataset.diff; showStart(); }));
+  $$("[data-por]", box).forEach((b) => b.addEventListener("click", () => { pick.portrait = +b.dataset.por; pick.leader = $("#leaderName").value; showStart(); }));
+  $("#leaderName", box).addEventListener("input", (e) => (pick.leader = e.target.value));
+  $("#beginBtn", box).addEventListener("click", begin);
+}
+function begin() {
+  $("#startOv").classList.remove("open");
+  newMatch(pick.me, pick.scenario, pick.difficulty, Math.floor(Math.random() * 1e9));
+  S.leader = (pick.leader || U.LEADERS[pick.me]).trim().slice(0, 20);
+  S.portrait = pick.portrait;
+  renderTop();
+  globe.flyTo(...U_PLACE(S.me), { duration: 1500, distance: 3.4 });
+  U.sound.chime();
+  U.toast(`${SC.SCENARIOS[S.world.scenario].name}: you lead ${U.NAMES[S.me]}`);
+}
+
+// ───────────── keyboard + misc ─────────────
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input,select,textarea") || $("#startOv").classList.contains("open") || $("#endOv").classList.contains("open")) return;
+  if (e.key === "Escape") closeDrawer();
+  if (!S || S.locked) return;
+  if (S.phase === "result") { if (e.key === "Enter" || e.key === "l" || e.key === "L") continueTurn(); return; }
+  const n = "12345".indexOf(e.key);
+  if (n >= 0) { S.step = STEPS[n][0]; renderSteps(); renderPane(); }
+  if (e.key === "a" || e.key === "A") openAll();
+  if (e.key === "v" || e.key === "V") toggleWorld();
+  if (e.key === "l" || e.key === "L") lockTurn(false);
+});
+$("#soundBtn").addEventListener("click", () => { U.sound.muted = !U.sound.muted; $("#soundWave").style.opacity = U.sound.muted ? "0" : "1"; U.toast(U.sound.muted ? "Sound off" : "Sound on"); });
+$("#soundWave").style.opacity = U.sound.muted ? "0" : "1";
+$("#pauseBtn").addEventListener("click", () => { if (!S) return; S.paused = !S.paused; renderClock(); U.toast(S.paused ? "Timer paused" : "Timer running"); });
+$("#tableBtn").addEventListener("click", openWorldTable);
+$("#mWorld").addEventListener("click", () => $("#rail").classList.toggle("sheet-open"));
+function openWorldTable() {
+  const w = S.world;
+  const pairs = [];
+  for (const a of SEATS) for (const b of SEATS) { if (a === b) continue; const p = w.pairs[a][b]; if (p.sanction) pairs.push(`<div class="building"><b>${U.flag(a)} ${U.SHORT[a]} sanctions ${U.flag(b)} ${U.SHORT[b]}</b></div>`); if (p.tariff) pairs.push(`<div class="building"><b>${U.flag(a)} ${U.SHORT[a]}: ${p.tariff}% tariff on ${U.SHORT[b]}</b></div>`); }
+  $("#drawerTitle").textContent = "World Table";
+  $("#drawerBody").innerHTML = `<div><div class="eyebrow" style="margin-bottom:8px">Treaties (${w.treaties.length})</div><div style="display:grid;gap:8px">${w.treaties.map((t) => `<div class="building"><b>${U.flag(t.a)} ${U.SHORT[t.a]} ⇄ ${U.flag(t.b)} ${U.SHORT[t.b]}</b><small class="muted">${t.aGives.map(SC.termText).join(", ") || "—"} ⇄ ${t.bGives.map(SC.termText).join(", ") || "—"} · ${t.turnsLeft} yr left</small></div>`).join("") || `<p class="faint">None yet.</p>`}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Sanctions and tariffs</div><div style="display:grid;gap:8px">${pairs.join("") || `<p class="faint">None.</p>`}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Partner regions</div><div style="display:grid;gap:8px">${SC.REGIONS.map((r) => { const reg = w.regions[r]; const top = [...SEATS].sort((a, b) => reg.sway[b] - reg.sway[a]).slice(0, 3); return `<div class="building"><b>${SC.REGION_DEFS[r].name} ${reg.leader ? `· led by ${U.flag(reg.leader)} ${U.SHORT[reg.leader]}` : "· no leader"}</b><div class="stack">${top.map((s) => `<i style="flex-grow:${reg.sway[s]};background:${U.SEAT[s]}"></i>`).join("")}<i style="flex-grow:${Math.max(0, 100 - top.reduce((t, s) => t + reg.sway[s], 0))};background:var(--paper-2)"></i></div><small class="muted">${top.map((s) => `${U.SHORT[s]} ${reg.sway[s].toFixed(0)}`).join(" · ")}</small></div>`; }).join("")}</div></div>`;
+  openDrawer();
+}
+
+// ───────────── boot ─────────────
+globe = new SCGlobe($("#globe"), { idle: true });
+globe.setView(24, 70, 0);
+if (location.hash === "#end") {
+  // demo: let a bot play every seat, then show the end screen
+  newMatch("IND", "energyShock", "normal", 20261011);
+  let w = S.world;
+  while (!w.ended) w = SC.closeTurn(w, SC.planBots(w, [...SEATS], "normal"), {}, []);
+  S.world = w;
+  renderAll();
+  showEnd();
+} else {
+  const fromHash = location.hash.slice(1).toUpperCase();
+  if (SEATS.includes(fromHash)) pick.me = fromHash;
+  newMatch(pick.me, pick.scenario, pick.difficulty, 1);
+  showStart();
+}
+})();
+</script>
+</body>
+</html>

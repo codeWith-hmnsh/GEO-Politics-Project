@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Statecraft Play Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/sc.css">
+<style>
+/* Play page: one long scroll. The globe is sticky on the right through the hero and the "How a year works" story,
+   then the page opens into countries, the Why chain, the ranking and real sample histories (UI-DESIGN §5.2). */
+html{scroll-behavior:smooth}
+body{background:linear-gradient(180deg,#F7F5F0 0,#F3F1EC 40%,#EFECE5 100%)}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px}
+.journey{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:24px;max-width:1240px;margin:0 auto;padding-inline:20px}
+.stage{position:sticky;top:64px;height:calc(100vh - 64px);min-height:560px}
+#g{position:absolute;inset:0}
+#g canvas{opacity:0;transition:opacity 900ms var(--ease-out)}
+#g.globe-ready canvas{opacity:1}
+.hero{min-height:calc(100vh - 64px);display:flex;flex-direction:column;justify-content:center;gap:22px;padding-block:40px}
+.hero h1{font-family:var(--font-display);font-weight:600;font-size:clamp(48px,7.4vw,96px);line-height:.95;letter-spacing:-.035em}
+.hero h1 em{font-style:italic;font-weight:500;color:var(--ink-2)}
+.hero .sub{font-size:19px;color:var(--ink-2);max-width:30ch}
+.cta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.join{display:flex;align-items:center;height:44px;border-radius:999px;border:1px solid var(--line-2);background:var(--glass);padding:0 4px 0 16px;gap:6px}
+.join input{border:0;background:transparent;width:96px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:14px;outline:none}
+.join input::placeholder{letter-spacing:.08em;font-weight:600;color:var(--ink-3)}
+.meta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:13.5px;color:var(--ink-2);font-weight:600}
+.meta .sep{width:4px;height:4px;border-radius:50%;background:var(--ink-3);opacity:.5}
+.demo-note{font-size:11.5px;color:var(--ink-3)}
+
+.story{padding-bottom:12vh}
+.step{min-height:78vh;display:flex;flex-direction:column;justify-content:center;gap:14px;padding-block:6vh;opacity:.38;transition:opacity 500ms}
+.step.on{opacity:1}
+.step .k{display:flex;align-items:center;gap:12px}
+.step .k b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--ink-strong);color:#fff;font-size:14px}
+.step h3{font-family:var(--font-display);font-size:clamp(30px,3.4vw,44px);font-weight:600;letter-spacing:-.02em;line-height:1.05}
+.step p{font-size:17px;color:var(--ink-2);max-width:42ch;line-height:1.55}
+.step ul{margin:0;padding-left:18px;color:var(--ink-2);display:grid;gap:4px}
+.story-head{padding-top:6vh}
+.story-head h2{font-family:var(--font-display);font-size:clamp(34px,4vw,54px);font-weight:600;letter-spacing:-.02em}
+
+.overlay-card{position:absolute;z-index:3;transition:opacity 450ms var(--ease-out),transform 450ms var(--ease-out)}
+.overlay-card.off{opacity:0;transform:translateY(10px);pointer-events:none}
+.oc-brief{left:6%;top:12%;width:290px;padding:14px 16px}
+.oc-brief p{font-family:var(--font-display);font-style:italic;font-size:17px;color:#3d2f18;line-height:1.3}
+.oc-budget{right:5%;bottom:10%;width:300px;padding:14px 16px}
+.mini{display:grid;grid-template-columns:96px 1fr 50px;gap:8px;align-items:center;font-size:12.5px;font-weight:700;padding:3px 0}
+.mini .tr{height:6px;border-radius:999px;background:var(--paper-3);position:relative;overflow:hidden}
+.mini .tr i{position:absolute;inset:0 auto 0 0;background:var(--ink-strong);border-radius:999px;transition:width 900ms var(--ease-out)}
+.mini .tr i.gold{background:var(--gold)}
+.oc-build{left:8%;bottom:14%;width:270px;padding:14px 16px}
+.oc-build .stamp{color:var(--gold-deep);font-size:13px;margin-top:8px}
+.oc-deal{right:4%;top:14%;width:300px;padding:14px 16px}
+.oc-rank{left:5%;bottom:10%;width:280px;padding:12px 14px}
+.oc-rank .r{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:center;padding:5px 6px;border-radius:9px;font-size:13px;font-weight:700}
+.oc-rank .r.me{background:rgba(242,179,61,.22)}
+
+section.band{padding-block:96px}
+.band h2{font-family:var(--font-display);font-size:clamp(34px,4.2vw,56px);font-weight:600;letter-spacing:-.025em;line-height:1.02}
+.band .intro{font-size:17px;color:var(--ink-2);max-width:56ch;margin-top:12px}
+.countries{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:36px;perspective:1100px}
+.ccard{position:relative;display:grid;gap:12px;padding:20px;border-radius:20px;background:var(--white);border:1px solid var(--line);box-shadow:var(--shadow-sm);text-decoration:none;transform-style:preserve-3d;transition:transform 300ms var(--ease-out),box-shadow 300ms;overflow:hidden}
+.ccard:hover{box-shadow:var(--shadow)}
+.ccard::after{content:"";position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.65),transparent 45%);pointer-events:none;mix-blend-mode:soft-light}
+.ccard .top{display:flex;align-items:center;gap:12px}
+.ccard .top b{font-size:20px;font-weight:800}
+.ccard .stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ccard .stat div{background:var(--paper);border-radius:10px;padding:8px 10px}
+.ccard .stat b{display:block;font-size:16px}
+.ccard .stat small{font-size:11px;color:var(--ink-3);font-weight:700}
+.ccard .mission{font-size:13.5px;font-weight:700;padding:10px 12px;border-radius:12px;border:1px dashed var(--line-2)}
+.ccard .lead{font-weight:800;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
+.ccard .bar{position:absolute;inset:0 0 auto 0;height:4px;background:var(--seat)}
+
+.whydemo{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:40px;align-items:center;margin-top:36px}
+.chain{display:grid;gap:0;max-width:440px}
+.node{border:1px solid var(--line-2);border-radius:14px;background:var(--white);padding:12px 14px;display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:14px;box-shadow:var(--shadow-sm)}
+.node.root{background:var(--ink-strong);color:#fff;border-color:var(--ink-strong)}
+.node small{font-weight:600;color:var(--ink-3)}
+.node.root small{color:rgba(255,255,255,.7)}
+.link{width:2px;height:24px;margin-left:26px;background:var(--ink-3);position:relative;overflow:hidden}
+.link::after{content:"";position:absolute;left:0;right:0;top:-40%;height:40%;background:linear-gradient(transparent,var(--gold),transparent);animation:beam 1.6s infinite}
+@keyframes beam{to{top:100%}}
+.chain-note{font-size:13px;color:var(--ink-3);margin-top:12px}
+
+.rankdemo{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:40px;align-items:center;margin-top:36px}
+.board{padding:18px;border-radius:20px}
+.board .yr{font-family:var(--font-display);font-size:44px;font-weight:600;letter-spacing:-.02em}
+.board .rws{display:grid;gap:6px;margin-top:10px}
+.board .rw{display:grid;grid-template-columns:22px 34px 1fr 64px;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--white);border:1px solid var(--line)}
+.board .rw.me{border-color:var(--gold);background:linear-gradient(90deg,rgba(242,179,61,.18),#fff)}
+.board .rw b{font-size:14px}
+.board .rw .pw{font-weight:800;text-align:right}
+.board .bars{height:6px;border-radius:999px;background:var(--paper-3);overflow:hidden;margin-top:4px}
+.board .bars i{display:block;height:100%;transition:width 600ms var(--ease-out)}
+
+.marquee{overflow:hidden;margin-top:36px;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.mtrack{display:flex;gap:16px;width:max-content;animation:scroll 60s linear infinite}
+.marquee:hover .mtrack{animation-play-state:paused}
+@keyframes scroll{to{transform:translateX(-50%)}}
+.scard{width:300px;padding:18px;border-radius:16px;background:var(--wire-paper);border:1px solid rgba(122,92,46,.22);display:grid;gap:8px;box-shadow:var(--shadow-sm)}
+.scard .big{font-family:var(--font-display);font-size:24px;font-weight:600}
+.scard p{font-family:var(--font-display);font-style:italic;color:#3d2f18;font-size:15px}
+.scard small{font-size:12px;color:var(--ink-3);font-weight:700}
+
+.learn{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:36px}
+.ltile{padding:20px;border-radius:18px;background:var(--white);border:1px solid var(--line);display:grid;gap:10px}
+.ltile h4{font-family:var(--font-display);font-size:22px;font-weight:600}
+.ltile p{color:var(--ink-2);font-size:14.5px}
+.ltile .ex{font-size:13px;font-weight:700;padding:10px 12px;border-radius:12px;background:var(--paper)}
+
+.faq{margin-top:28px;display:grid;gap:10px;max-width:760px}
+.faq details{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.faq summary{cursor:pointer;font-weight:800;list-style:none;display:flex;justify-content:space-between;gap:10px}
+.faq summary::after{content:"+";font-weight:800;color:var(--ink-3)}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin-top:8px;color:var(--ink-2)}
+.final{text-align:center;padding-block:110px;display:grid;justify-items:center;gap:20px}
+.final h2{font-family:var(--font-display);font-size:clamp(40px,5.6vw,76px);font-weight:600;letter-spacing:-.03em;line-height:1}
+footer{border-top:1px solid var(--line);padding-block:28px;font-size:13px;color:var(--ink-3)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between}
+
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:20px;background:rgba(243,241,236,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.modal .box{width:min(460px,100%);padding:26px;display:grid;gap:16px}
+.modal h3{font-family:var(--font-display);font-size:28px;font-weight:600}
+.seats{display:flex;gap:8px}
+.seats i{flex:1;height:10px;border-radius:999px;background:var(--paper-3);transition:background 300ms}
+.seats i.on{background:var(--ink-strong)}
+.seats i.bot{background:var(--gold)}
+.code{font-size:34px;font-weight:800;letter-spacing:.3em;text-align:center;padding:14px;border-radius:14px;background:var(--paper);border:1px dashed var(--line-2)}
+
+@media (max-width:900px){
+  .journey{grid-template-columns:1fr;gap:0}
+  .stage{order:-1;top:56px;height:44vh;min-height:300px;z-index:1;margin-inline:-20px}
+  .stage::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:40px;background:linear-gradient(transparent,var(--paper));pointer-events:none}
+  .hero{min-height:auto;padding-top:8px;position:relative;z-index:2}
+  .story,.story-head{position:relative;z-index:2}
+  .step{min-height:60vh;background:linear-gradient(transparent,var(--paper) 18%);padding-inline:4px}
+  .overlay-card{transform:scale(.82);transform-origin:center}
+  .oc-brief,.oc-deal{left:4%;right:auto;top:6%;width:240px}
+  .oc-budget,.oc-build,.oc-rank{left:auto;right:4%;bottom:8%;width:240px}
+  .countries,.learn{grid-template-columns:1fr}
+  .whydemo,.rankdemo{grid-template-columns:1fr}
+  section.band{padding-block:64px}
+}
+</style>
+</head>
+<body>
+<header class="site-head"><div class="in">
+  <a class="brand" href="#top" aria-label="GeoPolitics home"><span class="brand-mark"><i></i></span><span><b>GeoPolitics</b><small>The world, explained</small></span></a>
+  <nav class="nav" aria-label="Main"><a href="#">Home</a><a href="#">Daily Brief</a><a href="#">Stories</a><a href="#" class="on">Play <span class="dot"></span></a></nav>
+  <div class="head-right"><a class="btn btn-primary btn-sm" href="match.html">Start</a></div>
+</div></header>
+
+<div class="journey" id="top">
+  <div>
+    <section class="hero">
+      <div class="eyebrow">Statecraft · Multiplayer geopolitics</div>
+      <h1>Run a country.<br><em>Shape the world.</em></h1>
+      <p class="sub">Six leaders. Twelve years. One shared world that answers back.</p>
+      <div class="cta">
+        <button class="btn btn-primary" id="startBtn" style="min-width:150px">▶ Start</button>
+        <button class="btn btn-glass" id="roomBtn">Create room</button>
+        <form class="join" id="joinForm"><input id="joinCode" maxlength="5" placeholder="Code" aria-label="Room code" autocomplete="off"><button class="btn btn-sm btn-primary" type="submit">Join</button></form>
+      </div>
+      <div class="meta"><span class="live"><span class="dot"></span> <span id="online">214</span> leaders in office</span><span class="sep"></span><span>~22 minutes a match</span><span class="sep"></span><span>Free · no download</span></div>
+      <p class="demo-note">Prototype: online numbers are examples. The match and every number below come from the real game engine.</p>
+    </section>
+
+    <div class="story-head"><div class="eyebrow">How a year works</div><h2>One turn is one year.</h2></div>
+    <div class="story" id="story">
+      <article class="step on" data-step="0"><div class="k"><b>1</b><span class="eyebrow">Briefing</span></div><h3>The world hands you a problem.</h3><p>A tanker is attacked in the Strait of Hormuz. Oil is up 18%. Your advisors disagree, and you have about 90 seconds.</p></article>
+      <article class="step" data-step="1"><div class="k"><b>2</b><span class="eyebrow">Budget</span></div><h3>Decide where the money goes.</h3><p>Revenue comes from your GDP. Move money between seven ministries. Education pays off in three years; welfare calms people now. Last year's budget carries over.</p></article>
+      <article class="step" data-step="2"><div class="k"><b>3</b><span class="eyebrow">Build</span></div><h3>Build what your country lacks.</h3><p>Refineries, ports, chip fabs, universities. Each project takes one to four years and unlocks a real capability. No workers, no grind.</p></article>
+      <article class="step" data-step="3"><div class="k"><b>4</b><span class="eyebrow">Act and negotiate</span></div><h3>Make your moves. Make your deals.</h3><p>Play the five or six cards that matter this year. Offer a deal: what you give, what you want, for how long. Leaders accept, refuse or counter.</p></article>
+      <article class="step" data-step="4"><div class="k"><b>5</b><span class="eyebrow">Lock · the world answers</span></div><h3>Everyone moves at once.</h3><p>All six leaders lock. Their moves collide. Oil flows, sanctions bite, your colour spreads across the regions you support, and the ranking moves.</p></article>
+    </div>
+  </div>
+  <div class="stage" aria-hidden="true">
+    <div id="g"></div>
+    <div class="overlay-card paper oc-brief" data-oc="0"><div class="eyebrow" style="color:var(--wire)">World news · 2027</div><p style="margin-top:6px">Tanker attacked in the Strait of Hormuz</p><small class="faint" style="font-weight:700">Oil 118 → 129 ▲ · Simulated</small></div>
+    <div class="overlay-card glass oc-budget off" data-oc="1"><div class="eyebrow">Budget 2027 · revenue $812B</div><div style="margin-top:8px;display:grid;gap:2px" id="miniBudget"></div><div class="fcast" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:12px;font-weight:700"><span class="chip">Energy supply <span class="delta up">▲ 3</span></span><span class="chip">Security <span class="delta down">▼ 2</span></span></div></div>
+    <div class="overlay-card glass oc-build off" data-oc="2"><div class="eyebrow">Project</div><b style="font-size:17px;display:block;margin-top:4px">Refinery Expansion</b><small class="muted">Energy production +5%</small><div class="bar" style="height:6px;border-radius:999px;background:var(--paper-3);margin-top:8px;overflow:hidden"><i id="buildBar" style="display:block;height:100%;width:0;background:var(--ink-strong);transition:width 1400ms var(--ease-out)"></i></div><span class="stamp" id="buildStamp" style="opacity:0;transition:opacity 300ms">Completed</span></div>
+    <div class="overlay-card glass oc-deal off" data-oc="3"><div style="display:flex;gap:8px;align-items:center;font-weight:800"><span id="dealFlags"></span> India → Russia <span class="chip" style="margin-left:auto;height:22px;color:var(--ally)">Accepted</span></div><div style="display:grid;grid-template-columns:70px 1fr;gap:4px;font-size:13px;margin-top:8px"><b class="faint">You give</b><span>$12B investment</span><b class="faint">You get</b><span>4 energy units / year</span><b class="faint">For</b><span>3 years</span></div></div>
+    <div class="overlay-card glass oc-rank off" data-oc="4"><div class="eyebrow">World Power Index · 2028</div><div id="miniRank" style="margin-top:6px;display:grid;gap:2px"></div></div>
+  </div>
+</div>
+
+<section class="band" id="countries"><div class="wrap">
+  <div class="eyebrow">Six seats</div><h2>Who will you lead?</h2>
+  <p class="intro">Every country starts from real 2025 data and carries its real problem. India needs jobs for a young workforce. Japan imports almost all its energy. Saudi Arabia must build an economy beyond oil.</p>
+  <div class="countries" id="ccards"></div>
+</div></section>
+
+<section class="band" style="background:linear-gradient(180deg,transparent,rgba(255,255,255,.55),transparent)"><div class="wrap">
+  <div class="whydemo">
+    <div><div class="eyebrow">The Why chain</div><h2>Every change has a reason.</h2><p class="intro">Tap any number after a turn and the game shows the chain that moved it, from the first decision to the final effect. This one was computed live by the game engine for a sample 2026 in which tankers avoid the Strait of Hormuz.</p></div>
+    <div><div class="chain" id="chain"></div><p class="chain-note" id="chainNote"></p></div>
+  </div>
+</div></section>
+
+<section class="band"><div class="wrap">
+  <div class="rankdemo">
+    <div class="glass board"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="yr tab" id="bYear">2026</span><span class="eyebrow">World Power Index</span></div><div class="rws" id="bRows"></div></div>
+    <div><div class="eyebrow">Rank 1 is earned</div><h2>Climb the World Power Index.</h2><p class="intro">Five dimensions: economy, development, security, diplomacy and stability. The winner is the leader who improved their own country most, so India, Saudi Arabia or Japan can beat the USA.</p><p class="demo-note" style="margin-top:12px">A full bot match, replayed year by year.</p><button class="btn btn-glass btn-sm" id="replayBtn" style="margin-top:14px">Replay</button></div>
+  </div>
+</div></section>
+
+<section class="band" style="padding-top:20px"><div class="wrap"><div class="eyebrow">Worlds players made</div><h2>Every match writes its own history.</h2><p class="intro">Sample share cards from bot matches played in your browser just now.</p></div>
+  <div class="marquee"><div class="mtrack" id="mtrack"></div></div>
+</section>
+
+<section class="band"><div class="wrap">
+  <div class="eyebrow">Learn by leading</div><h2>You will meet real ideas.</h2>
+  <div class="learn">
+    <div class="ltile"><span class="chip" style="justify-self:start">Trade</span><h4>Sanctions leakage</h4><p>Sanctions rarely stop trade fully. Goods find other buyers at a discount, through third countries.</p><div class="ex">In the game: half the blocked oil still reaches the market when one big economy sanctions alone.</div></div>
+    <div class="ltile"><span class="chip" style="justify-self:start">Jobs</span><h4>Okun's law</h4><p>A growing workforce needs growth just to keep unemployment flat. Faster growth cuts unemployment; slower growth raises it.</p><div class="ex">In the game: India needs about 6.5% growth before unemployment starts to fall.</div></div>
+    <div class="ltile"><span class="chip" style="justify-self:start">Markets</span><h4>Terms of trade</h4><p>When oil gets expensive, exporters gain and importers pay. Long contracts protect a buyer from price spikes.</p><div class="ex">In the game: a treaty fixes the price at signing for its whole term.</div></div>
+  </div>
+</div></section>
+
+<section class="band" style="padding-top:20px"><div class="wrap">
+  <div class="eyebrow">Questions</div><h2>Before you take office</h2>
+  <div class="faq">
+    <details><summary>How long is a match?</summary><p>Twelve turns of about 90 seconds, plus a short replay after each. Around 22 minutes. When every leader locks early, the turn ends early.</p></details>
+    <details><summary>Do I need friends online?</summary><p>No. Start puts you in a world within 40 seconds. Bots lead every country that has no human, and a bot takes over if a player leaves.</p></details>
+    <details><summary>Is there a war?</summary><p>Not in the first version. Military strength works through deterrence and security. Economy, trade and diplomacy decide the match.</p></details>
+    <details><summary>How is the winner chosen?</summary><p>By Leader Score: how much you improved your country against a "do nothing" world, plus your mission, your rank climb and the scenario objectives.</p></details>
+    <details><summary>Is it free?</summary><p>Yes. No download, no login to play. Nothing you can buy gives power in ranked play.</p></details>
+  </div>
+</div></section>
+
+<section class="final"><div class="eyebrow">Statecraft</div><h2>Your country is waiting.</h2><div class="cta"><a class="btn btn-primary" href="match.html" style="min-width:180px">▶ Start a match</a><a class="btn btn-glass" href="match.html#end">See a finished match</a></div></section>
+<footer><div class="wrap"><span>GeoPolitics · Statecraft prototype 4.0 · simulated content is labelled</span><span>Data: IMF, World Bank, curated drafts for editorial review</span></div></footer>
+
+<div class="modal" id="qm" hidden><div class="glass box" role="dialog" aria-modal="true" aria-labelledby="qmT"><div class="eyebrow">Quick Match</div><h3 id="qmT">Finding your world…</h3><div class="seats" id="qmSeats"></div><p class="muted" id="qmTxt" aria-live="polite">1 of 6 leaders found · bots join at 0:40</p><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-primary" href="match.html">Play now with bots</a><button class="btn btn-ghost" data-close>Cancel</button></div></div></div>
+<div class="modal" id="room" hidden><div class="glass box" role="dialog" aria-modal="true" aria-labelledby="roomT"><div class="eyebrow">Private room</div><h3 id="roomT">Invite your friends</h3><div class="code tab" id="roomCode">K7Q2M</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-glass" id="copyCode">Copy invite</button><a class="btn btn-primary" href="match.html">Start with bots</a><button class="btn btn-ghost" data-close>Close</button></div><p class="demo-note">Rooms are unranked. Bots fill every free seat when the host starts.</p></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="assets/engine.js"></script>
+<script src="assets/ui.js"></script>
+<script src="assets/globe.js"></script>
+<script>
+(() => {
+const SC = window.Statecraft, U = window.SCUI;
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const P = SCGlobe.PLACES;
+const globe = new SCGlobe($("#g"), { idle: true, distance: 3.25, fit: true });
+globe.setView(26, 62, 0);
+
+// ── story: globe + overlay per step ──
+let cur = -1, temp = [];
+const clearTemp = () => { temp.forEach((x) => x.remove()); temp = []; globe.untint(); };
+function setStep(i) {
+  if (i === cur) return;
+  cur = i;
+  $$(".step").forEach((el) => el.classList.toggle("on", +el.dataset.step === i));
+  $$("[data-oc]").forEach((el) => el.classList.toggle("off", +el.dataset.oc !== i));
+  clearTemp();
+  if (i === 0) {
+    globe.flyTo(26.6, 56.3, { duration: 1400, distance: 3.1 });
+    temp.push(globe.pin(26.6, 56.3, { color: 0xe5484d, size: 0.12 }));
+  } else if (i === 1) {
+    globe.flyTo(...P.IND, { duration: 1200, distance: 3.3 });
+    miniBudget(true);
+  } else if (i === 2) {
+    globe.flyTo(...P.IND, { duration: 900, distance: 3.0 });
+    temp.push(globe.pin(...P.IND, { color: 0xf2b33d, size: 0.1 }));
+    $("#buildBar").style.width = "0";
+    $("#buildStamp").style.opacity = "0";
+    setTimeout(() => ($("#buildBar").style.width = "100%"), 200);
+    setTimeout(() => { if (cur === 2) $("#buildStamp").style.opacity = "1"; }, 1700);
+  } else if (i === 3) {
+    globe.flyTo(45, 70, { duration: 1300, distance: 3.6 });
+    setTimeout(() => {
+      if (cur !== 3) return;
+      temp.push(globe.flow("RUS", "IND", "energy"));
+      temp.push(globe.sanction("USA", "RUS"));
+      temp.push(globe.flow("SAU", "CHN", "energy"));
+    }, 600);
+  } else if (i === 4) {
+    globe.flyTo(10, 40, { duration: 1500, distance: 3.9 });
+    setTimeout(() => {
+      if (cur !== 4) return;
+      globe.tint("SAS", U.SEAT_HEX.IND, 0.7);
+      globe.tint("SSA", U.SEAT_HEX.IND, 0.45);
+      globe.tint("MENA", U.SEAT_HEX.SAU, 0.5);
+      globe.tint("EUR", U.SEAT_HEX.USA, 0.55);
+      globe.tint("SEA", U.SEAT_HEX.CHN, 0.55);
+      globe.tint("CAS", U.SEAT_HEX.RUS, 0.5);
+    }, 500);
+    miniRank();
+  }
+}
+const io = new IntersectionObserver((es) => {
+  const vis = es.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+  if (vis) setStep(+vis.target.dataset.step);
+}, { threshold: [0.35, 0.6], rootMargin: "-20% 0px -30% 0px" });
+$$(".step").forEach((el) => io.observe(el));
+const heroIO = new IntersectionObserver((es) => { if (es[0].isIntersecting && cur > 0) { cur = -1; clearTemp(); $$("[data-oc]").forEach((el) => el.classList.toggle("off", el.dataset.oc !== "0")); globe.flyTo(26, 62, { duration: 1200, distance: 3.25 }); } }, { threshold: 0.6 });
+heroIO.observe($(".hero"));
+setStep(0);
+
+function miniBudget(animate) {
+  const rows = [["Industry", 62, 62], ["Energy", 35, 47], ["Education", 125, 125], ["Defence", 94, 82]];
+  $("#miniBudget").innerHTML = rows.map(([n, a, b]) => `<div class="mini"><span>${n}</span><span class="tr"><i class="${a !== b ? "gold" : ""}" style="width:${(a / 140) * 100}%"></i></span><span class="tab" style="text-align:right">$${a}B</span></div>`).join("");
+  if (!animate) return;
+  setTimeout(() => $$("#miniBudget .mini").forEach((el, k) => { const [, , b] = rows[k]; el.querySelector("i").style.width = (b / 140) * 100 + "%"; el.querySelector(".tab").textContent = `$${b}B`; }), 500);
+}
+$("#dealFlags").innerHTML = U.flag("IND") + U.flag("RUS");
+
+// ── real engine demos ──
+const world0 = SC.createWorld(SC.SEED_2026, { matchId: "play-demo", seed: 2026, scenario: "energyShock" });
+// Why chain: India's 2026 with and without a Russian oil pact, in a year when tankers avoid Hormuz
+(function whyDemo() {
+  const shocked = structuredClone(world0);
+  shocked.market.energy.shock = -0.9;
+  const p = { id: "demo", turn: 1, from: "IND", to: "RUS", gives: [{ kind: "investment", amount: 12 }], wants: [{ kind: "goods", good: "energy", units: 5, priceAdj: -0.1 }], turns: 3, status: "accepted" };
+  const others = { USA: { cards: [{ cardId: "trade.sanction", params: { target: "RUS" } }] } };
+  const without = SC.resolveTurn(shocked, others, []);
+  const withPact = SC.resolveTurn(shocked, { ...others, IND: { proposalsSent: 1 } }, [p]);
+  const rec = withPact.history[0];
+  const a = without.countries.IND, b = withPact.countries.IND;
+  const delivered = rec.causes.filter((c) => c.field === "IND.energy.supply" && c.label === "treaty.supply").reduce((t, c) => t + c.delta, 0);
+  const delayed = rec.causes.filter((c) => c.field === "IND.energy.supply" && c.label === "sanctions.delay").reduce((t, c) => t + c.delta, 0);
+  const nodes = [
+    ["Supply pact with Russia", "India gives $12B investment", true],
+    ["Russia delivers oil under the pact", `+${delivered.toFixed(1)} pts of demand`],
+    ...(delayed < -0.05 ? [["US sanctions delay part of it", `${delayed.toFixed(1)} pts · USA's move`]] : []),
+    ["India's energy supply", `${(a.goods.energy.supplyRatio * 100).toFixed(0)}% → ${(b.goods.energy.supplyRatio * 100).toFixed(0)}%`],
+    ["Fuel shortage holds back growth less", `growth ${a.growth.toFixed(1)}% → ${b.growth.toFixed(1)}%`],
+    ["More jobs", `unemployment ${a.unemployment.toFixed(2)}% → ${b.unemployment.toFixed(2)}%`],
+  ];
+  $("#chain").innerHTML = nodes.map(([t, v, root], i) => `${i ? '<span class="link"></span>' : ""}<div class="node ${root ? "root" : ""}"><span>${esc(t)}</span><small class="tab">${esc(v)}</small></div>`).join("");
+  $("#chainNote").textContent = "Same world, same year, run twice by the game engine: once without the pact, once with it.";
+})();
+
+// Ranking replay
+let demoMatch = null;
+const getDemo = () => { if (!demoMatch) { let w = world0; while (!w.ended) w = SC.closeTurn(w, SC.planBots(w, [...SC.SEATS], "normal"), {}, []); demoMatch = w; } return demoMatch; };
+let replayT = 0;
+function drawBoard(t, animate) {
+  getDemo();
+  const order = [...SC.SEATS].sort((x, y) => demoMatch.power[y][t] - demoMatch.power[x][t]);
+  const rows = $("#bRows");
+  const before = {};
+  if (animate) $$(".rw", rows).forEach((el) => (before[el.dataset.iso] = el.getBoundingClientRect().top));
+  const max = Math.max(...SC.SEATS.map((s) => demoMatch.power[s][t]));
+  rows.innerHTML = order.map((s, i) => `<div class="rw ${s === "IND" ? "me" : ""}" data-iso="${s}"><span style="font-weight:800;color:var(--ink-3)">${i + 1}</span>${U.portrait(SC.SEATS.indexOf(s), U.SEAT[s], 30)}<div><b>${U.flag(s)} ${U.SHORT[s]}</b><div class="bars"><i style="width:${(demoMatch.power[s][t] / max) * 100}%;background:${U.SEAT[s]}"></i></div></div><span class="pw tab">${demoMatch.power[s][t].toFixed(1)}</span></div>`).join("");
+  $("#bYear").textContent = t ? String(2025 + t) : "Start";
+  if (animate && !U.reduce) $$(".rw", rows).forEach((el) => { const b = before[el.dataset.iso]; if (b === undefined) return; const dy = b - el.getBoundingClientRect().top; if (dy) el.animate([{ transform: `translateY(${dy}px)` }, { transform: "none" }], { duration: 650, easing: "cubic-bezier(.22,1.2,.36,1)" }); });
+}
+function replay() {
+  clearInterval(replayT);
+  let t = 0;
+  drawBoard(0, false);
+  replayT = setInterval(() => { t++; drawBoard(t, true); if (t >= 12) clearInterval(replayT); }, U.reduce ? 50 : 900);
+}
+let replayed = false;
+setTimeout(() => { if (!replayed) drawBoard(12, false); }, 1200);
+new IntersectionObserver((es) => { if (es[0].isIntersecting && !replayed) { replayed = true; replay(); } }, { threshold: 0.5 }).observe($(".board"));
+$("#replayBtn").addEventListener("click", replay);
+
+function miniRank() {
+  getDemo();
+  const t = 3;
+  const order = [...SC.SEATS].sort((x, y) => demoMatch.power[y][t] - demoMatch.power[x][t]).slice(0, 4);
+  $("#miniRank").innerHTML = order.map((s, i) => `<div class="r ${s === "IND" ? "me" : ""}"><span>${i + 1}</span><span>${U.flag(s)} ${U.SHORT[s]}</span><span class="tab">${demoMatch.power[s][t].toFixed(1)}</span></div>`).join("");
+}
+
+// Country cards
+const DIFF = { IND: "Medium", CHN: "Medium", USA: "Medium", RUS: "Hard", SAU: "Medium", JPN: "Hard" };
+$("#ccards").innerHTML = SC.SEATS.map((s) => {
+  const c = world0.countries[s];
+  const self = (c.goods.energy.prod / c.goods.energy.demand) * 100;
+  return `<a class="ccard" href="match.html#${s}" style="--seat:${U.SEAT[s]}"><span class="bar"></span><div class="top">${U.flag(s, "lg")}<b>${U.NAMES[s]}</b><span class="diff eyebrow" style="margin-left:auto">${DIFF[s]}</span></div>
+    <div class="stat"><div><b class="tab">${U.money(c.gdp)}</b><small>GDP</small></div><div><b class="tab">${c.growth.toFixed(1)}%</b><small>Growth</small></div><div><b class="tab">${self.toFixed(0)}%</b><small>Own energy</small></div></div>
+    <div class="mission">${esc(SC.MISSIONS[s].text)}</div><div class="lead"><span>Lead ${U.SHORT[s]}</span><span>→</span></div></a>`;
+}).join("");
+$$(".ccard").forEach((el) => {
+  el.addEventListener("pointermove", (e) => {
+    if (U.reduce || e.pointerType !== "mouse") return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+    el.style.transform = `rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateY(-4px)`;
+    el.style.setProperty("--mx", (x + 0.5) * 100 + "%"); el.style.setProperty("--my", (y + 0.5) * 100 + "%");
+  });
+  el.addEventListener("pointerleave", () => (el.style.transform = ""));
+});
+
+// Share cards from sample bot matches
+function cards() {
+  const scen = ["energyShock", "foodCrisis", "tradeWar", "calmStart"];
+  const out = [];
+  for (let i = 0; i < 4; i++) {
+    let w = SC.createWorld(SC.SEED_2026, { matchId: "share" + i, seed: 77 + i * 13, scenario: scen[i % 4] });
+    while (!w.ended) w = SC.closeTurn(w, SC.planBots(w, [...SC.SEATS], "normal"), {}, []);
+    const s = SC.SEATS[i % 6];
+    const r0 = SC.ranks(w, 0)[s], r1 = SC.ranks(w)[s];
+    const ls = SC.leaderScore(w, s);
+    const win = SC.standings(w)[0].iso3 === s;
+    const head = (w.history.flatMap((h) => h.news).find((n) => n.iso3 === s) || { headline: "Held the country steady" }).headline;
+    out.push(`<div class="scard"><div class="eyebrow" style="color:var(--wire)">My Statecraft · ${esc(SC.SCENARIOS[w.scenario].name)}</div><div style="display:flex;align-items:center;gap:10px">${U.portrait(i, U.SEAT[s], 40)}<div class="big">${U.flag(s)} ${U.SHORT[s]}</div></div><p>“${esc(head)}.”</p><small>Power #${r0} → #${r1} · Leader Score ${ls.total}${win ? " · Winner" : ""}</small></div>`);
+  }
+  $("#mtrack").innerHTML = out.join("") + out.join("");
+}
+$("#mtrack").innerHTML = `<div class="scard"><div class="eyebrow" style="color:var(--wire)">My Statecraft</div><p>Playing sample matches…</p></div>`;
+const mio = new IntersectionObserver((es) => { if (es[0].isIntersecting) { mio.disconnect(); setTimeout(cards, 30); } }, { rootMargin: "600px" });
+mio.observe($(".marquee"));
+
+// ── Quick Match + rooms ──
+const open = (id) => { $(id).hidden = false; setTimeout(() => $(id).querySelector("a,button").focus(), 30); };
+$$(".modal").forEach((m) => m.addEventListener("click", (e) => { if (e.target === m || e.target.closest("[data-close]")) { m.hidden = true; clearInterval(qmT); } }));
+let qmT = 0;
+$("#startBtn").addEventListener("click", () => {
+  open("#qm");
+  let found = 1, secs = 0;
+  const draw = () => {
+    $("#qmSeats").innerHTML = Array.from({ length: 6 }, (_, i) => `<i class="${i < found ? "on" : ""}"></i>`).join("");
+    $("#qmTxt").textContent = found >= 6 ? "World found. Taking you to the briefing…" : `${found} of 6 leaders found · bots join at 0:40 · 0:${String(secs).padStart(2, "0")}`;
+  };
+  draw();
+  clearInterval(qmT);
+  qmT = setInterval(() => {
+    secs += 1;
+    if (Math.random() < 0.55 && found < 6) { found++; U.sound.flip(); }
+    draw();
+    if (found >= 6 || secs >= 6) { clearInterval(qmT); found = 6; draw(); setTimeout(() => (location.href = "match.html"), 900); }
+  }, 700);
+});
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+$("#roomBtn").addEventListener("click", () => {
+  $("#roomCode").textContent = Array.from({ length: 5 }, () => CODE_CHARS[(Math.random() * CODE_CHARS.length) | 0]).join("");
+  open("#room");
+});
+$("#copyCode").addEventListener("click", () => { const t = `Join my Statecraft room: ${$("#roomCode").textContent}`; navigator.clipboard?.writeText(t).then(() => U.toast("Invite copied"), () => U.toast(t)); });
+$("#joinForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = $("#joinCode").value.trim().toUpperCase();
+  if (v.length !== 5) { U.toast("A room code has 5 letters or numbers"); return; }
+  U.toast(`Joining room ${v}…`);
+  setTimeout(() => (location.href = "match.html"), 700);
+});
+let n = 214;
+setInterval(() => { n += Math.round((Math.random() - 0.45) * 4); $("#online").textContent = n; }, 3000);
+})();
+</script>
+</body>
+</html>
