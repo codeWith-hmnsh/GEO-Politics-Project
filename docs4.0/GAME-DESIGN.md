@@ -76,12 +76,12 @@ The oil story is one example. Another match can be a **Food Crisis** (a drought 
 
 | Seat | Strong in | Weak in | Main mission (public) | Difficulty |
 |---|---|---|---|---|
-| 🇮🇳 India | Growth, young workforce, food | Oil imports (~85%), jobs for a growing workforce | Become a top-3 Power and keep unemployment below 6% | Medium |
-| 🇨🇳 China | Industry, tech production, reserves | Energy and food imports, ageing workforce | Keep growth above 4% and secure energy for 8+ turns | Medium |
-| 🇺🇸 USA | Tech, energy, money, military | Debt, stability swings | Stay #1 in Power and keep debt below 130% of GDP | Medium (high expectations) |
-| 🇷🇺 Russia | Energy, food, military | Sanctions, tech imports, small economy | Grow non-energy industry by 15% | Hard |
-| 🇸🇦 Saudi Arabia | Oil, cash reserves | Food, tech, jobs outside oil | Cut oil's share of revenue below 50% | Easy–Medium |
-| 🇯🇵 Japan | Tech, money, skills | Energy and food imports, ageing, debt | Raise energy security above 70 | Hard |
+| 🇮🇳 India | Growth, young workforce, food | Oil imports (~85%), jobs for a growing workforce | Jobs for a young country: unemployment below 2.5% and skills 75+ | Medium |
+| 🇨🇳 China | Industry, tech production, reserves | Energy and food imports, ageing workforce | Energy independence: self-sufficiency from 80% to 100% | Medium |
+| 🇺🇸 USA | Tech, energy, money, military | Debt, stability swings | Stay #1 in Power and cut debt below 110% of GDP | Medium (high expectations) |
+| 🇷🇺 Russia | Energy, food, military | Sanctions, tech imports, small economy | Beyond oil and gas: grow industry by 15% | Hard |
+| 🇸🇦 Saudi Arabia | Oil, cash reserves | Food, tech, jobs outside oil | Diversification: industry +20% with stability 60+ | Medium |
+| 🇯🇵 Japan | Tech, money, skills | Energy and food imports, ageing, debt | Energy security: self-sufficiency from 12% to 50% | Hard |
 
 Missions show the country's real strategic problem. They teach why each country acts the way it does.
 
@@ -194,9 +194,9 @@ A project is a one-off build that unlocks a capability. It is **not** a building
 | Project | Cost (% GDP) | Turns | Capability |
 |---|---|---|---|
 | Strategic Oil Reserve | 0.2 | 1 | Energy reserve +2 turns of shortfall |
-| Refinery Expansion | 0.4 | 2 | Energy processing +15%; can export refined fuel |
-| Solar & Wind Programme | 0.6 | 2 | Energy production +6%, energy price exposure −5% |
-| Nuclear Power Plant | 1.2 | 4 | Energy production +15% |
+| Refinery Expansion | 0.4 | 2 | Energy production +5% (at least 2.5% of demand) |
+| Solar & Wind Programme | 0.6 | 2 | Energy production +4% (at least 2% of demand), demand −2% |
+| Nuclear Power Plant | 1.2 | 4 | Energy production +10% (at least 6% of demand) |
 | Gas Pipeline (needs a treaty partner) | 0.5 | 3 | Trade capacity for energy with that partner +5 units |
 | Port & Shipping Hub | 0.5 | 2 | Trade capacity +20% |
 | Highways & Rail Corridor | 0.8 | 3 | Infrastructure +10, growth +0.3 |
@@ -339,8 +339,10 @@ The USA usually starts at #1. Population is **potential and responsibility**, ne
 ### 12.2 Leader Score (who wins)
 
 - 0–1000. **500 = held steady.** Score measures how much you improved your own country.
-- `score = 500 + improvement (±300) + mission (0–120) + rank climb (+40 per Power rank gained, −20 per rank lost) + objectives (0–60)`.
-- Improvement averages your change in each Power dimension from your own start.
+- `score = 500 + improvement (±300) + mission (0–120) + rank climb (+40 per Power rank gained, −20 per rank lost) + objectives (0–60) + difficulty adjustment`.
+- **Par:** when a match is created, the engine also plays it once with every leader doing nothing. Improvement and rank climb are measured against that par line, at the same turn — "how much better did you do than a caretaker would have?" This removes the built-in advantage of fast-growing countries.
+- Improvement averages your gain over par in each Power dimension, with diminishing returns (`10 × ln(1 + gain / 10)` per dimension), so one runaway number cannot carry a match.
+- **Difficulty adjustment** (shown in the score breakdown): a fixed number of points per seat, tuned by bot self-play so every seat wins 12–22% of Normal bot matches. Current values in `rules.ts`: China 0, India −8, Japan +72, Russia +78, Saudi Arabia +68, USA +66.
 - **The winner has the highest Leader Score.** Reaching Power **#1** gives the "Rank 1" title on the share card, whoever wins.
 - Ties: higher final Power rank wins; then fewer broken treaties.
 

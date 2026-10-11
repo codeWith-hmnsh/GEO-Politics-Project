@@ -150,7 +150,7 @@ potential = trend[country]
 
 supply    = −8 × energyShort − 4 × foodShort − 5 × techShort        // short = max(0, 1 − supplyRatio)
 
-demand    = 0.3 × fiscalImpulse + netExportsChange% + 0.5 × investmentReceived%
+demand    = 0.3 × fiscalImpulse + 0.3 × Δ(exportEarn% − importBill%) vs start + 0.5 × investmentReceived%
 
 drags     = 0.02 × max(0, debtPct − 90)
           + 0.15 × max(0, inflation − 6)
@@ -179,9 +179,12 @@ demand'(tech)   = demand × (1 + 0.8 × growth/100)
 
 ### 5.2 Flows, in this order
 
-1. **Treaties.** Each supply treaty moves its units from seller to buyer, limited by both sides' `tradeCapacity` and by sanction friction (§5.4).
-2. **Reserves.** A country short after treaties draws from its reserve.
-3. **World Market.** Exporters sell their remaining surplus to the market. Countries still short buy from the market. If the market is short, buyers get a pro-rata share.
+1. **Treaties.** Each supply treaty moves its units from seller to buyer, limited by both sides' `tradeCapacity` and by sanction friction (§5.4). A contract can cut into the seller's own supply down to 90% of its demand.
+2. **Priority purchases** from cards (Secure Oil Imports from a named supplier; Emergency Food Imports from the market).
+3. **World Market.** Exporters sell their remaining surplus to the market. Countries still short buy from the market. If the market is short, buyers get a pro-rata share. Leading partner regions gives a discount (2% per region, cap 8%); embargoes and sanctions add a premium.
+4. **Reserves.** A country still short draws half the gap from its reserve (all of it with Release Reserves). A country fully supplied refills 10% of its reserve capacity per turn.
+
+The rest of the world grows 2.2% a year in both supply and demand. Its supply also answers prices: `baseSupply × (1.022 + 0.006 × (price − 100))`.
 
 ```
 supplyRatio = (prod + treatyIn − treatyOut + reserveDraw + marketIn) / demand
@@ -223,7 +226,7 @@ workforce'  = workforce  × (1 + workforceGrowth/100)
 
 growthNeeded = productivityTrend + workforceGrowth          // growth needed to hold unemployment flat
 unemployment' = unemployment
-              − 0.4 × (growth − growthNeeded)              // Okun's law
+              − 0.3 × (growth − growthNeeded)              // Okun's law (floor: 60% of the start rate)
               − jobsFromIndustry                           // 0.03 × (industry index change)
               − programmes                                 // Skills & Apprenticeships, Industrial Corridor, Jobs card
 clamp(unemployment', 1.5, 30)
@@ -282,8 +285,9 @@ military'  = military + 0.6 × (defenceIndex − 50) / 10 + projects − 0.5
 
 ```
 sway'[r][seat] = sway × 0.97                                  // slow fade without effort
-               + 0.8 per supply unit traded with the region this turn
-               + 6 per % of GDP of aid or investment sent to the region
+               + 0.2 per supply unit traded with the region this turn
+               + 60 per % of GDP of aid sent to the region (0.1% of GDP = +6)
+               + 8 per Regional Investment card
                + 5 if the seat voted Yes on a resolution that serves the region
                − 6 if the seat sanctions or embargoes a country the region depends on
 normalise so Σ sway[r] ≤ 100
@@ -360,7 +364,7 @@ stability   = clamp(0.7 × stability + 0.3 × (100 − 3 × max(0, inflation −
 powerIndex  = 0.25 economy + 0.20 development + 0.20 security + 0.20 diplomacy + 0.15 stability
 ```
 
-Leader Score is defined in [GAME-DESIGN §12.2](GAME-DESIGN.md#122-leader-score-who-wins). Improvement = `6 × mean(dimension_now − dimension_start)`, clamped to ±300.
+Leader Score is defined in [GAME-DESIGN §12.2](GAME-DESIGN.md#122-leader-score-who-wins). Improvement = `6 × handicap × mean(soft(dimension_now − dimension_par))`, with `soft(x) = sign(x) × 10 × ln(1 + |x| / 10)`, clamped to ±300. `dimension_par` comes from the same match played with no orders (computed once at match creation).
 
 ## 12. Determinism
 

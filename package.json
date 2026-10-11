@@ -13,7 +13,9 @@
     "test:e2e": "playwright test",
     "geo:build": "node scripts/build-geometry.mjs",
     "ingest": "tsx ingest/run.ts",
-    "gpu:benchmarks": "node -e \"require('fs').cpSync('node_modules/detect-gpu/dist/benchmarks','public/benchmarks',{recursive:true})\""
+    "gpu:benchmarks": "node -e \"require('fs').cpSync('node_modules/detect-gpu/dist/benchmarks','public/benchmarks',{recursive:true})\"",
+    "game:seed": "tsx lib/game/seed/build-seed.ts",
+    "game:selfplay": "tsx scripts/selfplay.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

@@ -11,6 +11,17 @@ const eslintConfig = defineConfig([
     files: ["components/globe/**/*.{ts,tsx}"],
     rules: { "react-hooks/immutability": "off" },
   },
+  {
+    // The game engine must be deterministic (docs4.0/SYSTEMS.md §12).
+    files: ["lib/game/engine/**/*.ts"],
+    rules: {
+      "no-restricted-properties": [
+        "error",
+        { object: "Math", property: "random", message: "Use the seeded stream() from lib/game/engine/rng.ts." },
+        { object: "Date", property: "now", message: "The engine must not read the clock." },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

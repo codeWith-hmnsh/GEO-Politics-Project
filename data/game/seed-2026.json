@@ -1,0 +1,356 @@
+{
+  "season": "2026",
+  "needsEditorialReview": true,
+  "sources": [
+    "data/live/indicators.json (IMF / World Bank): GDP, growth, inflation, unemployment, debt, military spending % of GDP",
+    "data/curated/relations.json: starting relations (ally 40, neutral 0, mixed −10, hostile −50)",
+    "lib/game/seed/build-seed.ts CURATED: budgets, goods units, people and capacity indices (draft, needs editorial review)"
+  ],
+  "countries": {
+    "CHN": {
+      "iso3": "CHN",
+      "name": "China",
+      "gdp": 20852,
+      "growth": 4.4,
+      "inflation": 1.2,
+      "unemployment": 5.1,
+      "debtPct": 106.9,
+      "rating": "A",
+      "taxRate": 26,
+      "treasury": 1500,
+      "budget": {
+        "industry": 4,
+        "infrastructure": 6,
+        "agriculture": 1.5,
+        "energy": 1.8,
+        "education": 4,
+        "welfare": 5,
+        "defence": 1.71
+      },
+      "resourceRent": 0.05,
+      "debtSavingsFactor": 0.7,
+      "population": 1410,
+      "popGrowth": -0.1,
+      "workforce": 770,
+      "workforceGrowth": -0.3,
+      "skills": 62,
+      "health": 70,
+      "stability": 68,
+      "industry": 85,
+      "infrastructure": 80,
+      "tradeCapacity": 70,
+      "military": 85,
+      "influence": 62,
+      "goods": {
+        "energy": {
+          "demand": 80,
+          "prod": 64,
+          "reserve": 40
+        },
+        "food": {
+          "demand": 60,
+          "prod": 55.2,
+          "reserve": 30
+        },
+        "tech": {
+          "demand": 45,
+          "prod": 42.75,
+          "reserve": 0
+        }
+      }
+    },
+    "IND": {
+      "iso3": "IND",
+      "name": "India",
+      "gdp": 4153,
+      "growth": 6.5,
+      "inflation": 4.7,
+      "unemployment": 4.9,
+      "debtPct": 83.4,
+      "rating": "BBB",
+      "taxRate": 19,
+      "treasury": 118,
+      "budget": {
+        "industry": 1.5,
+        "infrastructure": 3.3,
+        "agriculture": 1.4,
+        "energy": 0.85,
+        "education": 3,
+        "welfare": 2.98,
+        "defence": 2.27
+      },
+      "resourceRent": 0.05,
+      "debtSavingsFactor": 1,
+      "population": 1460,
+      "popGrowth": 0.8,
+      "workforce": 600,
+      "workforceGrowth": 1.2,
+      "skills": 45,
+      "health": 55,
+      "stability": 62,
+      "industry": 58,
+      "infrastructure": 52,
+      "tradeCapacity": 30,
+      "military": 62,
+      "influence": 50,
+      "goods": {
+        "energy": {
+          "demand": 30,
+          "prod": 18,
+          "reserve": 3
+        },
+        "food": {
+          "demand": 50,
+          "prod": 54,
+          "reserve": 15
+        },
+        "tech": {
+          "demand": 15,
+          "prod": 6.75,
+          "reserve": 0
+        }
+      }
+    },
+    "JPN": {
+      "iso3": "JPN",
+      "name": "Japan",
+      "gdp": 4379,
+      "growth": 0.7,
+      "inflation": 2.2,
+      "unemployment": 2.5,
+      "debtPct": 204.4,
+      "rating": "A",
+      "taxRate": 33,
+      "treasury": 300,
+      "budget": {
+        "industry": 1.2,
+        "infrastructure": 3.5,
+        "agriculture": 0.9,
+        "energy": 1,
+        "education": 3.5,
+        "welfare": 18.5,
+        "defence": 1.37
+      },
+      "resourceRent": 0.05,
+      "debtSavingsFactor": 0.5,
+      "population": 123,
+      "popGrowth": -0.5,
+      "workforce": 69,
+      "workforceGrowth": -0.6,
+      "skills": 80,
+      "health": 85,
+      "stability": 70,
+      "industry": 75,
+      "infrastructure": 88,
+      "tradeCapacity": 40,
+      "military": 50,
+      "influence": 55,
+      "goods": {
+        "energy": {
+          "demand": 25,
+          "prod": 3,
+          "reserve": 15
+        },
+        "food": {
+          "demand": 10,
+          "prod": 3.8,
+          "reserve": 3
+        },
+        "tech": {
+          "demand": 15,
+          "prod": 18,
+          "reserve": 0
+        }
+      }
+    },
+    "RUS": {
+      "iso3": "RUS",
+      "name": "Russia",
+      "gdp": 2656,
+      "growth": 1.1,
+      "inflation": 5.6,
+      "unemployment": 2.4,
+      "debtPct": 19.1,
+      "rating": "BB",
+      "taxRate": 33,
+      "treasury": 150,
+      "budget": {
+        "industry": 3,
+        "infrastructure": 3,
+        "agriculture": 1,
+        "energy": 2,
+        "education": 3.5,
+        "welfare": 12.5,
+        "defence": 7.05
+      },
+      "resourceRent": 0.35,
+      "debtSavingsFactor": 1,
+      "population": 144,
+      "popGrowth": -0.3,
+      "workforce": 73,
+      "workforceGrowth": -0.5,
+      "skills": 66,
+      "health": 62,
+      "stability": 58,
+      "industry": 55,
+      "infrastructure": 58,
+      "tradeCapacity": 30,
+      "military": 80,
+      "influence": 40,
+      "goods": {
+        "energy": {
+          "demand": 20,
+          "prod": 38,
+          "reserve": 5
+        },
+        "food": {
+          "demand": 10,
+          "prod": 12,
+          "reserve": 3
+        },
+        "tech": {
+          "demand": 6,
+          "prod": 2.1,
+          "reserve": 0
+        }
+      }
+    },
+    "SAU": {
+      "iso3": "SAU",
+      "name": "Saudi Arabia",
+      "gdp": 1389,
+      "growth": 3.1,
+      "inflation": 2.3,
+      "unemployment": 3.5,
+      "debtPct": 32.1,
+      "rating": "A",
+      "taxRate": 15,
+      "treasury": 400,
+      "budget": {
+        "industry": 2.5,
+        "infrastructure": 4,
+        "agriculture": 0.7,
+        "energy": 2.5,
+        "education": 4.5,
+        "welfare": 4.5,
+        "defence": 7.3
+      },
+      "resourceRent": 0.6,
+      "debtSavingsFactor": 1,
+      "population": 34,
+      "popGrowth": 1.5,
+      "workforce": 16,
+      "workforceGrowth": 2,
+      "skills": 55,
+      "health": 68,
+      "stability": 66,
+      "industry": 45,
+      "infrastructure": 65,
+      "tradeCapacity": 30,
+      "military": 45,
+      "influence": 45,
+      "goods": {
+        "energy": {
+          "demand": 8,
+          "prod": 24,
+          "reserve": 10
+        },
+        "food": {
+          "demand": 6,
+          "prod": 1.8,
+          "reserve": 2
+        },
+        "tech": {
+          "demand": 3,
+          "prod": 0.45,
+          "reserve": 0
+        }
+      }
+    },
+    "USA": {
+      "iso3": "USA",
+      "name": "United States",
+      "gdp": 32384,
+      "growth": 2.3,
+      "inflation": 3.2,
+      "unemployment": 4.4,
+      "debtPct": 125.8,
+      "rating": "AA",
+      "taxRate": 30,
+      "treasury": 700,
+      "budget": {
+        "industry": 1,
+        "infrastructure": 2.5,
+        "agriculture": 0.6,
+        "energy": 0.8,
+        "education": 6,
+        "welfare": 15.2,
+        "defence": 3.42
+      },
+      "resourceRent": 0.05,
+      "debtSavingsFactor": 0.8,
+      "population": 340,
+      "popGrowth": 0.5,
+      "workforce": 170,
+      "workforceGrowth": 0.4,
+      "skills": 78,
+      "health": 72,
+      "stability": 55,
+      "industry": 70,
+      "infrastructure": 78,
+      "tradeCapacity": 60,
+      "military": 100,
+      "influence": 70,
+      "goods": {
+        "energy": {
+          "demand": 100,
+          "prod": 105,
+          "reserve": 30
+        },
+        "food": {
+          "demand": 30,
+          "prod": 37.5,
+          "reserve": 5
+        },
+        "tech": {
+          "demand": 40,
+          "prod": 44,
+          "reserve": 0
+        }
+      }
+    }
+  },
+  "relations": {
+    "IND": {
+      "RUS": 40,
+      "JPN": 40,
+      "SAU": 40,
+      "USA": -10,
+      "CHN": -10
+    },
+    "USA": {
+      "JPN": 40,
+      "RUS": -50,
+      "CHN": -10,
+      "SAU": -10
+    },
+    "RUS": {
+      "CHN": 40,
+      "JPN": -50
+    },
+    "CHN": {
+      "JPN": -10
+    }
+  },
+  "market": {
+    "energy": {
+      "baseDemand": 40
+    },
+    "food": {
+      "baseDemand": 30
+    },
+    "tech": {
+      "baseDemand": 20
+    }
+  }
+}
