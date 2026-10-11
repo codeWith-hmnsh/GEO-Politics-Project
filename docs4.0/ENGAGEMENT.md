@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Version | 4.0 (final plan for review) |
+| Version | 4.0 (final, 2026-10-11) |
 | Date | 2026-10-11 |
 | Related | [GAME-DESIGN](GAME-DESIGN.md) · [UI-DESIGN](UI-DESIGN.md) |
 
@@ -27,8 +27,9 @@ The reveal is the biggest moment of every turn ([UI-DESIGN §5.7](UI-DESIGN.md#5
 1. **Six moves flip together.** You see what everyone did at the same instant.
 2. **The world moves:** flows, sanctions and events draw on the globe.
 3. **Your numbers count**, one after another.
-4. **The ranking reorders.** Climbing a place is the strongest repeated reward in the game.
-5. **Forecast vs actual:** "Forecast: energy ▲9. Actual: ▲5 — US sanctions delayed 1 unit." The gap turns other leaders into the story.
+4. **Your colour spreads.** Partner regions you lead re-tint on the globe — progress you can see on the map.
+5. **The ranking reorders.** Climbing a place is the strongest repeated reward in the game.
+6. **Forecast vs actual:** "Forecast: energy ▲9. Actual: ▲5 — US sanctions delayed 1 unit." The gap turns other leaders into the story.
 
 ## 3. Across a match (minutes)
 
@@ -37,6 +38,8 @@ The reveal is the biggest moment of every turn ([UI-DESIGN §5.7](UI-DESIGN.md#5
 - **Payoffs that arrive later:** a university started in 2027 lifts skills in 2030. Patience is rewarded on screen.
 - **Comebacks:** Leader Score measures improvement, so the smallest country can still win.
 - **Mid-match objectives** (two per scenario) give short goals between the big ones.
+- **World Votes** on turns 3, 6 and 9: the one moment every leader acts on the same question, and the votes flip together.
+- **Early warnings** turn a disaster into a decision: the player sees trouble one turn ahead and can act.
 - **Headlines:** players want their move to be the headline of the year.
 
 ## 4. After a match (the reason to play again)

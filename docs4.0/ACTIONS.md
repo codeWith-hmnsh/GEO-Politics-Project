@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Version | 4.0 (final plan for review) |
+| Version | 4.0 (final, 2026-10-11) |
 | Date | 2026-10-11 |
-| Related | [GAME-DESIGN §7](GAME-DESIGN.md#7-cards-and-actions-summary) · [SYSTEMS](SYSTEMS.md) · [UI-DESIGN §5.5.4](UI-DESIGN.md#554--actions-cards) |
+| Related | [GAME-DESIGN §7](GAME-DESIGN.md#7-cards-and-actions-summary) · [SYSTEMS](SYSTEMS.md) · [UI-DESIGN §5.5.4](UI-DESIGN.md#554-actions-cards) |
 
 > **Rule:** the library is large; what one turn shows is small. Cards are the game's vocabulary. Free text, when it comes, is only another way to pick and fill a card.
 
@@ -40,7 +40,7 @@ interface CardDef {
 
 Cards live in `lib/game/engine/cards/` as data plus small functions. Adding a card never touches the UI: the UI renders any `CardDef`.
 
-## 3. Library v1 (32 cards)
+## 3. Library v1 (33 cards)
 
 Costs are % of GDP; the UI shows $B. Effects are the main ones; [SYSTEMS](SYSTEMS.md) gives the formulas.
 
@@ -95,12 +95,13 @@ Costs are % of GDP; the UI shows $B. Effects are the main ones; [SYSTEMS](SYSTEM
 | Cash Transfers | 0 | 0.5% | Stability +5 this turn; inflation +0.4 | Stability < 60 |
 | Labour Reform | 2 | — | Productivity trend +0.3 permanent; stability −5 now | Stability ≥ 40 |
 
-### Diplomacy (6)
+### Diplomacy (7)
 
 | Card | PC | Cost | Effect | Legal when |
 |---|---|---|---|---|
 | **Propose Deal** | 1 | per terms | Opens the proposal composer ([GAME-DESIGN §8](GAME-DESIGN.md#8-diplomacy)) | Always (pinned) |
-| Foreign Aid | 1 | chosen | Relations +10 with the receiver; influence + | Treasury allows |
+| Foreign Aid | 1 | chosen | Relations +10 with a country, or sway in a partner region; influence + | Treasury allows |
+| Regional Investment | 1 | 0.3% | Sway +8 in one partner region; that region's demand for your exports +5% for 3 turns | Treasury allows |
 | Summit Diplomacy | 1 | — | Relations +6, trust +4 with one country; tension −2 | Relations > −50 |
 | Pressure | 1 | — | Demand one term from a weaker country (stop buying from X, cut a tariff). The target accepts or refuses; refusal: tension +5, relations −12 | Your military + allies > target × 1.2 |
 | Join Sanction | 1 | — | Join an existing sanction on a country (adds to its strength) | Someone sanctions the target |

@@ -1,6 +1,6 @@
 # Geo-Politics 4.0 — Statecraft: Final Game Plan
 
-**Status: final plan for review (2026-10-11).** No code is written from this folder until the owner says "start building". The first build step is [BUILD-PLAN.md §S1](BUILD-PLAN.md#s1--engine-core-no-ui).
+**Status: final (2026-10-11).** The owner approved this plan and the research additions ("do what is best"). No code is written from this folder until the owner says "start building". The first build step is [BUILD-PLAN.md §S1](BUILD-PLAN.md#s1--engine-core-no-ui).
 
 > **One line:** *You lead a country. You get a budget, a few strategic moves and a world that answers back. Take your country to Rank 1.*
 
@@ -14,7 +14,7 @@ It is not a quiz, not a Clash of Clans clone and not a menu of fixed choices. It
 |---|---|---|
 | 1 | [GAME-DESIGN.md](GAME-DESIGN.md) | The full game: one match walked through turn by turn, the world, countries, turn flow, budget, projects, cards, diplomacy, crises, ranking, the end of a match, bots, learning. |
 | 2 | [SYSTEMS.md](SYSTEMS.md) | The simulation model: every variable, every formula, the order of resolution, cause chains, determinism, and a worked example with numbers. |
-| 3 | [ACTIONS.md](ACTIONS.md) | The card library (v1: 32 cards), how 5–7 cards are chosen each turn, the "All actions" drawer, and the free-text order bar that comes later. |
+| 3 | [ACTIONS.md](ACTIONS.md) | The card library (v1: 33 cards), how 5–7 cards are chosen each turn, the "All actions" drawer, and the free-text order bar that comes later. |
 | 4 | [UI-DESIGN.md](UI-DESIGN.md) | How it looks, moves and feels: the scrollable Play page, every match screen with wireframes, the motion system, game feel rules, component sources (Motion, React Bits, 21st.dev, Magic UI), mobile, accessibility, performance. |
 | 5 | [MULTIPLAYER.md](MULTIPLAYER.md) | Solo, Quick Match and private rooms; matchmaking; country assignment; bots filling seats; leavers; the server-authoritative round loop; data model; free-tier limits and cost. |
 | 6 | [ENGAGEMENT.md](ENGAGEMENT.md) | Why a player comes back: the loops inside a turn, a match, a day and a season; progression; sharing; guard rails. |
@@ -40,7 +40,7 @@ Research on reference games gave the parts used here:
 | Wordle | One shared daily puzzle with a shareable result (later step) | — |
 | NationStates | A warning: "answer an issue" alone becomes repetitive | Event-only gameplay |
 
-## The final design in ten lines
+## The final design in twelve lines
 
 1. **6 countries:** India, China, USA, Russia, Saudi Arabia, Japan. Bots hold every seat without a human.
 2. **12 turns, 1 turn = 1 year** (2026 → 2037). Turn timer 120 s, 105 s, then 90 s. When everybody locks, the turn resolves at once.
@@ -51,7 +51,9 @@ Research on reference games gave the parts used here:
 7. **Political Capital:** 3 points per turn pay for cards and proposals. One unused point carries over (maximum 4).
 8. **Systems:** economy, population and employment, energy, food, tech, trade, diplomacy, stability. Military is a single index in the MVP and becomes full conflict later.
 9. **World Power Index** shows the live ranking. The match winner has the highest **Leader Score**: improvement from your own start, plus your mission, plus a bonus for each Power rank you climb.
-10. **After each turn:** globe replay, Why chain, World News. **After the match:** Your World History and a share card.
+10. **Influence map:** 8 partner regions (Africa, Southeast Asia, Europe…) lean toward whoever trades with, aids and invests in them. Regions you lead take your colour on the globe.
+11. **World Vote** on turns 3, 6 and 9, **early warnings** one turn before trouble, and **trend chips** (Improving / Worsening) everywhere.
+12. **After each turn:** globe replay, Why chain, located World News. **After the match:** Your World History and a share card with your leader name and portrait.
 
 ## What is kept from 2.0 and 3.0
 
@@ -81,9 +83,11 @@ Research on reference games gave the parts used here:
 
 The untracked draft files `docs/GAME-PLAN.md`, `lib/game/types.ts` and `supabase/game_tables.sql` are still untouched. S1 replaces `lib/game/types.ts`.
 
-## Decisions needed
+## Decisions
 
-| # | Question | Recommendation |
+On 2026-10-11 the owner said "do what is best", so F-1 to F-7 are **decided** as recommended. D-1 stays open; it only matters after S8.
+
+| # | Question | Decision |
 |---|---|---|
 | F-1 | Six countries | India, China, USA, Russia, Saudi Arabia, Japan. |
 | F-2 | Time scale | 1 turn = 1 year, 2026 to 2037, 12 turns. |
@@ -92,4 +96,5 @@ The untracked draft files `docs/GAME-PLAN.md`, `lib/game/types.ts` and `supabase
 | F-5 | Sound | On by default at low volume, one-tap mute, choice remembered. Free CC0 sounds. |
 | F-6 | Login | Guests play without login (Supabase anonymous auth from S5). Login is needed only to keep progress across devices. |
 | F-7 | Military in MVP | Single Military index used for deterrence and security. No war until S8. |
-| D-1 | Monetization (open since 2.0) | Unchanged: depth, comfort and style only. Never sell power in ranked play. |
+| D-1 | Monetization (open since 2.0) | **Open.** Recommendation unchanged: depth, comfort and style only. Never sell power in ranked play. |
+| — | Deferred | History scrubber and player-made custom scenarios (after S8). |

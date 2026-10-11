@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Version | 4.0 (final plan for review) |
+| Version | 4.0 (final, 2026-10-11) |
 | Date | 2026-10-11 |
 | Related | [GAME-DESIGN](GAME-DESIGN.md) · [ACTIONS](ACTIONS.md) · [ENGAGEMENT](ENGAGEMENT.md) |
 | Base design (unchanged) | [`../docs/UI-DESIGN.md`](../docs/UI-DESIGN.md) · [`../all_refrence-ui/prototype-v3/`](../all_refrence-ui/prototype-v3/) · [`../all_refrence-ui/mockups/`](../all_refrence-ui/mockups/) · tokens in `app/globals.css` |
@@ -57,6 +57,8 @@ If a screen feels like an arcade, it is wrong. If it feels like a spreadsheet, i
 8. **No more than 2 toasts on screen.** Others queue. Toasts never cover the Lock button.
 9. **Motion explains change.** A number that changes counts. A panel that opens grows from its button. Decoration-only animation is not allowed in a turn.
 10. **Empty, loading and error states are designed**, never blank.
+
+**Layer discipline on the globe.** During planning the globe shows only: your gold outline, your own flows and project pins, and the target arc of the card you are setting. The influence map, all treaties, all sanctions and event pins appear in the reveal and in **World view** (toggle `V`). The planet is never covered by everything at once.
 
 ## 4. Theme
 
@@ -176,6 +178,8 @@ A long, smooth page in the 1.0 style. The globe stays fixed behind the first sec
 
 Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** or from the 6 cards. Taken seats show the player's avatar pin. The host has **Start**; bots fill free seats.
 
+**Leader identity** ([GAME-DESIGN §17](GAME-DESIGN.md#17-leader-identity)): a small card above the seat list with the leader name field and 8 portrait styles in a row (illustrated, flat, on paper colours). The choice is remembered for the next match. Quick Match uses the saved identity, so it adds no step.
+
 ### 5.5 Match layout (desktop ≥ 1200 px)
 
 ```
@@ -201,18 +205,25 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 ```
 
 - **Top bar:** your flag and name, treasury (CountUp on change), PC dots, year and turn, timer ring, Power rank with change, sound and settings.
-- **Left rail (the others):** live Power ranking with lock status per seat (● locked, ○ thinking, ◐ you). Below it, counts of treaties, sanctions and tariffs; **World Table** opens the full table as a sheet.
+- **Left rail (the others):** live Power ranking with each leader's portrait, lock status (● locked, ○ thinking, ◐ you) and a trend chip. Below it, counts of treaties, sanctions, tariffs and regions led; **World Table** opens the full table as a sheet.
 - **Command panel (you):** a 5-step tab bar. Steps are a guide, not a gate: any step can be opened in any order. A step you have touched shows a small check. The **active step** has a BorderBeam (Magic UI) at low opacity.
 - **Orders tray** ([ACTIONS §7](ACTIONS.md#7-orders-tray)) is pinned at the bottom of the panel, above **Lock turn**.
-- **News card** (paper) bottom-left of the globe shows last year's top 3 headlines; it collapses to one line during planning.
+- **News card** (paper) bottom-left of the globe shows last year's top 3 headlines; it collapses to one line during planning. Each headline has an event icon, a place and the year; tapping it flies the camera to that place and shows the pin (Liveuamap pattern). Never more than 3 items, then "More".
 - Keyboard: `1`–`5` steps, `A` all actions, `W` world table, `L` lock (no confirmation, because doing nothing is a valid turn), `Esc` closes a sheet, `?` help.
 
-#### 5.5.1 ① Brief
+#### 5.5.1�� Brief
 
 ```
 ┌ 2029 ───────────────────────────────────────┐
+│ ┌ WORLD VOTE · 20 s ────────────────────────┐│  (turns 3, 6, 9 only)
+│ │ Oil price cap at 115 for 3 years          ││
+│ │ Good for: importers · Bad for: exporters  ││
+│ │   [ Yes ]   [ No ]   [ Abstain ]          ││
+│ └───────────────────────────────────────────┘│
 │ DROUGHT IN THE GRAIN BELT     ← Fraunces 22 │
 │ China's harvest −12%. Food price +9%.       │
+│ ⚠ Prices rising: inflation 8.4% next year   │  (max 2 warnings)
+│   [Austerity Drive] [Cut Tariffs]           │
 │                                             │
 │ ┌ CRISIS · your call ───────────────────────┐│
 │ │ Rice exports: China asks to buy 3 units.  ││
@@ -227,11 +238,13 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 └─────────────────────────────────────────────┘
 ```
 
+- **World Vote** card sits on top only on vote turns. Its 20 s ring is separate from the turn timer. The vote is hidden until the reveal; after voting the card shrinks to one line ("You voted Yes").
+- **Warnings** are amber lines with a ⚠ icon and the suggested cards as chips; tapping a chip opens that card in Actions.
 - Crisis choices are big tap targets with a one-line forecast under each.
 - Advisor lines appear with a 120 ms stagger (AnimatedList).
 - Term chips (dotted underline) open a small popover from the glossary.
 
-#### 5.5.2 ② Budget
+#### 5.5.2�� Budget
 
 ```
 ┌ Budget 2029 ─────────────── Revenue $812B ───┐
@@ -257,7 +270,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 - The forecast line updates with a 150 ms debounce. It shows the **three biggest** effects only.
 - Moving a slider never needs PC.
 
-#### 5.5.3 ③ Projects
+#### 5.5.3�� Projects
 
 ```
 ┌ Projects ── Slots ● ● ○  (3rd at GDP +25%) ─┐
@@ -276,7 +289,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 - Starting a project: the tile shrinks into the slot (`layoutId`) and a pin drops on the globe at the site.
 - **Completion** (during the reveal): pin pulses gold three times, a "COMPLETED" stamp lands on the tile with a spring, a soft chime. This is the main "I built it" moment — kept short (≤ 1.2 s).
 
-#### 5.5.4 ④ Actions (cards)
+#### 5.5.4�� Actions (cards)
 
 ```
 ┌ Actions ───────────── suggested for 2029 ───┐
@@ -288,7 +301,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 │ └────────────────┘ └────────────────┘ └───────────┘│
 │ ┌ PEOPLE ─── ● ┐ ┌ ECONOMY ── ● ┐ ┌ ✚ Propose deal ┐│
 │ └──────────────┘ └─────────────┘ └────────────────┘│
-│ [ All actions (32) ▸ ]                            │
+│ [ All actions (33) ▸ ]                            │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -297,7 +310,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 - A card with a target shows a dashed preview arc on the globe while it is being set.
 - **All actions** opens a right sheet with the six groups and a search box (`cmdk`). Locked cards are dimmed with the reason.
 
-#### 5.5.5 ⑤ Diplomacy
+#### 5.5.5�� Diplomacy
 
 ```
 ┌ Diplomacy ───────────────────────────────────┐
@@ -328,7 +341,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 
 ### 5.7 The reveal (resolution replay)
 
-Built as one **GSAP timeline** (`gsap` and `@gsap/react` are already in the repo), so it can be paused, sped up (×2) and skipped. UI pieces inside it use Motion. Total ≈ 15 s.
+Built as one **GSAP timeline** (`gsap` and `@gsap/react` are already in the repo), so it can be paused, sped up (×2) and skipped. UI pieces inside it use Motion. Total ≈ 15–17 s.
 
 | t (s) | Beat | What happens |
 |---|---|---|
@@ -337,11 +350,13 @@ Built as one **GSAP timeline** (`gsap` and `@gsap/react` are already in the repo
 | 2.5 | Flows | Treaty flows draw as animated lines (energy amber, food green, tech blue). Sanction arcs draw in red, dashed. |
 | 5.0 | Event | If a world event happens, the camera flies to it, a paper card types the headline |
 | 7.0 | Markets | A price strip at the top: Oil 112 → 104 ▼, Food 109 ▲. Numbers roll (Counter). |
-| 8.5 | Back to you | Camera returns to your country. Projects complete here (§5.5.3) |
-| 9.5 | **Your numbers** | Result sheet rises (§5.8). Deltas count up one after another (80 ms stagger) |
-| 12.0 | **The ranking** | Power Index rows reorder with Motion `layout` (spring). Your row glows gold if you climbed. |
-| 13.5 | News | Three headlines type in on the paper card |
-| 15.0 | Next | "2030 begins" — the briefing for the next turn |
+| 7.8 | **World Vote** (vote turns) | Six portraits with their vote flip at once; "PASSED 4–2" or "FAILED" stamp |
+| 8.3 | **Influence** | Regions whose leader or strength changed re-tint: the new colour spreads from the region's centre outward (shader blend, 800 ms). A region you just took gets a soft gold rim pulse. |
+| 9.5 | Back to you | Camera returns to your country. Projects complete here (§5.5.3) |
+| 10.5 | **Your numbers** | Result sheet rises (§5.8). Deltas count up one after another (80 ms stagger), each with its trend chip |
+| 13.0 | **The ranking** | Power Index rows reorder with Motion `layout` (spring). Your row glows gold if you climbed. |
+| 14.5 | News | Three headlines type in on the paper card |
+| 16.0 | Next | "2030 begins" — the briefing for the next turn |
 
 - Every beat is skipped if it has nothing to show (no event, no completion).
 - **Forecast vs actual:** when your main forecast differed by more than 25%, a line shows it: "Forecast: energy ▲9. Actual: ▲5 — US sanctions delayed 1 unit." This is a key hook.
@@ -503,11 +518,14 @@ Reuse the 1.0 globe (`components/globe/*`, `PerfGuard`, `detect-gpu` tiers) and 
 | Flows | `TradeLayer`, `lanes.ts` | Treaty and market flows; line width = units; animated dash in the good's colour |
 | Sanctions | `SanctionsLayer` | Red dashed arcs, drawn during the reveal |
 | Relations | `RelationsLayer` | Optional view from the World Table |
+| **Influence map** (new) | `DataOverlay` fills by region | Partner regions tinted in the leading seat's colour, opacity by sway; soft edges, no hard borders; visible in the reveal and World view |
 | Markers | `Marker`, `MarkerProjector`, `ActivityMarkers` | Project pins, event pins, "thinking" dots |
 | Chokepoints | `ChokepointMarkers` | Hormuz, Malacca, Suez light up during shipping events |
 | Camera | `CameraRig`, `lib/camera/fly.ts` | Briefing fly-to, reveal choreography |
 
 - During planning the globe is calm: slow idle rotation stops when the player interacts with the panel.
+- **Label collisions (fix in 1.0 first):** today, conflict and summit cards overlap on mobile and the COP31 card hides under the Global Pulse panel on desktop. Before the game reuses the markers: give every label a priority, hide lower-priority labels that overlap a higher one or a panel's screen rectangle, and on mobile show pins only and open the card on tap.
+- **Mobile dock hint (1.0):** the dock scrolls sideways but nothing shows it; add a right-edge fade and let the next item peek.
 - Clicking a country on the globe opens its card (relations, trust, what it sells and needs, active treaties) with **Propose deal** as the main button.
 - Performance tiers: on low GPUs the clouds and atmosphere layers turn off and flows draw as static lines.
 

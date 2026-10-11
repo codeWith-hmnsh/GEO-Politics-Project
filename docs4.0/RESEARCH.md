@@ -6,7 +6,7 @@
 | Date | 2026-10-11 |
 | Related | [README](README.md) · [GAME-DESIGN](GAME-DESIGN.md) · [UI-DESIGN](UI-DESIGN.md) |
 
-The owner asked: does a game like ours already exist, what are the gaps, and what can we borrow for ideas and UI? This note covers four sites the owner named, a wider web search, and a review of our own 1.0 app. The **proposed additions** in §5 and §6 are not yet in the game design. Each needs the owner's approval.
+The owner asked: does a game like ours already exist, what are the gaps, and what can we borrow for ideas and UI? This note covers four sites the owner named, a wider web search, and a review of our own 1.0 app. **Status (2026-10-11):** the owner approved the additions in §5 except R-7 (history scrubber) and R-9 (custom scenarios), which are deferred. Approved items are now in GAME-DESIGN, SYSTEMS, UI-DESIGN, MULTIPLAYER and BUILD-PLAN.
 
 ---
 
@@ -63,10 +63,11 @@ Screenshots of the running app (desktop 1600×900 and mobile 390×844) were chec
 
 (The `60 fps · tier 3` badge in the screenshots comes from `FpsMeter`, which is development-only, so it needs no fix.)
 
-## 5. Proposed game additions (need approval)
+## 5. Game additions
 
 | # | Idea | From | Where it fits | Step |
 |---|---|---|---|---|
+| | *Status: R-1 to R-6 and R-8 approved; R-7 and R-9 deferred.* | | | |
 | R-1 | **Influence map:** countries where you hold treaties, aid or investment are tinted in your seat colour on the globe, and the tint spreads smoothly as influence grows. It gives the "my colour is spreading over the map" reward of Dummynation, without conquest. | Dummynation borders | Globe layer in the reveal and the World view | S3 |
 | R-2 | **Coalition mode (3 v 3):** two blocs share a team score; deals inside a bloc are cheaper; a bloc wins together. | Dummynation World War | New room setting after Quick Match | S6–S8 |
 | R-3 | **World Vote moments:** on turns 3, 6 and 9 the world votes on one resolution (sanctions, a climate deal, a trade rule). Every seat votes in 20 s; the result changes the world and relations. A shared multiplayer moment. | NationFall UN votes | Briefing of those turns | S5 |
@@ -79,7 +80,7 @@ Screenshots of the running app (desktop 1600×900 and mobile 390×844) were chec
 
 ## 6. UI ideas from the references
 
-These add to [UI-DESIGN.md](UI-DESIGN.md) once approved:
+These are now part of [UI-DESIGN.md](UI-DESIGN.md):
 
 - **Map as the hero, panels as glass** (our 1.0 already does this better than every competitor). Keep the globe at least 55% of the desktop screen in a match.
 - **Pins first, cards on demand** on small screens (Liveuamap keeps the map readable this way).

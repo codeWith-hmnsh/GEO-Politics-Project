@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Version | 4.0 (final plan for review) |
+| Version | 4.0 (final, 2026-10-11) |
 | Date | 2026-10-11 |
 | Related | [SYSTEMS](SYSTEMS.md) · [UI-DESIGN](UI-DESIGN.md) · [BUILD-PLAN](BUILD-PLAN.md) · base: [2.0 ARCHITECTURE](../docs2.0/ARCHITECTURE.md) |
 
@@ -19,6 +19,7 @@ The stack, the server-authoritative round loop and the engine package from [2.0 
 | **Solo** | 1 human + 5 bots | S3 | Engine runs in the browser. No backend needed to play. |
 | **Private room** | 2–6 humans + bots | S5 | Create room / Join with code (D-9). Friends. |
 | **Quick Match** (the **Start** button) | 1–6 humans + bots | S6 | Matchmaking queue. |
+| Coalition (3 v 3) | 6 humans or bots in 2 blocs | S8 | Shared bloc score; deals inside a bloc cost 0 PC. |
 | Async season | many, 1 turn per day | S8 | Same engine, 24 h turn timer. |
 | Ranked | Quick Match with rating | S8 | Only when the player base is large enough. |
 
@@ -64,6 +65,7 @@ PLANNING (deadline T = 120 / 105 / 90 s)
   client → POST /api/game/matches/:id/lock        (lock / unlock)
   client → POST /api/game/proposals               (send; bots answer at once on the server)
   client → POST /api/game/proposals/:pid/answer   (human answers)
+  client → POST /api/game/matches/:id/vote         (World Vote on turns 3, 6, 9; hidden until resolve)
   server → broadcast {type:'seat.locked', seat} / {type:'proposal', id}
 
 RESOLVE when all humans locked OR now ≥ T:
@@ -101,7 +103,7 @@ The next PLANNING deadline starts when every human has sent "ready" or after 20 
 ## 5. Data model (Supabase Postgres)
 
 ```
-profiles      (id uuid pk = auth.users.id, handle, avatar, xp, level, created_at)
+profiles      (id uuid pk = auth.users.id, handle, leader_name, portrait, xp, level, created_at)
 queue_tickets (id, profile_id, prefs text[], created_at, status)
 matches       (id, code, mode, scenario, seed, engine_version, turn, phase, deadline_at,
                settings jsonb, status, created_at, ended_at)
@@ -126,6 +128,7 @@ histories     (match_id pk, summary jsonb, public bool)             end-of-match
 | `POST /rooms` · `POST /rooms/:code/join` · `POST /rooms/:code/start` | Private rooms |
 | `GET /matches/:id` | Current state visible to this player |
 | `POST /matches/:id/orders` · `/lock` · `/ready` · `/resolve` | Turn loop |
+| `POST /matches/:id/vote` | World Vote (stored with the seat's orders; others see only "voted") |
 | `POST /proposals` · `POST /proposals/:pid/answer` | Diplomacy |
 | `POST /tick` | Cron backup: resolve overdue turns, run the matchmaker |
 | `POST /solo/verify` | Verify a solo match for XP (§7) |

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Version | 4.0 (final plan for review) |
+| Version | 4.0 (final, 2026-10-11) |
 | Date | 2026-10-11 |
 | Related | [README](README.md) · all docs in this folder |
 
@@ -17,8 +17,9 @@ This plan replaces the build order in [2.0 BUILD-PLAN](../docs2.0/BUILD-PLAN.md)
 ## S1 — Engine core (no UI)
 
 - `lib/game/engine/`: `state.ts` (types + zod), `rules.ts`, `rng.ts`, phases from [SYSTEMS §10](SYSTEMS.md#10-resolution-order), `causes.ts`, `score.ts`, `news.ts` (templates), `history.ts`.
-- `lib/game/engine/cards/`: the 32 cards from [ACTIONS §3](ACTIONS.md#3-library-v1-32-cards), `suggestCards()`.
-- `lib/game/engine/projects.ts`: the 16 projects. `events/`: 16 events and 16 crisis cards, 4 scenarios.
+- `lib/game/engine/cards/`: the 33 cards from [ACTIONS §3](ACTIONS.md#3-library-v1-33-cards), `suggestCards()`.
+- `lib/game/engine/projects.ts`: the 16 projects. `events/`: 16 events and 16 crisis cards, 4 scenarios, the World Vote resolution deck, early-warning checks.
+- Partner regions and sway, trends ([SYSTEMS §8.1–8.3](SYSTEMS.md#81-partner-regions-and-sway)).
 - `lib/game/bots/`: utility AI, 6 personalities, 3 difficulties, proposal answers.
 - `lib/game/seed/build-seed.ts`: `data/live` + `data/curated` → `data/game/seed-2026.json` for the 6 countries.
 - `scripts/selfplay.ts`: headless bot matches with a balance report.
@@ -37,10 +38,12 @@ This plan replaces the build order in [2.0 BUILD-PLAN](../docs2.0/BUILD-PLAN.md)
 
 ## S3 — Solo match (client-only)
 
+- **1.0 globe fixes first:** label priority and collision hiding, pins-first on mobile, dock scroll hint ([UI-DESIGN §7](UI-DESIGN.md#7-the-globe-in-the-game)).
 - Route `/play/match/solo` running the engine in the browser.
 - Match layout ([UI-DESIGN §5.5](UI-DESIGN.md#55-match-layout-desktop--1200-px)): top bar, left rail, command panel with the 5 steps, orders tray, Lock.
-- Brief with crisis cards and advisors; Budget sliders with forecast; Projects; Actions with suggested cards and the All actions drawer; Diplomacy with the proposal composer and bot answers.
-- The reveal (GSAP timeline), result sheet, Why chain, news, ranking reorder.
+- Brief with World Vote card, warnings, crisis cards and advisors; Budget sliders with forecast; Projects; Actions with suggested cards and the All actions drawer; Diplomacy with the proposal composer and bot answers.
+- The reveal (GSAP timeline) with the vote and influence beats, result sheet with trend chips, Why chain, located news, ranking reorder.
+- Influence map layer and World view toggle.
 - Match end: final ranking, Leader Score, history timeline, share card preview (local image).
 - Tutorial match ([UI-DESIGN §5.10](UI-DESIGN.md#510-first-match-tutorial)).
 - Motion tokens in `lib/motion.ts`; game tokens in `app/globals.css`; sound with mute.
@@ -53,6 +56,7 @@ This plan replaces the build order in [2.0 BUILD-PLAN](../docs2.0/BUILD-PLAN.md)
 
 - `/play` scrollable page ([UI-DESIGN §5.2](UI-DESIGN.md#52-play-page--play-scrollable)) with Start (solo until S6), the sticky "How a year works" story, the 6 country cards, the Why and ranking demos, the history marquee, FAQ.
 - Public history page and OG share image (`opengraph-image` route). Solo results are verified on the server before they become public ([MULTIPLAYER §7](MULTIPLAYER.md#7-solo-mode-and-result-verification)), so this step adds the first small backend piece.
+- Leader identity: name and 8 portrait styles, saved locally until S5 accounts.
 - Header **Play** link.
 
 **Done when:** a new visitor reaches a running match in two taps; Play page LCP < 2.5 s on a mid-range phone; a shared link shows the card preview in WhatsApp and X.
@@ -87,7 +91,9 @@ This plan replaces the build order in [2.0 BUILD-PLAN](../docs2.0/BUILD-PLAN.md)
 ## S8 — The bigger world
 
 - Conflict: mobilise, blockade, strikes and war, reusing the 2.0 design ([2.0 GAME-DESIGN §8](../docs2.0/GAME-DESIGN.md#8-conflict)).
+- Coalition mode (3 v 3).
 - More countries (Germany, Brazil, UK, Pakistan) and a Tech group of cards.
+- Deferred by the owner (2026-10-11): history scrubber, player-made custom scenarios.
 - Elections, migration and ageing as separate systems.
 - Async seasons, weekly world, ranked rating.
 - Monetization only after the owner answers D-1.

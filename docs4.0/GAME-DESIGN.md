@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Version | 4.0 (final plan for review) |
+| Version | 4.0 (final, 2026-10-11) |
 | Date | 2026-10-11 |
 | Related | [README](README.md) · [SYSTEMS](SYSTEMS.md) · [ACTIONS](ACTIONS.md) · [UI-DESIGN](UI-DESIGN.md) · [MULTIPLAYER](MULTIPLAYER.md) |
 
@@ -85,7 +85,7 @@ The oil story is one example. Another match can be a **Food Crisis** (a drought 
 
 Missions show the country's real strategic problem. They teach why each country acts the way it does.
 
-**World Market** is the rest of the world. It buys and sells goods at the world price with limited capacity. It is not a player and it has no seat.
+**World Market** is the trading pool of the rest of the world, split into 8 partner regions (§3.4). It buys and sells goods at the world price with limited capacity. It is not a player and it has no seat.
 
 ### 3.2 Starting values (rounded, from real data)
 
@@ -111,6 +111,27 @@ Values are seeded from `data/live/indicators.json`, `energy.json`, `crude.json`,
 | `tension` | 0–100 | World danger. Hostile cards raise it. Treaties lower it. At 70+, growth −0.5 for everyone (markets panic). |
 | `globalGrowth` | % | Moves with prices and tension; adds to every country's growth |
 | `scenario`, `seed`, `turn` | — | The crisis deck and deterministic randomness |
+| `regions[r].sway[seat]` | 0–100 per seat | Each seat's sway in the 8 partner regions (§3.4); drives the influence map |
+| `vote` | — | The World Vote of this turn, if any (§10.2) |
+
+### 3.4 Partner regions
+
+The rest of the world is split into **8 partner regions**. They are not players. They buy, sell, take aid and investment, and they lean toward whoever helps them most. They are where a leader's influence becomes visible on the map.
+
+| Region | Countries (examples) | Needs | Offers |
+|---|---|---|---|
+| Europe | Germany, France, Italy, Poland | Energy | Tech, money |
+| Southeast Asia | Indonesia, Vietnam, Thailand, Philippines | Energy, tech | Food, manufacturing jobs |
+| South Asia | Pakistan, Bangladesh, Sri Lanka, Nepal | Energy, food, investment | Workforce, markets |
+| Middle East & North Africa | UAE, Iran, Egypt, Iraq | Food, tech | Energy |
+| Sub-Saharan Africa | Nigeria, Kenya, Ethiopia, South Africa | Investment, food, energy | Minerals, markets |
+| Latin America | Brazil, Mexico, Argentina, Chile | Tech, investment | Food, energy |
+| Central Asia | Kazakhstan, Uzbekistan, Turkmenistan | Investment, tech | Energy |
+| Oceania | Australia, New Zealand | Tech | Food, energy |
+
+- Each region has a **sway** value per seat (0–100, total ≤ 100). Trade deals, aid and investment raise it. Sanctioning a country the region depends on lowers it.
+- The seat with the most sway **leads** the region (minimum 25). Leading a region gives +2 influence per turn and −2% on World Market purchases (maximum −8% for four regions).
+- **The influence map:** every region you lead is tinted in your seat colour on the globe, stronger as your sway grows. Over a match a leader can watch their colour spread across Africa or Southeast Asia — the satisfying "my colour is spreading" feeling, without conquest.
 
 ## 4. Time and the turn
 
@@ -193,7 +214,7 @@ A project is a one-off build that unlocks a capability. It is **not** a building
 
 Full library and rules: [ACTIONS.md](ACTIONS.md).
 
-- The library holds every action the game knows. v1 has 32 cards in six groups: Economy, Trade, Energy, Food, People, Diplomacy.
+- The library holds every action the game knows. v1 has 33 cards in six groups: Economy, Trade, Energy, Food, People, Diplomacy.
 - Each turn the game shows the **5–7 cards that matter now**, chosen from your country's situation, the scenario and last year's events. Example: in an energy shortage the energy cards come first.
 - **"Propose deal"** and the **budget** are always available.
 - The **All actions** drawer lists every card, grouped. Cards you cannot play show a lock and the reason ("Needs Port", "Not enough PC"). The player never feels that a move is hidden from them.
@@ -237,7 +258,11 @@ A proposal is a card with three fields:
 
 ### 8.4 The World Table
 
-A permanent panel lists every active treaty, sanction and tariff in the world, with the countries, the terms and the turns left. Diplomacy is a visible system, not a hidden message thread.
+A permanent panel lists every active treaty, sanction and tariff in the world, with the countries, the terms and the turns left. It also lists who leads each partner region. Diplomacy is a visible system, not a hidden message thread.
+
+### 8.5 Trends
+
+Every country card, the World Table and your own result sheet show a small **trend chip** for each Power dimension: **Improving**, **Worsening** or **Unchanging** (the slope over the last 3 turns). A leader can read the world's direction at a glance, not only its numbers.
 
 ## 9. Trade, sanctions and tariffs (summary)
 
@@ -263,6 +288,30 @@ Each match draws one **scenario**. The scenario sets the starting situation and 
 v1 has 16 events. Each event is a data entry: trigger weight, affected countries, effects on state, a briefing card and a news template.
 
 **Crisis cards.** When an event hits a country hard, that country's next briefing includes a **crisis card** with 2–3 choices and advisor lines (for example: "Monsoon failed. A) Release grain reserves. B) Ban rice exports. C) Import from Russia."). Choosing is free (no PC). Ignoring it picks the "wait" option. Crisis cards are the Reigns-style fast decisions that give the leader feeling.
+
+### 10.1 Early warnings
+
+Big problems build up; they never appear from nowhere. When the engine's forecast shows a threshold will be crossed next turn, the briefing shows a **warning** one turn early, with the cards that can help:
+
+| Warning | Trigger (forecast for next turn) | Suggested cards |
+|---|---|---|
+| Protests growing | Stability < 35 | Cash Transfers, Jobs Guarantee, Fuel Subsidy |
+| Debt alarm | Rating will drop a step | Austerity Drive, IMF Programme |
+| Shortage ahead | Energy or food supply < 90% | Secure Imports, Release Reserves, Propose Deal |
+| Jobs crisis | Unemployment +1 point or more | Jobs Guarantee, Special Economic Zone |
+| Prices rising | Inflation > 8% | Austerity Drive, Cut Tariffs |
+
+At most two warnings show at once (the most severe first), so the briefing stays calm.
+
+### 10.2 World Vote
+
+On turns **3, 6 and 9** the world votes on one resolution, like a UN session. It is the one moment where all six leaders act on the same question.
+
+- The resolution is drawn from a deck weighted by the current world: *Oil price cap*, *Global sanctions on [country]*, *Clean energy fund*, *Ban on food export bans*, *Tech export rules*, *Shipping lane security mission*, *Debt relief for Africa*.
+- Each seat votes **Yes**, **No** or **Abstain** at the top of the Brief step. Voting costs no PC. Bots vote by utility.
+- Votes stay hidden until the reveal, then show together.
+- A resolution passes with **4 or more Yes** votes. Its effects apply from the next turn for 3 turns (for example: an oil price cap holds the energy price at ≤ 115; global sanctions add +0.5 to sanction strength).
+- Voting together: relations +4 between seats that voted the same way; −3 between seats that voted Yes and No. A partner region whose interests a resolution serves gives +5 sway to the Yes voters.
 
 ## 11. Military (MVP)
 
@@ -305,7 +354,7 @@ Each scenario adds two optional objectives per country (for example "Energy secu
 
 1. **Final ranking:** the Power Index reorders one last time. Then Leader Scores count up and the winner is crowned.
 2. **Your World History:** a timeline built only from the match's event log. Turn by turn: the biggest event, your key move, and the turning point ("2029: the USA–Russia sanctions cut India's oil by 20%").
-3. **Share card:** an image (Next.js OG image route) with country, years, the three biggest gains, the Power rank change and one achievement line. Shareable link with a public read-only history page.
+3. **Share card:** an image (Next.js OG image route) with the leader's name and portrait, country, years, the three biggest gains, the Power rank change, the regions led and one achievement line. Shareable link with a public read-only history page.
 4. **Rematch** (same players, new seed) and **New match**.
 
 ## 14. Advisors and learning
@@ -341,6 +390,10 @@ Players learn geopolitics by playing it, not by reading lectures.
 - **Targets:** every country wins 12–22% of bot matches at Normal; no single card appears in more than 60% of winning turns; average match has at least 4 treaties.
 - **Playtests:** each build step has a fun gate ([BUILD-PLAN](BUILD-PLAN.md)).
 
-## 17. Not in the MVP
+## 17. Leader identity
 
-War and strikes, intelligence, more than 6 countries, async seasons, ranked rating, Daily Crisis, free text, elections, migration and ageing as separate systems, chat. Each has a later step in [BUILD-PLAN](BUILD-PLAN.md).
+In the lobby each player sets a **leader name** (up to 20 characters, filtered) and picks one of 8 illustrated **portrait styles** (no real faces). The countries stay real; only the leader is yours. The name and portrait show on the ranking rail, in proposals, in the news ("President Asha Rao signs oil pact") and on the share card.
+
+## 18. Not in the MVP
+
+War and strikes, intelligence, more than 6 countries, coalition mode (3 v 3), async seasons, ranked rating, Daily Crisis, free text, elections, migration and ageing as separate systems, chat. Deferred by the owner on 2026-10-11: the history scrubber (a year slider replaying the globe at match end) and player-made custom scenarios. Each has a later step in [BUILD-PLAN](BUILD-PLAN.md).

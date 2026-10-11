@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Version | 4.0 (final plan for review) |
+| Version | 4.0 (final, 2026-10-11) |
 | Date | 2026-10-11 |
 | Related | [GAME-DESIGN](GAME-DESIGN.md) · [ACTIONS](ACTIONS.md) · [MULTIPLAYER](MULTIPLAYER.md) |
 
@@ -278,6 +278,36 @@ tension'   = tension − 3
 military'  = military + 0.6 × (defenceIndex − 50) / 10 + projects − 0.5
 ```
 
+### 8.1 Partner regions and sway
+
+```
+sway'[r][seat] = sway × 0.97                                  // slow fade without effort
+               + 0.8 per supply unit traded with the region this turn
+               + 6 per % of GDP of aid or investment sent to the region
+               + 5 if the seat voted Yes on a resolution that serves the region
+               − 6 if the seat sanctions or embargoes a country the region depends on
+normalise so Σ sway[r] ≤ 100
+leader(r) = argmax(sway[r]) if max ≥ 25, else none
+```
+
+Leading a region: influence +2 per turn; World Market purchase price −2% per region led (cap −8%). The globe tint for a region uses the leader's seat colour at opacity `0.15 + 0.45 × sway/100`.
+
+### 8.2 Trends
+
+```
+trend(dim) = least-squares slope of dim over the last 3 turns
+Improving if trend > +2 per turn · Worsening if < −2 · otherwise Unchanging
+```
+
+### 8.3 World Vote
+
+```
+passes = count(Yes) ≥ 4
+relations[a][b] += 4 if a and b voted the same way (both Yes or both No)
+relations[a][b] −= 3 if one voted Yes and the other No
+effects are data in the resolution deck; they start next turn and last 3 turns
+```
+
 ## 9. Cause records and the Why chain
 
 Every formula term that changes a value writes a record:
@@ -308,12 +338,12 @@ interface Cause {
 3. **Budget and tax:** revenue, spending, ministry indices.
 4. **Projects:** instalments, progress, completions.
 5. **Cards:** domestic and trade-policy cards (tariffs, sanctions, embargoes, programmes), simultaneously.
-6. **World event and crisis choices** for this turn.
+6. **World event, World Vote result and crisis choices** for this turn.
 7. **Goods:** production, demand, treaty flows, reserves, market, prices.
 8. **Macro:** growth, GDP, employment, population, inflation, debt, rating.
 9. **People:** stability, unrest.
-10. **Diplomacy:** relations, trust, influence, tension, military.
-11. **Scores:** Power Index dimensions, Leader Score, objectives.
+10. **Diplomacy:** relations, trust, region sway, influence, tension, military.
+11. **Scores:** Power Index dimensions, trends, Leader Score, objectives; early warnings for next turn (from a forecast with no orders).
 12. **Output:** cause records, news items, history entries, globe events for the replay.
 
 ## 11. Scores
