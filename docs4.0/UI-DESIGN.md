@@ -211,7 +211,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 - **News card** (paper) bottom-left of the globe shows last year's top 3 headlines; it collapses to one line during planning. Each headline has an event icon, a place and the year; tapping it flies the camera to that place and shows the pin (Liveuamap pattern). Never more than 3 items, then "More".
 - Keyboard: `1`–`5` steps, `A` all actions, `W` world table, `L` lock (no confirmation, because doing nothing is a valid turn), `Esc` closes a sheet, `?` help.
 
-#### 5.5.1�� Brief
+#### 5.5.1 Brief
 
 ```
 ┌ 2029 ───────────────────────────────────────┐
@@ -244,7 +244,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 - Advisor lines appear with a 120 ms stagger (AnimatedList).
 - Term chips (dotted underline) open a small popover from the glossary.
 
-#### 5.5.2�� Budget
+#### 5.5.2 Budget
 
 ```
 ┌ Budget 2029 ─────────────── Revenue $812B ───┐
@@ -270,7 +270,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 - The forecast line updates with a 150 ms debounce. It shows the **three biggest** effects only.
 - Moving a slider never needs PC.
 
-#### 5.5.3�� Projects
+#### 5.5.3 Projects
 
 ```
 ┌ Projects ── Slots ● ● ○  (3rd at GDP +25%) ─┐
@@ -289,7 +289,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 - Starting a project: the tile shrinks into the slot (`layoutId`) and a pin drops on the globe at the site.
 - **Completion** (during the reveal): pin pulses gold three times, a "COMPLETED" stamp lands on the tile with a spring, a soft chime. This is the main "I built it" moment — kept short (≤ 1.2 s).
 
-#### 5.5.4�� Actions (cards)
+#### 5.5.4 Actions (cards)
 
 ```
 ┌ Actions ───────────── suggested for 2029 ───┐
@@ -310,7 +310,7 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 - A card with a target shows a dashed preview arc on the globe while it is being set.
 - **All actions** opens a right sheet with the six groups and a search box (`cmdk`). Locked cards are dimmed with the reason.
 
-#### 5.5.5�� Diplomacy
+#### 5.5.5 Diplomacy
 
 ```
 ┌ Diplomacy ───────────────────────────────────┐
