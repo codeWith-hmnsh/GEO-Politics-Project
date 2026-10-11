@@ -15,11 +15,12 @@ import { RelationsLayer } from "./layers/RelationsLayer";
 import { SanctionsLayer } from "./layers/SanctionsLayer";
 import { TradeLayer } from "./layers/TradeLayer";
 import { WarsLayer } from "./layers/WarsLayer";
+import { GameLayers } from "./game/GameLayers";
 import { MarkerProjector } from "./MarkerProjector";
 import { PerfGuard } from "./PerfGuard";
 
-/** The WebGL globe. Mounted once; layers are added on top in later milestones. */
-export default function GlobeCanvas() {
+/** The WebGL globe. Mounted once; layers are added on top in later milestones. `game` swaps the explore layers for Statecraft layers. */
+export default function GlobeCanvas({ game = false }: { game?: boolean }) {
   const [countries, setCountries] = useState<IndexedCountry[]>([]);
   const cloudsDimmed = useGlobe((s) => s.mode !== "home" || s.selectedIso3 !== null);
   const [mobile] = useState(() => window.matchMedia("(max-width: 760px)").matches);
@@ -50,19 +51,27 @@ export default function GlobeCanvas() {
         {!light && <Clouds dimmed={cloudsDimmed} />}
       </Suspense>
       <Atmosphere />
-      {countries.length > 0 && (
-        <>
-          <DataOverlay countries={countries} size={light || mobile ? 2048 : 4096} />
-          <CountryBorders countries={countries} />
-          <CountryOutlines countries={countries} />
-          <AdminBorders countries={countries} />
-          <RelationsLayer countries={countries} />
-          <TradeLayer countries={countries} />
-          <SanctionsLayer countries={countries} />
-        </>
-      )}
-      <WarsLayer />
-      <EconomyLayer />
+      {countries.length > 0 &&
+        (game ? (
+          <>
+            <GameLayers countries={countries} size={light || mobile ? 2048 : 4096} />
+            <CountryBorders countries={countries} />
+            <CountryOutlines countries={countries} />
+            <AdminBorders countries={countries} />
+          </>
+        ) : (
+          <>
+            <DataOverlay countries={countries} size={light || mobile ? 2048 : 4096} />
+            <CountryBorders countries={countries} />
+            <CountryOutlines countries={countries} />
+            <AdminBorders countries={countries} />
+            <RelationsLayer countries={countries} />
+            <TradeLayer countries={countries} />
+            <SanctionsLayer countries={countries} />
+          </>
+        ))}
+      {!game && <WarsLayer />}
+      {!game && <EconomyLayer />}
       <CameraRig countries={countries} />
       <MarkerProjector />
       <PerfGuard />

@@ -14,6 +14,7 @@ const NAV = [
   { id: "stories", label: "Stories", ready: true, side: "stories" as const },
   { id: "glossary", label: "Glossary", ready: true },
   { id: "sources", label: "Sources", ready: true },
+  { id: "play", label: "Play", ready: true },
 ] as const;
 
 export function goHome() {

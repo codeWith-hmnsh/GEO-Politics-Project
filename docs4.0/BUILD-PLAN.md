@@ -38,6 +38,8 @@ This plan replaces the build order in [2.0 BUILD-PLAN](../docs2.0/BUILD-PLAN.md)
 
 ## S3 — Solo match (client-only)
 
+**Status (2026-10-12):** built at `/play` inside the 1.0 app on the real globe: country pick, guided first match, year goal and advisor, four-tab command panel, deals with bot answers and counters, lock, reveal on the globe, result with "What your decisions did" and Why chains, match end with share card. Engine self-play: 10,000 Normal matches, 0 errors, every seat wins 12.5–20.1%. Tests: 25 Vitest, 1 Playwright (`e2e/play.spec.ts`). The fun playtest gate is still to run with real players.
+
 - **1.0 globe fixes first:** label priority and collision hiding, pins-first on mobile, dock scroll hint ([UI-DESIGN §7](UI-DESIGN.md#7-the-globe-in-the-game)).
 - Route `/play/match/solo` running the engine in the browser.
 - Match layout ([UI-DESIGN §5.5](UI-DESIGN.md#55-match-layout-desktop--1200-px)): top bar, left rail, command panel with the 5 steps, orders tray, Lock.

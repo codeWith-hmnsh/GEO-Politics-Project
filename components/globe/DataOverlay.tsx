@@ -29,7 +29,8 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
   const diploBloc = useGlobe((s) => s.diplo.bloc);
   const { data: votes } = useUnVotes(diploView === "unvotes" ? selectedIso3 : null);
   // Relation colours show on Home and in Diplomacy's Relations view.
-  const relationsOn = homeMode || diploView === "relations";
+  const play = useGlobe((s) => s.play);
+  const relationsOn = !play && (homeMode || diploView === "relations");
 
   const { canvas, texture } = useMemo(() => {
     const c = document.createElement("canvas");
@@ -145,7 +146,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       ctx.globalAlpha = 1;
     }
 
-    if (relVisible && !selectedIso3 && data) {
+    if (relVisible && !play && !selectedIso3 && data) {
       const p = document.createElement("canvas");
       p.width = p.height = 18;
       const pg = p.getContext("2d")!;
@@ -170,7 +171,7 @@ export function DataOverlay({ countries, size = 4096 }: { countries: IndexedCoun
       }
     }
     texture.needsUpdate = true;
-  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators, highlight, compareIso3, relationsOn, diploView, diploBloc, votes]);
+  }, [canvas, texture, gl, countries, data, selectedOrg, selectedIso3, homeMode, relVisible, mode, metricId, indicators, highlight, compareIso3, relationsOn, diploView, diploBloc, votes, play]);
 
   return (
     <mesh renderOrder={1}>

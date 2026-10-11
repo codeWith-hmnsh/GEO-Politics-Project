@@ -67,7 +67,7 @@ export function RelationArc({ from, to, color, index }: { from: [number, number]
 export function RelationsLayer({ countries }: { countries: IndexedCountry[] }) {
   const { data } = usePulse();
   const visible = useHomeLayerVisible("rel");
-  const selected = useGlobe((s) => (s.mode === "home" || (s.mode === "diplomacy" && s.diplo.view === "relations") ? s.selectedIso3 : null));
+  const selected = useGlobe((s) => (!s.play && (s.mode === "home" || (s.mode === "diplomacy" && s.diplo.view === "relations")) ? s.selectedIso3 : null));
   const tier = useGlobe((s) => s.tier);
   const fade = useRef(0);
   const group = useRef<THREE.Group>(null);

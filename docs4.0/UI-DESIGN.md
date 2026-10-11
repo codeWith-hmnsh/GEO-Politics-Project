@@ -182,6 +182,8 @@ Same layout as 2.0 §4.2, with 6 seats. The country is picked **on the globe** o
 
 ### 5.5 Match layout (desktop ≥ 1200 px)
 
+> **Changed in S3 (2026-10-12), after the owner found the first prototype hard to follow:** the command panel has four tabs, not five: **This year** (the year's goal, three advisor moves with "Do it" and their forecast effect, World Vote, warnings, crisis cards, mission), **Moves** (suggested cards and All actions), **Deals** (offers, a suggested deal, the composer, treaties) and **Advanced** (budget and projects, both optional). Words are plain: "moves left" instead of political capital, goods as "≈13% of your oil needs" instead of units. The result shows **What your decisions did**: the same year resolved again without your orders, so the effect of your choices is always visible. The solo turn timer is off by default. The game runs on the 1.0 globe at `/play` (`components/game/`, `components/globe/game/`).
+
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │ 🇮🇳 INDIA  $96B  PC ●●●○   │   2029 · Turn 4/12   ◔ 0:54   │  Power #3 ▲1  🔊 ⚙ │  top bar

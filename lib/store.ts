@@ -72,6 +72,9 @@ type GlobeState = {
   toggleLayer: (id: LayerId) => void;
   setPulseOpen: (open: boolean) => void;
   addAdminLabels: (iso3: string, labels: AdminLabel[]) => void;
+  /** Statecraft (/play) is on: the explore layers stay hidden and the game draws its own layers. */
+  play: boolean;
+  setPlay: (on: boolean) => void;
 };
 
 let requestId = 0;
@@ -157,4 +160,6 @@ export const useGlobe = create<GlobeState>((set) => ({
   toggleLayer: (id) => set((s) => ({ layers: { ...s.layers, [id]: !s.layers[id] } })),
   setPulseOpen: (open) => set({ pulseOpen: open }),
   addAdminLabels: (iso3, labels) => set((s) => ({ adminLabels: { ...s.adminLabels, [iso3]: labels } })),
+  play: false,
+  setPlay: (on) => set({ play: on }),
 }));

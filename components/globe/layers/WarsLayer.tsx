@@ -16,7 +16,7 @@ const MAX_ARCS = 12;
 
 /** Is the Home layer visible right now (switch on, Home mode, no country in focus, no Story Tour)? */
 export function useHomeLayerVisible(id: "wars" | "orgs" | "econ" | "rel") {
-  return useGlobe((s) => s.layers[id] && s.mode === "home" && s.selectedIso3 === null && s.tour === null);
+  return useGlobe((s) => !s.play && s.layers[id] && s.mode === "home" && s.selectedIso3 === null && s.tour === null);
 }
 
 function Hotspot({ c, index, fade }: { c: PulseConflict; index: number; fade: React.RefObject<number> }) {

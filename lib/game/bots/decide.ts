@@ -132,7 +132,7 @@ function hasSupply(w: WorldState, me: Iso3, g: Good) {
   return w.treaties.some((t) => (t.b === me && t.aGives.some((x) => x.kind === "goods" && x.good === g)) || (t.a === me && t.bGives.some((x) => x.kind === "goods" && x.good === g)));
 }
 
-function projectScore(c: CountryState, id: string): number {
+export function projectScore(c: CountryState, id: string): number {
   const e = need(c, "energy") / c.goods.energy.demand;
   const f = need(c, "food") / c.goods.food.demand;
   const t = need(c, "tech") / c.goods.tech.demand;

@@ -23,7 +23,7 @@ function HoverTooltip() {
   const name = useGlobe((s) => s.hoverName);
   const iso3 = useGlobe((s) => s.hoverIso3);
   const ll = useGlobe((s) => s.hoverLatLng);
-  const selected = useGlobe((s) => (s.mode === "home" ? s.selectedIso3 : null));
+  const selected = useGlobe((s) => (s.mode === "home" && !s.play ? s.selectedIso3 : null));
   const { x, y } = useGlobe((s) => s.pointer);
   const { data } = usePulse();
   if (!name) return null;
@@ -57,13 +57,23 @@ function hasWebGL() {
   }
 }
 
-export function GlobeClient() {
+/** `variant="game"` (Statecraft, /play): the same globe with game layers instead of the explore markers. */
+export function GlobeClient({ variant = "explore", children }: { variant?: "explore" | "game"; children?: React.ReactNode }) {
   const [webgl, setWebgl] = useState<boolean | null>(null);
   useEffect(() => {
     const id = requestAnimationFrame(() => setWebgl(hasWebGL()));
     return () => cancelAnimationFrame(id);
   }, []);
   if (webgl === false) return <Fallback2D />;
+  if (variant === "game")
+    return (
+      <>
+        <GlobeCanvas game />
+        <MapLabels />
+        {children}
+        <HoverTooltip />
+      </>
+    );
   return (
     <>
       <GlobeCanvas />
