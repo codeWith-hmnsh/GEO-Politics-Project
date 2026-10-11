@@ -195,7 +195,6 @@ Free text adds speed and the feeling of "my own words". It never adds power: it 
 **Parser** (`lib/game/parse/`):
 - **Verbs → cards:** a synonym table ("buy", "secure", "import", "get" + a good → Secure Imports or a supply proposal; "tariff", "tax imports" → Impose Tariff; "sanction", "punish" → Sanction).
 - **Entities:** country names and adjectives ("Russia", "Russian", "Moscow"), goods ("oil", "gas", "fuel", "petrol" → energy; "wheat", "rice", "grain" → food; "chips", "semiconductors" → tech), numbers and durations ("3 years", "for 5 turns", "25%").
-- **Hinglish keywords** for the main audience: "tel" → energy, "anaaj", "gehun", "chawal" → food, "kharido", "lo" → buy, "rok do", "band karo" → stop or embargo.
 - **Output:** one filled card if the match is confident; otherwise "Did you mean?" with the 3 closest cards. Never a dead end.
 - Unmatched sentences are logged (anonymously) to a wish list. The most common become new cards.
 - A golden test set of 150 sentences must reach 80% exact card + target match before release.

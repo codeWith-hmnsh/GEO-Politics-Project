@@ -19,7 +19,7 @@ It is not a quiz, not a Clash of Clans clone and not a menu of fixed choices. It
 | 5 | [MULTIPLAYER.md](MULTIPLAYER.md) | Solo, Quick Match and private rooms; matchmaking; country assignment; bots filling seats; leavers; the server-authoritative round loop; data model; free-tier limits and cost. |
 | 6 | [ENGAGEMENT.md](ENGAGEMENT.md) | Why a player comes back: the loops inside a turn, a match, a day and a season; progression; sharing; guard rails. |
 | 7 | [BUILD-PLAN.md](BUILD-PLAN.md) | Steps S1–S8 with tasks, playtest gates and done criteria. |
-| 8 | [RESEARCH.md](RESEARCH.md) | Competitors (Dummynation, WorldOS, NationFall, Country Simulator, Eversim), the market gap, a review of our 1.0 app, and proposed additions R-1 to R-10 that need approval. |
+| 8 | [RESEARCH.md](RESEARCH.md) | Competitors (Dummynation, WorldOS, NationFall, Country Simulator, Eversim), the market gap, a review of our 1.0 app, and proposed additions R-1 to R-9 that need approval. |
 
 ## How this plan was reached
 

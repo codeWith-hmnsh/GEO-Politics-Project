@@ -34,7 +34,7 @@ No product combines all five of these. Statecraft is built to do it:
 4. **Winning without war** — almost every competitor rewards conquest. Our Power Index and Leader Score reward growth, jobs, security, diplomacy and stability.
 5. **Free and instant in the browser** — no download, no login, no pay-per-turn, no forced ads.
 
-Plus one audience gap: **India-first**, with Hinglish copy and an Indian seat that has a real problem to solve (jobs and oil). Only Dummynation offers Hindi, and it is a conquest game.
+The game is **English only**. It has an Indian seat with a real problem to solve (jobs and oil), which suits our first audience.
 
 **Positioning line:** *"Real geopolitics in 20 minutes. Lead a real country against real people. See exactly why the world changed."*
 
@@ -76,7 +76,6 @@ Screenshots of the running app (desktop 1600×900 and mobile 390×844) were chec
 | R-7 | **History scrubber:** on the end screen, a year slider replays the globe year by year (flows, influence tint, ranking). | Liveuamap time archive | Match end | S4 |
 | R-8 | **Leader identity:** the player picks a leader name and one of a few portrait styles shown on the share card. Real countries stay real; only the leader is yours. | Country Simulator flag designer | Lobby | S4 |
 | R-9 | **Custom scenarios** made by players and shared with a code. | Dummynation editor | Later | S8 |
-| R-10 | **Hindi and Hinglish UI** in addition to English. | Dummynation languages | i18n | S4 |
 
 ## 6. UI ideas from the references
 
