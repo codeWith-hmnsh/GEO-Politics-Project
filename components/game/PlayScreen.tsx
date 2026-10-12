@@ -338,8 +338,8 @@ function News() {
   const last = world.history.at(-1);
   if (!last || phase === "reveal") return null;
   return (
-    <section aria-label="World news" className="fixed bottom-4 left-4 z-10 w-[340px] rounded-xl border border-[rgba(122,92,46,.2)] bg-[#FBF7EE] p-4 shadow-[var(--shadow-card)] max-[1100px]:hidden">
-      <div className="mb-2 flex items-center justify-between text-[11px] font-extrabold tracking-[.14em] text-[#7A5C2E] uppercase">
+    <section aria-label="World news" className="fixed bottom-4 left-4 z-10 w-[340px] rounded-xl border border-[rgba(122,92,46,.2)] bg-[var(--wire-paper)] p-4 shadow-[var(--shadow-card)] max-[1100px]:hidden">
+      <div className="mb-2 flex items-center justify-between text-[11px] font-extrabold tracking-[.14em] text-[var(--wire)] uppercase">
         World news · {last.year}
         <span className="-rotate-3 rounded border-[1.5px] border-current px-1.5 py-px text-[9px]">Simulated</span>
       </div>
@@ -348,7 +348,7 @@ function News() {
           <li key={n.id}>
             <button
               type="button"
-              className="text-left font-display text-[14.5px] leading-snug text-[#3d2f18] italic hover:underline"
+              className="text-left font-display text-[14.5px] leading-snug text-[var(--wire-ink)] italic hover:underline"
               onClick={() => {
                 if (n.iso3) focus(CAPITAL[n.iso3][0], CAPITAL[n.iso3][1], 3.0);
               }}

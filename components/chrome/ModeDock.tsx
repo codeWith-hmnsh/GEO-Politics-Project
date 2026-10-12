@@ -2,6 +2,7 @@
 
 import { ChartNoAxesColumn, Globe, Shield, Users, Zap } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { flags } from "@/config/flags";
 import { useGlobe, type Mode } from "@/lib/store";
@@ -19,9 +20,28 @@ export function ModeDock() {
   const mode = useGlobe((s) => s.mode);
   const setMode = useGlobe((s) => s.setMode);
 
+  // On narrow screens the dock scrolls sideways: fade the edge that has more items behind it.
+  const navRef = useRef<HTMLElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const check = () => setMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      el.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, []);
+
   return (
     <nav
+      ref={navRef}
+      data-avoid
       aria-label="Mode"
+      style={more ? { maskImage: "linear-gradient(90deg,#000 78%,transparent)", WebkitMaskImage: "linear-gradient(90deg,#000 78%,transparent)" } : undefined}
       className="fixed bottom-[22px] left-[22px] z-20 flex max-w-[calc(100%-44px)] gap-1 overflow-x-auto rounded-2xl bg-[var(--glass)] p-2 shadow-[var(--shadow-card)] backdrop-blur-xl [scrollbar-width:none] max-md:inset-x-3 max-md:bottom-3 max-md:max-w-none max-md:p-1.5"
     >
       {MODES.map(({ id, label, Icon, enabled, when }) => {

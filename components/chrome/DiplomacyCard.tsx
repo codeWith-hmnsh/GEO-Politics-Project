@@ -30,7 +30,7 @@ export function DiplomacyCard({ countryName }: { countryName: (iso3: string) => 
       initial={{ opacity: 0, x: -16 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35 }}
-      className="fixed top-20 left-[22px] z-20 max-h-[calc(100%-190px)] w-[316px] overflow-auto rounded-[18px] bg-[var(--glass)] p-5 shadow-[var(--shadow-card)] backdrop-blur-xl max-md:inset-x-3 max-md:top-16 max-md:max-h-[40%] max-md:w-auto"
+      data-avoid className="fixed top-20 left-[22px] z-20 max-h-[calc(100%-190px)] w-[316px] overflow-auto rounded-[18px] bg-[var(--glass)] p-5 shadow-[var(--shadow-card)] backdrop-blur-xl max-md:inset-x-3 max-md:top-16 max-md:max-h-[40%] max-md:w-auto"
     >
       <h2 className="text-[22px] leading-tight font-bold tracking-tight">{MODE_COPY.diplomacy.title}</h2>
       <p className="mt-1.5 mb-3 text-[12.5px] text-ink-2">{MODE_COPY.diplomacy.question}</p>

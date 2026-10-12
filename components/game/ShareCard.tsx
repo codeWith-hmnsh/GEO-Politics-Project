@@ -6,9 +6,9 @@ import { Portrait } from "./bits";
 /** The "My Statecraft" card shown at match end and on the public share page (GAME-DESIGN §13). */
 export function ShareCard({ s }: { s: Share }) {
   return (
-    <div className="relative grid gap-3 overflow-hidden rounded-[18px] border border-[rgba(122,92,46,.25)] bg-[#FBF7EE] p-6 shadow-[var(--shadow-card)]">
+    <div className="relative grid gap-3 overflow-hidden rounded-[18px] border border-[rgba(122,92,46,.25)] bg-[var(--wire-paper)] p-6 shadow-[var(--shadow-card)]">
       <div className="absolute -top-16 -right-16 size-56 rounded-full bg-[radial-gradient(circle_at_35%_35%,#cfe3f2,#7aa2bd_55%,#3d6a85)] opacity-35" aria-hidden />
-      <div className="text-[11px] font-extrabold tracking-[.14em] text-[#7A5C2E] uppercase">My Statecraft</div>
+      <div className="text-[11px] font-extrabold tracking-[.14em] text-[var(--wire)] uppercase">My Statecraft</div>
       <div className="flex items-center gap-3">
         <Portrait i={s.p} seat={SEAT_COLOR[s.c]} size={52} />
         <div>
@@ -32,7 +32,7 @@ export function ShareCard({ s }: { s: Share }) {
           </div>
         ))}
       </div>
-      <p className="font-display text-[18px] text-[#3d2f18] italic">“{s.a}”</p>
+      <p className="font-display text-[18px] text-[var(--wire-ink)] italic">“{s.a}”</p>
       <small className="text-[12px] text-ink-3">Statecraft · simulated match · {SCENARIO_NAME[s.sc]}</small>
     </div>
   );

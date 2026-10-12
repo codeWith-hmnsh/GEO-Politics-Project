@@ -38,7 +38,7 @@ export function Delta({ v, d = 1, invert = false, unit = "", className }: { v: n
   if (Math.abs(v) < Math.pow(10, -d) / 2) return <span className={cn("font-bold tabular-nums text-ink-3", className)}>±0{unit}</span>;
   const good = invert ? v < 0 : v > 0;
   return (
-    <span className={cn("font-bold whitespace-nowrap tabular-nums", good ? "text-[var(--ally)]" : "text-[var(--conflict)]", className)}>
+    <span className={cn("font-bold whitespace-nowrap tabular-nums", good ? "text-[var(--up)]" : "text-[var(--down)]", className)}>
       {v > 0 ? "▲" : "▼"} {Math.abs(v).toFixed(d)}
       {unit}
     </span>
@@ -57,7 +57,7 @@ export function TrendChip({ t }: { t: Trend }) {
 /** "Moves left" dots (Political Capital, in plain words). */
 export function MoveDots({ left, total }: { left: number; total: number }) {
   return (
-    <span className="flex gap-1" aria-label={`${left} of ${total} moves left`}>
+    <span role="img" className="flex gap-1" aria-label={`${left} of ${total} moves left`}>
       {Array.from({ length: total }, (_, i) => (
         <i key={i} className={cn("size-2.5 rounded-full transition-colors", i < left ? "bg-[var(--ink-strong)]" : "bg-[#e2ded4]")} />
       ))}

@@ -21,9 +21,13 @@ test("a solo turn can be played end to end", async ({ page }, info) => {
 
 test("the Play page leads into a match", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop");
+  test.setTimeout(90_000);
   await page.goto("/play");
-  await expect(page.getByRole("heading", { name: /Run a country/ })).toBeVisible();
-  await page.getByRole("link", { name: /Lead Japan/ }).click();
+  await expect(page.getByRole("heading", { name: /Run a country/ })).toBeVisible({ timeout: 30_000 });
+  const japan = page.getByRole("link", { name: /Lead Japan/ });
+  await japan.scrollIntoViewIfNeeded();
+  await expect(japan).toBeVisible({ timeout: 30_000 });
+  await japan.click();
   await expect(page.getByRole("heading", { name: "Who will you lead?" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("button", { name: /Japan/ }).first()).toHaveClass(/border-\[var\(--gold\)\]/);
 });

@@ -90,7 +90,7 @@ export function HomeMarkers() {
             </Marker>
           ))}
         {summits.map((s) => (
-          <Marker key={s.id} lat={s.at[0]} lng={s.at[1]} offset={SUMMIT_OFFSET} interactive={orgsVisible}>
+          <Marker key={s.id} lat={s.at[0]} lng={s.at[1]} offset={SUMMIT_OFFSET} interactive={orgsVisible} priority={2}>
             <button
               type="button"
               onClick={() => {
@@ -98,17 +98,18 @@ export function HomeMarkers() {
                 st.selectSummit(s.id);
                 st.flyTo({ lat: s.at[0], lng: s.at[1], dist: 2.4 });
               }}
-              className="flex -translate-x-full items-center gap-2.5 rounded-[10px] border border-white/15 bg-[var(--night)] py-2 pr-3 pl-2 text-left whitespace-nowrap text-white shadow-[0_10px_26px_rgba(0,0,0,.28)]"
+              aria-label={s.name}
+              className="flex -translate-x-full items-center gap-2.5 rounded-[10px] border border-white/15 bg-[var(--night)] py-2 pr-3 pl-2 text-left whitespace-nowrap text-white shadow-[0_10px_26px_rgba(0,0,0,.28)] max-md:rounded-full max-md:p-1"
             >
               {s.org ? <Medal id={s.org} size={30} /> : <span className="grid size-[30px] place-items-center rounded-full bg-summit text-xs font-bold">★</span>}
-              <span>
+              <span className="max-md:hidden">
                 <b className="block text-[13px] font-bold">{s.name}</b>
                 <small className="block text-[11.5px] text-white/70">
                   {new Date(`${s.month}-01T00:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}
                   {!s.datesConfirmed && " · dates to be confirmed"}
                 </small>
               </span>
-              <ChevronRight className="size-4 opacity-60" aria-hidden />
+              <ChevronRight className="size-4 opacity-60 max-md:hidden" aria-hidden />
             </button>
           </Marker>
         ))}

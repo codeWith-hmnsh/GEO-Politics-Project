@@ -14,22 +14,24 @@ type Props = {
   className?: string;
   /** Let the marker receive clicks (labels stay click-through). */
   interactive?: boolean;
+  /** Callout card: hidden when it would overlap a higher-priority card or a panel. */
+  priority?: number;
   children: React.ReactNode;
 };
 
 /** A DOM element pinned to a point on the globe; positioned by MarkerProjector. */
-export function Marker({ lat, lng, maxDist, minDist, offset, className, interactive, children }: Props) {
+export function Marker({ lat, lng, maxDist, minDist, offset, className, interactive, priority, children }: Props) {
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    markerRegistry.set(id, { el, v: latLngToVec3(lat, lng, 1), maxDist, minDist, offset });
+    markerRegistry.set(id, { el, v: latLngToVec3(lat, lng, 1), maxDist, minDist, offset, priority });
     return () => {
       markerRegistry.delete(id);
     };
-  }, [id, lat, lng, maxDist, minDist, offset]);
+  }, [id, lat, lng, maxDist, minDist, offset, priority]);
 
   return (
     <div

@@ -13,6 +13,7 @@ import { sound } from "@/lib/game/sound";
 import { useGame } from "@/lib/game/store";
 import { CAPITAL, LEADERS, NAMES, SEAT_COLOR, SHORT, cap, money } from "@/lib/game/text";
 import { focus } from "@/lib/game/camera";
+import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { encodeShare, type Share } from "@/lib/game/share";
 import { Btn, Portrait, eyebrow, glass } from "./bits";
@@ -257,7 +258,7 @@ export function Reveal() {
                 key={s}
                 initial={{ rotateY: 90, opacity: 0 }}
                 animate={i < shown ? { rotateY: 0, opacity: 1 } : {}}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.45, ease: ease.out }}
                 className={cn("grid min-h-[92px] w-[150px] gap-1.5 rounded-[14px] bg-white p-3 shadow-[var(--shadow-card)] max-md:w-[calc(33%-8px)]", s === me && "shadow-[0_0_0_2px_var(--gold),var(--shadow-card)]")}
               >
                 <div className="flex items-center gap-1.5 text-[12px] font-extrabold">
@@ -410,12 +411,12 @@ export function EndScreen() {
             </div>
             <div className="mt-5">
               <div className={eyebrow}>Your world history</div>
-              <div className="mt-2 rounded-xl border border-[rgba(122,92,46,.2)] bg-[#FBF7EE] px-4 py-1.5">
+              <div className="mt-2 rounded-xl border border-[rgba(122,92,46,.2)] bg-[var(--wire-paper)] px-4 py-1.5">
                 {history.map((h) => (
                   <div key={h.y} className="grid grid-cols-[60px_1fr] gap-3 border-b border-dashed border-[rgba(122,92,46,.25)] py-2.5 last:border-0">
-                    <span className="font-display text-[21px] font-semibold text-[#7A5C2E]">{h.y}</span>
+                    <span className="font-display text-[21px] font-semibold text-[var(--wire)]">{h.y}</span>
                     <div>
-                      <p className="font-display text-[15px] text-[#3d2f18] italic">{h.head}</p>
+                      <p className="font-display text-[15px] text-[var(--wire-ink)] italic">{h.head}</p>
                       <small className="text-[12px] text-ink-2">Your move: {h.move}</small>
                     </div>
                   </div>

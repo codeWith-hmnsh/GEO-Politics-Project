@@ -18,7 +18,7 @@ export function MapControls() {
 
   return (
     <div
-      className="fixed top-1/2 z-20 flex -translate-y-[58%] flex-col items-center gap-3 transition-[right] duration-500 max-md:hidden"
+      data-avoid className="fixed top-1/2 z-20 flex -translate-y-[58%] flex-col items-center gap-3 transition-[right] duration-500 max-md:hidden"
       style={{ right: panelOpen ? 440 : 30 }}
     >
       <button type="button" aria-label="Reset north and tilt" onClick={resetNorth} className={round}>

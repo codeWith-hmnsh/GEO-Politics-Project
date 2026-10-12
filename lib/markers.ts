@@ -15,6 +15,10 @@ export type MarkerEntry = {
   flip?: boolean;
   /** Last written screen position (skip DOM writes when nothing moved). */
   last?: { x: number; y: number; o: number; f?: boolean };
+  /** Callout cards that must not overlap each other or a panel: higher priority wins. */
+  priority?: number;
+  /** Hidden by the last collision pass. */
+  collided?: boolean;
 };
 
 export const markerRegistry = new Map<string, MarkerEntry>();

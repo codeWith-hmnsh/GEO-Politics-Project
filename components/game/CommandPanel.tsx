@@ -17,6 +17,7 @@ import { GOODS, MINISTRIES, REGIONS, SEATS } from "@/lib/game/engine/types";
 import { RESOLUTION_BY_ID } from "@/lib/game/engine/votes";
 import { moneyCommitted, pcLeft, useGame, type Tab, type UIProposal } from "@/lib/game/store";
 import { GOOD_WORD, SHORT, cap, cardName, money, unitsAsShare } from "@/lib/game/text";
+import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { Btn, Delta, MoveDots, eyebrow, glass } from "./bits";
 import { ResultView } from "./ResultView";
@@ -49,7 +50,7 @@ export function CommandPanel() {
       aria-label="Your decisions"
       initial={false}
       animate={{ opacity: hidden ? 0 : 1, x: hidden ? 40 : 0 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.35, ease: ease.out }}
       className={cn(glass, "fixed top-[92px] right-4 bottom-4 z-20 flex w-[420px] flex-col overflow-hidden max-[1100px]:w-[380px] max-md:inset-x-0 max-md:top-auto max-md:bottom-0 max-md:h-[58dvh] max-md:w-auto max-md:rounded-b-none", hidden && "pointer-events-none")}
     >
       {phase === "result" ? (
@@ -141,7 +142,7 @@ function YearPane() {
                 <div className="text-[14px] leading-snug font-extrabold">{r.title}</div>
                 <div className="text-[12.5px] text-ink-2">{r.why}</div>
                 <div className="mt-1 flex flex-wrap gap-x-2 text-[12px] font-bold">
-                  <span className="text-[var(--ally)]">{r.effect}</span>
+                  <span className="text-[var(--up)]">{r.effect}</span>
                   <span className="text-ink-3">{r.cost}</span>
                 </div>
               </div>
@@ -174,7 +175,7 @@ function PriceChip({ label, v }: { label: string; v: number }) {
   return (
     <span className="rounded-full border border-border bg-paper px-2.5 py-1">
       {label} {v.toFixed(0)}
-      {v >= 108 ? <span className="text-[var(--conflict)]"> ▲</span> : v <= 92 ? <span className="text-[var(--ally)]"> ▼</span> : null}
+      {v >= 108 ? <span className="text-[var(--down)]"> ▲</span> : v <= 92 ? <span className="text-[var(--up)]"> ▼</span> : null}
     </span>
   );
 }
@@ -231,7 +232,7 @@ function Warnings() {
     <section className="grid gap-2">
       {list.map((w) => (
         <div key={w.id} className="grid grid-cols-[20px_1fr] gap-2.5 rounded-xl border border-[rgba(232,162,28,.35)] bg-[rgba(232,162,28,.1)] p-3">
-          <AlertTriangle className="mt-0.5 size-[18px] text-[#a76f05]" aria-hidden />
+          <AlertTriangle className="mt-0.5 size-[18px] text-[#8a5b00]" aria-hidden />
           <div>
             <b className="text-[13.5px]">{w.text}</b>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -539,7 +540,7 @@ function PropCard({ p }: { p: UIProposal }) {
   const give = p.inbox ? p.wants : p.gives;
   const get = p.inbox ? p.gives : p.wants;
   const status = p.thinking ? "thinking…" : p.counterOf ? `counter · ${p.status}` : p.status;
-  const color = p.status === "accepted" ? "text-[var(--ally)]" : p.status === "rejected" ? "text-[var(--conflict)]" : p.status === "countered" ? "text-[#b47a0a]" : "text-ink-3";
+  const color = p.status === "accepted" ? "text-[var(--up)]" : p.status === "rejected" ? "text-[var(--down)]" : p.status === "countered" ? "text-[#b47a0a]" : "text-ink-3";
   return (
     <motion.div layout initial={{ rotateY: 60, opacity: 0 }} animate={{ rotateY: 0, opacity: 1 }} className="grid gap-1.5 rounded-2xl border border-[rgba(17,35,43,.16)] bg-white p-3 text-[13px]">
       <div className="flex items-center gap-2 font-extrabold">
@@ -769,7 +770,7 @@ function Slider({ label, dot, value, min, max, step, changed, display, sub, onCh
       <input id={id} type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)} className={cn("w-full", changed ? "accent-[var(--gold)]" : "accent-[var(--ink-strong)]")} />
       <div className="text-right text-[13.5px] font-extrabold tabular-nums">
         {display}
-        <small className={cn("block text-[11px] font-bold", changed ? "text-[#a76f05]" : "text-ink-3")}>{sub}</small>
+        <small className={cn("block text-[11px] font-bold", changed ? "text-[#8a5b00]" : "text-ink-3")}>{sub}</small>
       </div>
     </div>
   );
@@ -830,7 +831,7 @@ function ProjectsSection() {
               <span className="text-[12px] font-extrabold text-ink-3 tabular-nums">
                 {money(cost)} · {p.turns} yr{p.turns > 1 ? "s" : ""}
               </span>
-              {legal !== true && legal !== "No free slot" && <span className="text-[11px] font-bold text-[var(--conflict)]">{legal}</span>}
+              {legal !== true && legal !== "No free slot" && <span className="text-[11px] font-bold text-[var(--down)]">{legal}</span>}
             </button>
           );
         })}

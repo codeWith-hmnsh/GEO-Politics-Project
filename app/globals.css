@@ -82,6 +82,14 @@
   --nuclear: #e8c21c;
   --gold: #f2b33d;
 
+  /* Statecraft game tokens (docs4.0/UI-DESIGN.md §4.2) */
+  --you: var(--gold);
+  --wire: #7a5c2e; /* simulated news and history */
+  --wire-ink: #3d2f18;
+  --wire-paper: #fbf7ee;
+  --up: #1f7a4f; /* a good change, as text: 5.3:1 on white */
+  --down: #c23a3f; /* a bad change, as text: 5.2:1 on white */
+
   /* shadcn/ui variables mapped onto the palette */
   --background: var(--paper);
   --foreground: var(--ink);

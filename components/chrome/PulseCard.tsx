@@ -32,7 +32,7 @@ export function PulseCard() {
           setOpen(true);
           setMobileOpen(true);
         }}
-        className={`fixed left-3 top-[66px] z-20 flex h-10 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-semibold shadow-[var(--shadow-card)] md:hidden ${open && mobileOpen ? "hidden" : ""}`}
+        data-avoid className={`fixed left-3 top-[66px] z-20 flex h-10 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-semibold shadow-[var(--shadow-card)] md:hidden ${open && mobileOpen ? "hidden" : ""}`}
       >
         <Layers className="size-4" aria-hidden /> Layers
       </button>
@@ -44,7 +44,7 @@ export function PulseCard() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -16 }}
             transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
-            className={`fixed left-[22px] top-20 z-20 w-[316px] rounded-[18px] bg-[var(--glass)] p-5 shadow-[var(--shadow-card)] backdrop-blur-xl max-md:inset-x-3 max-md:top-16 max-md:w-auto ${mobileOpen ? "" : "max-md:hidden"}`}
+            data-avoid className={`fixed left-[22px] top-20 z-20 w-[316px] rounded-[18px] bg-[var(--glass)] p-5 shadow-[var(--shadow-card)] backdrop-blur-xl max-md:inset-x-3 max-md:top-16 max-md:w-auto ${mobileOpen ? "" : "max-md:hidden"}`}
           >
             <div className="flex items-center justify-between gap-2.5">
               <h2 className="text-[22px] leading-tight font-bold tracking-tight">Global Pulse</h2>

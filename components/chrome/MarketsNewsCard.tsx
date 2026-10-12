@@ -98,7 +98,7 @@ export function MarketsNewsCard() {
   return (
     <section
       aria-label="Markets and news"
-      className={`fixed right-[22px] bottom-[22px] z-20 w-[380px] rounded-2xl bg-[var(--glass)] p-4 shadow-[var(--shadow-card)] backdrop-blur-xl transition-opacity duration-300 max-[1100px]:hidden ${
+      data-avoid className={`fixed right-[22px] bottom-[22px] z-20 w-[380px] rounded-2xl bg-[var(--glass)] p-4 shadow-[var(--shadow-card)] backdrop-blur-xl transition-opacity duration-300 max-[1100px]:hidden ${
         panelOpen ? "pointer-events-none opacity-0" : ""
       }`}
     >

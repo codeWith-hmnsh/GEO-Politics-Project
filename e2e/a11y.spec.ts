@@ -20,3 +20,33 @@ test("sources page has no serious accessibility violations", async ({ page }, in
   const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
   expect(results.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
 });
+
+for (const path of ["/play", "/play/match"]) {
+  test(`${path} has no serious accessibility violations`, async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    test.setTimeout(120_000);
+    await page.goto(path);
+    await page.waitForTimeout(4000);
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .exclude("canvas")
+      .analyze();
+    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")}`)).toEqual([]);
+  });
+}
+
+test("a match in progress has no serious accessibility violations", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop");
+  test.setTimeout(120_000);
+  await page.goto("/play/match");
+  await page.getByRole("button", { name: /Take office/ }).click();
+  await page.getByRole("button", { name: "Skip the tour" }).click();
+  await page.waitForTimeout(1500);
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .exclude("canvas")
+    .analyze();
+  const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+  expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")}`)).toEqual([]);
+});

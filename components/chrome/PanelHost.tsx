@@ -465,7 +465,7 @@ export function PanelHost() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 28 }}
           transition={{ type: "spring", stiffness: 320, damping: 32 }}
-          className="fixed top-20 right-[22px] z-30 flex max-h-[calc(100%-104px)] w-[400px] flex-col rounded-[20px] bg-white/95 shadow-[var(--shadow-card)] backdrop-blur-xl max-md:inset-x-0 max-md:top-auto max-md:bottom-0 max-md:max-h-[62%] max-md:w-auto max-md:rounded-b-none"
+          data-avoid className="fixed top-20 right-[22px] z-30 flex max-h-[calc(100%-104px)] w-[400px] flex-col rounded-[20px] bg-white/95 shadow-[var(--shadow-card)] backdrop-blur-xl max-md:inset-x-0 max-md:top-auto max-md:bottom-0 max-md:max-h-[62%] max-md:w-auto max-md:rounded-b-none"
         >
           <button
             type="button"

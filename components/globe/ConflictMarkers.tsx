@@ -44,11 +44,12 @@ export function ConflictMarkers() {
       {conflicts
         .filter((c) => c.callout)
         .map((c) => (
-          <Marker key={`${c.id}-callout`} lat={c.at[0]} lng={c.at[1]} offset={CALLOUT_OFFSET} interactive={visible}>
+          <Marker key={`${c.id}-callout`} lat={c.at[0]} lng={c.at[1]} offset={CALLOUT_OFFSET} interactive={visible} priority={3}>
+            {/* phones show the hotspot only; the card would cover the globe (tap opens the same details) */}
             <button
               type="button"
               onClick={() => openConflict(c)}
-              className="flex items-center gap-2.5 rounded-[10px] border border-white/15 bg-[var(--night)] py-2 pr-3 pl-2.5 text-left whitespace-nowrap text-white shadow-[0_10px_26px_rgba(0,0,0,.28)] hover:bg-[rgba(16,24,30,.96)]"
+              className="flex items-center max-md:hidden gap-2.5 rounded-[10px] border border-white/15 bg-[var(--night)] py-2 pr-3 pl-2.5 text-left whitespace-nowrap text-white shadow-[0_10px_26px_rgba(0,0,0,.28)] hover:bg-[rgba(16,24,30,.96)]"
             >
               <span className="flex flex-col gap-[3px]">
                 {c.flags.map((f) => (

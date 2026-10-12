@@ -176,7 +176,7 @@ export function PlayLanding() {
         <div className="pb-[14vh]">
           {STEPS.map((s, i) => (
             <article key={s.k} data-step={i} className="pointer-events-auto flex min-h-[78dvh] max-w-[480px] flex-col justify-center max-md:min-h-[70dvh]">
-              <motion.div animate={{ opacity: step === i ? 1 : 0.4 }} transition={{ duration: 0.4 }} className={cn(glass, "p-6")}>
+              <motion.div animate={{ scale: step === i ? 1 : 0.97 }} transition={{ duration: 0.4 }} className={cn(glass, "p-6 transition-shadow", step === i && "ring-2 ring-[var(--gold)]")}>
                 <div className="flex items-center gap-3">
                   <b className="grid size-8 place-items-center rounded-full bg-[var(--ink-strong)] text-[13px] text-white">{i + 1}</b>
                   <span className={eyebrow}>{s.k}</span>
