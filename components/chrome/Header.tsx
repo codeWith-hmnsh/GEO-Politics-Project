@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, Calendar, Search } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -162,13 +163,21 @@ function DateChip() {
   );
 }
 
-export function Header() {
+export function Header({ active = "home" }: { active?: string }) {
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex h-[72px] items-center gap-9 px-6 max-md:h-[60px] max-md:gap-3 max-md:px-3.5">
       <Logo />
       <nav aria-label="Main" className="pointer-events-auto flex gap-7 max-[1280px]:hidden">
         {NAV.map((n) =>
-          n.id === "home" ? (
+          n.id === active && n.id !== "home" ? (
+            <a key={n.id} href={`/${n.id}`} aria-current="page" className="relative py-2 text-[14.5px] font-bold after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded after:bg-ink">
+              {n.label}
+            </a>
+          ) : n.id === "home" && active !== "home" ? (
+            <Link key={n.id} href="/" className="py-2 text-[14.5px] font-medium text-ink-2 hover:text-ink">
+              {n.label}
+            </Link>
+          ) : n.id === "home" ? (
             <button
               key={n.id}
               type="button"

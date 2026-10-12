@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { PlayScreen } from "@/components/game/PlayScreen";
+import { PlayLanding } from "@/components/game/PlayLanding";
 
 export const metadata: Metadata = {
   title: "Statecraft · GeoPolitics",
-  description: "Lead a real country for twelve years. Budget, build, trade and negotiate on a living globe.",
+  description: "Run a country. Shape the world. Six leaders, twelve years, one shared world that answers back.",
 };
 
-// Statecraft solo match (docs4.0 BUILD-PLAN S3). The engine runs in the browser.
+// Statecraft Play page (docs4.0 BUILD-PLAN S4). The match itself lives at /play/match.
 export default function PlayPage() {
-  return <PlayScreen />;
+  return <PlayLanding />;
 }

@@ -14,7 +14,9 @@ import { useGame } from "@/lib/game/store";
 import { CAPITAL, LEADERS, NAMES, SEAT_COLOR, SHORT, cap, money } from "@/lib/game/text";
 import { focus } from "@/lib/game/camera";
 import { cn } from "@/lib/utils";
+import { encodeShare, type Share } from "@/lib/game/share";
 import { Btn, Portrait, eyebrow, glass } from "./bits";
+import { ShareCard } from "./ShareCard";
 
 const DIFF: Record<Iso3, string> = { IND: "Medium", CHN: "Medium", USA: "Medium", RUS: "Hard", SAU: "Medium", JPN: "Hard" };
 const STRONG: Record<Iso3, string> = { IND: "Growth, young workforce, food", CHN: "Industry, tech, reserves", USA: "Tech, energy, money", RUS: "Energy, food, military", SAU: "Oil, cash reserves", JPN: "Tech, money, skills" };
@@ -133,8 +135,8 @@ export function PickScreen() {
           <Btn className="min-w-[220px]" onClick={begin}>
             Take office ▸
           </Btn>
-          <Link href="/" className="text-[14px] font-semibold text-ink-2 underline-offset-4 hover:underline">
-            Back to the globe
+          <Link href="/play" className="text-[14px] font-semibold text-ink-2 underline-offset-4 hover:underline">
+            How Statecraft works
           </Link>
           <span className="text-[12.5px] text-ink-3">Your first match has a short guided tour. You can skip it.</span>
         </div>
@@ -348,7 +350,9 @@ export function EndScreen() {
     ["Difficulty", mine.difficulty, "#5E6B70"],
   ] as const;
   const history = world.history.map((h) => ({ y: h.year, head: (h.news.find((n) => n.iso3 === me) ?? h.news[0])?.headline ?? "A quiet year", move: h.moves[me] ?? "Held steady" }));
-  const text = `My Statecraft: ${SHORT[me]} ${years}. Power rank #${r0} → #${r1}. Leader Score ${mine.total}${winner === me ? " (winner)" : ""}. "${ach}"`;
+  const share: Share = { v: 1, c: me, l: setup.leader.slice(0, 20), p: setup.portrait, y0: world.history[0].year, y1: world.history.at(-1)!.year, r0, r1, s: mine.total, w: winner === me, g: led.length, a: ach.slice(0, 140), sc: world.scenario };
+  const link = `${location.origin}/play/h/${encodeShare(share)}`;
+  const text = `My Statecraft: ${SHORT[me]} ${years}. Power rank #${r0} → #${r1}. Leader Score ${mine.total}${winner === me ? " (winner)" : ""}. "${ach}" ${link}`;
   return (
     <div className="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-[rgba(243,241,236,.55)] p-5 backdrop-blur-[4px]">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={cn(glass, "w-[min(1060px,100%)] p-7 max-md:p-5")} role="dialog" aria-labelledby="end-title">
@@ -421,34 +425,8 @@ export function EndScreen() {
           </div>
           <div>
             <div className={eyebrow}>Share card</div>
-            <div className="relative mt-2 grid gap-3 overflow-hidden rounded-[18px] border border-[rgba(122,92,46,.25)] bg-[#FBF7EE] p-6 shadow-[var(--shadow-card)]">
-              <div className="absolute -top-16 -right-16 size-56 rounded-full bg-[radial-gradient(circle_at_35%_35%,#cfe3f2,#7aa2bd_55%,#3d6a85)] opacity-35" aria-hidden />
-              <div className="text-[11px] font-extrabold tracking-[.14em] text-[#7A5C2E] uppercase">My Statecraft</div>
-              <div className="flex items-center gap-3">
-                <Portrait i={setup.portrait} seat={SEAT_COLOR[me]} size={52} />
-                <div>
-                  <div className="flex items-center gap-2 font-display text-[34px] leading-none font-semibold">
-                    <Flag iso3={me} className="h-6 w-9 rounded" /> {SHORT[me]}
-                  </div>
-                  <div className="text-[13px] font-bold text-ink-3">
-                    {setup.leader} · {years}
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  [`#${r0} → #${r1}`, "Power rank"],
-                  [String(mine.total), winner === me ? "Leader Score · Winner" : "Leader Score"],
-                  [String(led.length), "Regions led"],
-                ].map(([v, l]) => (
-                  <div key={l} className="rounded-[10px] bg-white/70 px-2.5 py-2">
-                    <b className="block text-[18px]">{v}</b>
-                    <small className="text-[11px] font-bold text-ink-3">{l}</small>
-                  </div>
-                ))}
-              </div>
-              <p className="font-display text-[18px] text-[#3d2f18] italic">“{ach}”</p>
-              <small className="text-[12px] text-ink-3">Statecraft · simulated match · {SCENARIOS[world.scenario].name}</small>
+            <div className="mt-2">
+              <ShareCard s={share} />
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <Btn
@@ -459,8 +437,11 @@ export function EndScreen() {
                   );
                 }}
               >
-                {copied ? "Copied" : "Copy result"}
+                {copied ? "Link copied" : "Copy share link"}
               </Btn>
+              <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-full px-4 text-[14px] font-bold text-ink-2 hover:bg-[rgba(17,35,43,.05)]">
+                Open share page
+              </a>
               <Btn variant="gold" onClick={() => useGame.getState().start()}>
                 Rematch
               </Btn>

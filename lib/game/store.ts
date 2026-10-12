@@ -77,6 +77,9 @@ interface GameState {
   compose: Compose | null;
   tutorial: number | null;
   fx: Fx;
+  /** Play page story: what the globe shows outside a match (your country, arcs, tinted regions). */
+  showcase: { me: Iso3; arcs: Fx["arcs"]; regions: { id: RegionId; seat: Iso3; strength: number }[] } | null;
+  setShowcase: (s: GameState["showcase"]) => void;
 
   setSetup: (p: Partial<Setup>) => void;
   start: () => void;
@@ -189,6 +192,8 @@ export const useGame = create<GameState>((set, get) => {
     compose: null,
     tutorial: null,
     fx: { arcs: [], regions: [], event: null },
+    showcase: null,
+    setShowcase: (showcase) => set({ showcase }),
 
     setSetup: (p) => set((s) => ({ setup: { ...s.setup, ...p } })),
     start: () => {

@@ -14,6 +14,7 @@ import { TURN_SECONDS } from "@/lib/game/engine/rules";
 import type { Iso3 } from "@/lib/game/engine/types";
 import { REGIONS, SEATS } from "@/lib/game/engine/types";
 import { focus } from "@/lib/game/camera";
+import { isSeat } from "@/lib/game/share";
 import { sound } from "@/lib/game/sound";
 import { moneyCommitted, pcLeft, useGame, type Tab } from "@/lib/game/store";
 import { CAPITAL, SEAT_COLOR, SHORT, money } from "@/lib/game/text";
@@ -27,8 +28,10 @@ import { Coach, EndScreen, PickScreen, Reveal } from "./Overlays";
 export function PlayScreen() {
   const phase = useGame((s) => s.phase);
 
-  // The globe switches to game layers while this screen is mounted.
+  // The globe switches to game layers while this screen is mounted. ?country=IND pre-selects a seat.
   useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get("country");
+    if (c && isSeat(c)) useGame.getState().setSetup({ me: c });
     const g = useGlobe.getState();
     g.setPlay(true);
     g.select(null);
@@ -146,7 +149,7 @@ function TopBar() {
   return (
     <header className="pointer-events-none fixed inset-x-4 top-[max(14px,env(safe-area-inset-top))] z-30 grid grid-cols-[1fr_auto_1fr] items-start gap-3 max-md:inset-x-2.5 max-md:grid-cols-[1fr_auto]">
       <div className={cn(glass, "pointer-events-auto flex items-center gap-3 justify-self-start py-2 pr-4 pl-2 max-md:gap-2 max-md:pr-2.5")}>
-        <Link href="/" aria-label="Leave the match" className="grid size-9 place-items-center rounded-full text-ink-2 hover:bg-paper">
+        <Link href="/play" aria-label="Leave the match" className="grid size-9 place-items-center rounded-full text-ink-2 hover:bg-paper">
           <ArrowLeft className="size-[18px]" />
         </Link>
         <Portrait i={setup.portrait} seat={SEAT_COLOR[setup.me]} size={36} />

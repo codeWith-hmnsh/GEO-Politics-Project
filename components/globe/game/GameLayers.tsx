@@ -33,6 +33,7 @@ function GameOverlay({ countries, size }: { countries: IndexedCountry[]; size: n
   const worldView = useGame((s) => s.worldView);
   const fxRegions = useGame((s) => s.fx.regions);
   const phase = useGame((s) => s.phase);
+  const showcase = useGame((s) => s.showcase);
 
   const { canvas, texture } = useMemo(() => {
     const c = document.createElement("canvas");
@@ -66,7 +67,10 @@ function GameOverlay({ countries, size }: { countries: IndexedCountry[]; size: n
     };
     const alpha = (a: number) => Math.round(Math.max(0, Math.min(1, a)) * 255).toString(16).padStart(2, "0");
 
-    if (world && phase !== "pick") {
+    if (showcase) {
+      for (const r of showcase.regions) for (const iso of REGION_DEFS[r.id].countries) fill(iso, SEAT_COLOR[r.seat] + alpha(0.28 + 0.4 * r.strength));
+      fill(showcase.me, "#f2b33dc4");
+    } else if (world && phase !== "pick") {
       const showRegions: RegionId[] = worldView ? [...REGIONS] : fxRegions;
       for (const r of showRegions) {
         const reg = world.regions[r];
@@ -80,7 +84,7 @@ function GameOverlay({ countries, size }: { countries: IndexedCountry[]; size: n
       fill(me, "#f2b33dc4");
     }
     texture.needsUpdate = true;
-  }, [canvas, texture, gl, countries, world, me, worldView, fxRegions, phase]);
+  }, [canvas, texture, gl, countries, world, me, worldView, fxRegions, phase, showcase]);
 
   return (
     <mesh renderOrder={1}>
@@ -98,8 +102,10 @@ function GameArcs() {
   const worldView = useGame((s) => s.worldView);
   const fxArcs = useGame((s) => s.fx.arcs);
   const phase = useGame((s) => s.phase);
+  const showcase = useGame((s) => s.showcase);
 
   const arcs = useMemo<Arc[]>(() => {
+    if (showcase) return showcase.arcs.map((a) => ({ key: a.key, from: CAPITAL[a.from], to: CAPITAL[a.to], color: a.kind === "sanction" ? SANCTION : GOOD_COLOR[a.good ?? "energy"] }));
     if (!world || phase === "pick") return [];
     const out = new Map<string, Arc>();
     const add = (key: string, from: Iso3, to: Iso3, color: string) => out.set(key, { key, from: CAPITAL[from], to: CAPITAL[to], color });
@@ -119,7 +125,7 @@ function GameArcs() {
     if (worldView)
       for (const a of SEATS) for (const b of SEATS) if (a !== b && world.pairs[a][b].sanction) add(`s-${a}-${b}`, a, b, SANCTION);
     return [...out.values()];
-  }, [world, me, worldView, fxArcs, phase]);
+  }, [world, me, worldView, fxArcs, phase, showcase]);
 
   return (
     <>

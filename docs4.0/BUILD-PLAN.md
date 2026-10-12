@@ -56,6 +56,8 @@ This plan replaces the build order in [2.0 BUILD-PLAN](../docs2.0/BUILD-PLAN.md)
 
 ## S4 — Play page and sharing
 
+**Status (2026-10-12):** `/play` is the scrollable Play page on the 1.0 globe (hero, a five-step "How a year works" story that drives the globe, six country cards, a live Why chain, a bot-match ranking replay, Learn, FAQ); the match moved to `/play/match` (`?country=JPN` pre-selects a seat). Match end has a share link to `/play/h/[code]` with an OG image. The card data travels in the link, so shared results are **not verified yet**; server replay verification needs accounts (S5). Create room and Join with code show as "soon" until S5.
+
 - `/play` scrollable page ([UI-DESIGN §5.2](UI-DESIGN.md#52-play-page--play-scrollable)) with Start (solo until S6), the sticky "How a year works" story, the 6 country cards, the Why and ranking demos, the history marquee, FAQ.
 - Public history page and OG share image (`opengraph-image` route). Solo results are verified on the server before they become public ([MULTIPLAYER §7](MULTIPLAYER.md#7-solo-mode-and-result-verification)), so this step adds the first small backend piece.
 - Leader identity: name and 8 portrait styles, saved locally until S5 accounts.
