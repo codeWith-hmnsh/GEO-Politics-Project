@@ -16,28 +16,31 @@ import { REGIONS, SEATS } from "@/lib/game/engine/types";
 import { focus } from "@/lib/game/camera";
 import { isSeat } from "@/lib/game/share";
 import { sound } from "@/lib/game/sound";
+import { turnSecondsFor } from "@/lib/game/onlineTypes";
 import { moneyCommitted, pcLeft, useGame, type Tab } from "@/lib/game/store";
 import { CAPITAL, SEAT_COLOR, SHORT, money } from "@/lib/game/text";
 import { useGlobe } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Delta, MoveDots, Portrait, TrendChip, eyebrow, glass } from "./bits";
 import { CommandPanel } from "./CommandPanel";
+import { NetError } from "./NetError";
 import { Coach, EndScreen, PickScreen, Reveal } from "./Overlays";
 
 /** Statecraft solo match on the 1.0 globe (BUILD-PLAN S3). */
-export function PlayScreen() {
+export function PlayScreen({ online }: { online?: { matchId: string; code: string } } = {}) {
   const phase = useGame((s) => s.phase);
+  const solo = !online;
 
-  // The globe switches to game layers while this screen is mounted. ?country=IND pre-selects a seat.
+  // The globe switches to game layers while this screen is mounted. ?country=IND pre-selects a seat (solo).
   useEffect(() => {
     const c = new URLSearchParams(window.location.search).get("country");
-    if (c && isSeat(c)) useGame.getState().setSetup({ me: c });
+    if (solo && c && isSeat(c)) useGame.getState().setSetup({ me: c });
     const g = useGlobe.getState();
     g.setPlay(true);
     g.select(null);
     g.setMode("home");
     return () => useGlobe.getState().setPlay(false);
-  }, []);
+  }, [solo]);
 
   // Tapping another leader's country on the globe opens a deal with them.
   useEffect(
@@ -88,6 +91,11 @@ export function PlayScreen() {
         <SeatLabels />
       </GlobeClient>
       <h1 className="sr-only">Statecraft: lead a country, shape the world</h1>
+      {online && phase === "pick" && (
+        <div role="status" className="fixed inset-0 z-40 grid place-items-center text-[15px] font-semibold text-ink-2">
+          Loading room {online.code}…
+        </div>
+      )}
       {phase !== "pick" && phase !== "end" && (
         <>
           <TopBar />
@@ -100,6 +108,7 @@ export function PlayScreen() {
       <Reveal />
       <EndScreen />
       <Coach />
+      <NetError />
     </main>
   );
 }
@@ -141,10 +150,11 @@ function TopBar() {
   const left = useGame(pcLeft);
   const committed = useGame((s) => (s.phase === "plan" || s.phase === "locking" ? moneyCommitted(s) : 0));
   const [muted, setMuted] = useState(sound.isMuted);
+  const view = useGame((s) => (s.net ? s.view : null));
   const c = world.countries[setup.me];
   const r = ranks(world)[setup.me];
   const r0 = ranks(world, 0)[setup.me];
-  const total = TURN_SECONDS(world.turn);
+  const total = view ? turnSecondsFor(view.match.turnSeconds, world.turn) : TURN_SECONDS(world.turn);
   const year = world.ended || phase === "reveal" || phase === "result" ? world.year - 1 : world.year;
   return (
     <header className="pointer-events-none fixed inset-x-4 top-[max(14px,env(safe-area-inset-top))] z-30 grid grid-cols-[1fr_auto_1fr] items-start gap-3 max-md:inset-x-2.5 max-md:grid-cols-[1fr_auto]">
@@ -186,7 +196,7 @@ function TopBar() {
         )}
         <div className="leading-none">
           <div className="font-display text-[26px] font-semibold tabular-nums max-md:text-[20px]">{year}</div>
-          <small className="text-[11.5px] font-semibold text-ink-3">{phase === "locking" ? "Leaders are locking…" : phase === "reveal" ? "The world moves" : phase === "result" ? "Year resolved" : `Year ${Math.min(12, world.turn)} of 12${paused ? " · paused" : ""}`}</small>
+          <small className="text-[11.5px] font-semibold text-ink-3">{phase === "locking" ? (view ? "Locked · waiting for the others" : "Leaders are locking…") : phase === "reveal" ? "The world moves" : phase === "result" ? "Year resolved" : `Year ${Math.min(12, world.turn)} of 12${paused ? " · paused" : ""}`}</small>
         </div>
       </div>
       <div className="pointer-events-auto flex items-center gap-2 justify-self-end max-md:hidden">
@@ -206,7 +216,12 @@ function TopBar() {
         >
           {muted ? <VolumeX className="size-[18px]" /> : <Volume2 className="size-[18px]" />}
         </IconBtn>
-        {setup.timed && (
+        {view && (
+          <div className={cn(glass, "px-3.5 py-2.5 font-mono text-[13px] font-bold tracking-[.2em]")} title="Room code">
+            {view.match.code}
+          </div>
+        )}
+        {setup.timed && !view && (
           <IconBtn label={paused ? "Resume the timer" : "Pause the timer"} onClick={() => useGame.getState().togglePause()}>
             {paused ? <Play className="size-[18px]" /> : <Pause className="size-[18px]" />}
           </IconBtn>
@@ -229,6 +244,8 @@ function Rail() {
   const me = useGame((s) => s.setup.me);
   const botLocks = useGame((s) => s.botLocks);
   const phase = useGame((s) => s.phase);
+  const seats = useGame((s) => s.seats);
+  const online = useGame((s) => !!s.net);
   const [table, setTable] = useState(false);
   const r = ranks(world);
   const order = [...SEATS].sort((a, b) => r[a] - r[b]);
@@ -244,21 +261,26 @@ function Rail() {
       </div>
       <motion.ol layout className="mt-2.5 grid">
         {order.map((s) => {
-          const locked = phase === "locking" ? !!botLocks[s] || s === me : false;
+          const seat = online ? seats.find((x) => x.iso3 === s) : undefined;
+          const human = seat?.kind === "human";
+          const locked = online ? !!seat?.locked || (s === me && phase === "locking") : phase === "locking" ? !!botLocks[s] || s === me : false;
+          const showLock = online ? human && (phase === "plan" || phase === "locking") : phase === "locking";
           return (
             <motion.li key={s} layout transition={{ type: "spring", bounce: 0.2, visualDuration: 0.5 }} className={cn("grid grid-cols-[16px_30px_1fr_auto] items-center gap-2.5 rounded-xl px-1.5 py-2", s === me && "bg-[rgba(242,179,61,.16)] shadow-[inset_0_0_0_1px_rgba(242,179,61,.5)]")}>
               <span className="text-[13px] font-extrabold text-ink-3">{r[s]}</span>
-              <Portrait i={SEATS.indexOf(s)} seat={SEAT_COLOR[s]} size={28} />
+              <Portrait i={seat ? seat.portrait : SEATS.indexOf(s)} seat={SEAT_COLOR[s]} size={28} />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 truncate text-[13.5px] font-bold">
                   <Flag iso3={s} className="h-3 w-[18px]" />
                   {SHORT[s]}
                 </div>
+                {human && s !== me && <small className="block truncate text-[11px] font-semibold text-ink-3">{seat.leader}</small>}
+                {seat?.kind === "caretaker" && <small className="block text-[11px] font-semibold text-ink-3">Away · bot is caretaker</small>}
                 {trend(world, s, "economy") !== "unchanging" && <TrendChip t={trend(world, s, "economy")} />}
               </div>
               <div className="text-right">
                 <div className="text-[15px] font-extrabold tabular-nums">{(world.power[s].at(-1) ?? 0).toFixed(1)}</div>
-                {phase === "locking" && <span className={cn("inline-block size-2 rounded-full border-2", locked ? "border-[var(--ally)] bg-[var(--ally)]" : "border-ink-3")} title={locked ? "Locked" : "Thinking"} />}
+                {showLock && <span className={cn("inline-block size-2 rounded-full border-2", locked ? "border-[var(--ally)] bg-[var(--ally)]" : "border-ink-3")} title={locked ? "Locked" : "Thinking"} />}
               </div>
             </motion.li>
           );

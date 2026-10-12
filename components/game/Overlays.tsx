@@ -48,10 +48,11 @@ export function PickScreen() {
   const setup = useGame((s) => s.setup);
   const setSetup = useGame((s) => s.setSetup);
   const start = useGame((s) => s.start);
+  const online = useGame((s) => !!s.net);
   useEffect(() => {
-    if (phase === "pick") focus(CAPITAL[setup.me][0] - 6, CAPITAL[setup.me][1], 3.4, 1100);
-  }, [phase, setup.me]);
-  if (phase !== "pick") return null;
+    if (phase === "pick" && !online) focus(CAPITAL[setup.me][0] - 6, CAPITAL[setup.me][1], 3.4, 1100);
+  }, [phase, setup.me, online]);
+  if (phase !== "pick" || online) return null;
   const begin = () => {
     if (!setup.leader.trim()) setSetup({ leader: LEADERS[setup.me] });
     start();
@@ -170,6 +171,7 @@ export function Reveal() {
   useEffect(() => {
     if (phase !== "locking") return;
     const g = useGame.getState();
+    if (g.net) return; // multiplayer: the server resolves once every leader has locked or time is up
     let t = 0;
     const timers = SEATS.filter((s) => s !== g.setup.me).map((s) => setTimeout(() => useGame.getState().markBotLocked(s), (t += 220 + Math.random() * 280)));
     timers.push(setTimeout(() => useGame.getState().resolve(), t + 350));
@@ -311,6 +313,7 @@ export function EndScreen() {
   const phase = useGame((s) => s.phase);
   const world = useGame((s) => s.world);
   const setup = useGame((s) => s.setup);
+  const online = useGame((s) => !!s.net);
   const [copied, setCopied] = useState(false);
   const confettiDone = useRef(false);
   const st = phase === "end" && world ? standings(world) : [];
@@ -443,12 +446,20 @@ export function EndScreen() {
               <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-full px-4 text-[14px] font-bold text-ink-2 hover:bg-[rgba(17,35,43,.05)]">
                 Open share page
               </a>
-              <Btn variant="gold" onClick={() => useGame.getState().start()}>
-                Rematch
-              </Btn>
-              <Btn variant="glass" onClick={() => useGame.setState({ phase: "pick", world: null })}>
-                New match
-              </Btn>
+              {online ? (
+                <Link href="/play" className="inline-flex min-h-11 items-center rounded-full bg-[var(--gold)] px-5 text-[14px] font-bold text-[var(--ink-strong)]">
+                  Back to the Play page
+                </Link>
+              ) : (
+                <>
+                  <Btn variant="gold" onClick={() => useGame.getState().start()}>
+                    Rematch
+                  </Btn>
+                  <Btn variant="glass" onClick={() => useGame.setState({ phase: "pick", world: null })}>
+                    New match
+                  </Btn>
+                </>
+              )}
             </div>
           </div>
         </div>

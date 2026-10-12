@@ -864,7 +864,9 @@ function Tray() {
   for (const p of proposals.filter((x) => (x.inbox || x.counterOf) && x.status === "accepted")) chips.push({ label: `Pact with ${SHORT[p.inbox ? p.from : p.to]}` });
   if (orders.vote) chips.push({ label: `Vote: ${cap(orders.vote)}`, remove: () => setVote(null) });
   const locking = phase === "locking";
-  const waiting = SEATS.filter((s) => s !== me && !botLocks[s]).length;
+  const seats = useGame((s) => (s.net ? s.seats : null));
+  // multiplayer: only other human leaders can keep the year open (bots and caretakers are always ready)
+  const waiting = seats ? seats.filter((s) => !s.you && s.kind === "human" && !s.locked).length : SEATS.filter((s) => s !== me && !botLocks[s]).length;
   return (
     <div className="grid gap-2.5 border-t border-border bg-white/70 px-3.5 pt-3 pb-[calc(14px+env(safe-area-inset-bottom))]" data-coach="lock">
       <div className="flex items-center justify-between text-[11px] font-extrabold tracking-[.1em] text-ink-3 uppercase">

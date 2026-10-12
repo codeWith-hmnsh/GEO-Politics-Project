@@ -11,6 +11,7 @@ import { TURN_SECONDS } from "./engine/rules";
 import type { CardParams, Good, Iso3, Ministry, Proposal, RegionId, ScenarioId, Term, TurnOrders, TurnRecord, WorldState } from "./engine/types";
 import { SEATS } from "./engine/types";
 import { answerHumanProposal, closeTurn, planBots, type Plan } from "./match";
+import type { MatchView, NetOps, SeatView } from "./onlineTypes";
 import { SEED_2026 } from "./seed";
 import { sound } from "./sound";
 
@@ -109,6 +110,17 @@ interface GameState {
   refreshForecast: () => void;
   setTutorial: (step: number | null) => void;
   setFx: (fx: Partial<Fx>) => void;
+
+  // ── multiplayer (docs4.0/MULTIPLAYER.md §4) ──
+  net: NetOps | null;
+  seats: SeatView[];
+  view: MatchView | null;
+  /** Server clock minus local clock, in ms. */
+  skew: number;
+  netError: string | null;
+  setNet: (net: NetOps | null) => void;
+  syncView: (v: MatchView) => void;
+  setNetError: (e: string | null) => void;
 }
 
 const bots = (me: Iso3) => SEATS.filter((s) => s !== me);
@@ -168,6 +180,22 @@ export const useGame = create<GameState>((set, get) => {
   };
 
   const changed = () => {
+    get().refreshForecast();
+  };
+
+  /** Show a multiplayer turn from the server's view (no local bots: the server plans them). */
+  const enterOnline = (v: MatchView) => {
+    const me = v.me;
+    const seat = v.seats.find((x) => x.you);
+    const world = v.world!;
+    set((s) => ({ setup: { ...s.setup, me, leader: seat?.leader ?? s.setup.leader, portrait: seat?.portrait ?? s.setup.portrait, timed: true, scenario: v.match.scenario, difficulty: v.match.difficulty }, tutorial: null }));
+    if (v.match.phase === "ended" || world.ended) {
+      set({ world, prev: get().world ?? world, phase: "end" });
+      return;
+    }
+    const inbox = v.proposals as UIProposal[];
+    const goal = yearGoal(world, me);
+    set({ world, plan: null, orders: v.orders ?? {}, proposals: inbox, phase: seat?.locked ? "locking" : "plan", tab: "year", goal, recs: recommend(world, me, v.orders ?? {}, inbox, goal), compose: null, record: null, impact: null, fx: { arcs: [], regions: [], event: null } });
     get().refreshForecast();
   };
 
@@ -252,8 +280,21 @@ export const useGame = create<GameState>((set, get) => {
     },
     setCompose: (compose) => set({ compose }),
     sendProposal: () => {
-      const { compose, world, setup, proposals } = get();
+      const { compose, world, setup, proposals, net } = get();
       if (!compose?.to || !world) return "Choose a country";
+      if (net) {
+        const temp: UIProposal = { id: `local-${Date.now()}`, turn: world.turn, from: setup.me, to: compose.to, gives: compose.gives, wants: compose.wants, turns: compose.turns, status: "pending", thinking: true };
+        set((s) => ({ proposals: [...s.proposals, temp], compose: null }));
+        sound.place();
+        net
+          .call("propose", { to: compose.to, gives: compose.gives, wants: compose.wants, turns: compose.turns, parentId: compose.parentId })
+          .then(() => sound.knock())
+          .catch((e: Error) => {
+            set((s) => ({ proposals: s.proposals.filter((x) => x.id !== temp.id), netError: e.message }));
+          })
+          .finally(() => net.refresh());
+        return null;
+      }
       const p: UIProposal = { id: `${world.turn}-${setup.me}-${compose.to}-h${proposals.length}`, turn: world.turn, from: setup.me, to: compose.to, gives: compose.gives, wants: compose.wants, turns: compose.turns, status: "pending", parentId: compose.parentId, thinking: true };
       set((s) => ({ proposals: [...s.proposals, p], compose: null, orders: compose.free ? s.orders : { ...s.orders, proposalsSent: (s.orders.proposalsSent ?? 0) + 1 } }));
       sound.place();
@@ -275,6 +316,19 @@ export const useGame = create<GameState>((set, get) => {
     answerInbox: (id, act) => {
       const p = get().proposals.find((x) => x.id === id);
       if (!p) return;
+      const net = get().net;
+      if (net) {
+        const action = act === "accept" || act === "acceptCounter" ? "accept" : act === "counter" ? "counter" : "reject";
+        if (act === "counter") set({ compose: { to: p.from, gives: p.wants.map((t) => ({ ...t })), wants: p.gives.map((t) => ({ ...t })), turns: p.turns, free: true, parentId: p.id }, tab: "deals" });
+        set((s) => ({ proposals: s.proposals.map((x) => (x.id === id ? { ...x, status: action === "accept" ? "accepted" : action === "counter" ? "countered" : "rejected" } : x)) }));
+        if (action === "accept") sound.chime();
+        net
+          .call("answer", { id, action })
+          .catch((e: Error) => set({ netError: e.message }))
+          .finally(() => net.refresh());
+        changed();
+        return;
+      }
       if (act === "counter") {
         set((s) => ({
           proposals: s.proposals.map((x) => (x.id === id ? { ...x, status: "countered" } : x)),
@@ -300,6 +354,15 @@ export const useGame = create<GameState>((set, get) => {
     },
     tick: () => {
       const s = get();
+      if (s.net) {
+        const d = s.view?.match.deadlineAt;
+        if (!d || (s.phase !== "plan" && s.phase !== "locking")) return;
+        const left = Math.max(0, Math.round((Date.parse(d) - (Date.now() + s.skew)) / 1000));
+        set({ timeLeft: left });
+        // any player may ask the server to resolve once the deadline has passed (MULTIPLAYER §4.1)
+        if (left === 0) s.net.call("resolve").catch(() => {}).finally(() => s.net?.refresh());
+        return;
+      }
       if (s.phase !== "plan" || s.paused || !s.setup.timed) return;
       const t = Math.max(0, s.timeLeft - 1);
       set({ timeLeft: t });
@@ -311,6 +374,13 @@ export const useGame = create<GameState>((set, get) => {
       if (get().phase !== "plan") return;
       set({ phase: "locking", compose: null });
       sound.lock();
+      const net = get().net;
+      if (net)
+        net
+          .call("orders", { orders: get().orders })
+          .then(() => net.call("lock", { locked: true }))
+          .catch((e: Error) => set({ phase: "plan", netError: e.message }))
+          .finally(() => net.refresh());
     },
     markBotLocked: (s) => set((st) => ({ botLocks: { ...st.botLocks, [s]: true } })),
     resolve: () => {
@@ -330,6 +400,12 @@ export const useGame = create<GameState>((set, get) => {
     next: () => {
       const w = get().world;
       if (!w) return;
+      const v = get().view;
+      if (get().net && v) {
+        if (v.match.phase === "ended" || w.ended) set({ phase: "end" });
+        else if (v.world) enterOnline(v);
+        return;
+      }
       if (w.ended) set({ phase: "end" });
       else beginTurn(w);
     },
@@ -347,6 +423,37 @@ export const useGame = create<GameState>((set, get) => {
       set({ forecast: forecast(world, setup.me, orders, accepted) });
     },
     setFx: (fx) => set((s) => ({ fx: { ...s.fx, ...fx } })),
+
+    net: null,
+    seats: [],
+    view: null,
+    skew: 0,
+    netError: null,
+    setNet: (net) => set({ net }),
+    setNetError: (netError) => set({ netError }),
+    syncView: (v) => {
+      const s = get();
+      const skew = Date.parse(v.match.serverNow) - Date.now();
+      const botLocks = Object.fromEntries(v.seats.filter((x) => x.locked && !x.you).map((x) => [x.iso3, true]));
+      set({ view: v, seats: v.seats, skew, botLocks });
+      if (!v.world) return;
+      const local = s.world;
+      // first view of this match
+      if (!local || s.phase === "pick") return enterOnline(v);
+      // the server resolved the turn this player was planning: play the reveal
+      if ((s.phase === "plan" || s.phase === "locking") && v.lastRecord && v.lastRecord.turn === local.turn) {
+        set({ prev: local, world: v.world, record: v.lastRecord, impact: (v.lastRecord.impact?.[s.setup.me] as Impact | undefined) ?? null, phase: "reveal", compose: null, fx: { arcs: [], regions: [], event: null } });
+        return;
+      }
+      if ((s.phase === "plan" || s.phase === "locking") && v.match.turn === local.turn) {
+        // keep local "thinking" placeholders until the server has the real proposal
+        const server = v.proposals.map((p) => ({ ...p }) as UIProposal);
+        const pending = s.proposals.filter((p) => p.id.startsWith("local-") && !server.some((x) => x.from === p.from && x.to === p.to));
+        set({ proposals: [...server, ...pending] });
+        const mine = v.seats.find((x) => x.you);
+        if (s.phase === "plan" && mine?.locked) set({ phase: "locking" });
+      }
+    },
     setTutorial: (step) => {
       if (step === null) {
         try {

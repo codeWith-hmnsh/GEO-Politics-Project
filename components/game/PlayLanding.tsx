@@ -20,6 +20,7 @@ import { CAPITAL, NAMES, SEAT_COLOR, SHORT, money } from "@/lib/game/text";
 import { useGlobe } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Portrait, eyebrow, glass } from "./bits";
+import { RoomButtons } from "./RoomButtons";
 
 /**
  * Statecraft Play page (UI-DESIGN §5.2): the 1.0 globe stays fixed behind a long scroll. The hero and the
@@ -157,13 +158,10 @@ export function PlayLanding() {
             <Link href="/play/match" className="inline-flex min-h-12 min-w-[160px] items-center justify-center gap-2 rounded-full bg-[var(--ink-strong)] px-6 text-[15px] font-bold text-white shadow-[0_8px_22px_rgba(15,29,36,.25)] transition hover:bg-[#1b313b] active:scale-[.97]">
               Start <ArrowRight className="size-4" />
             </Link>
-            <span className="inline-flex min-h-12 items-center rounded-full border border-[rgba(17,35,43,.16)] bg-white/70 px-5 text-[14.5px] font-bold text-ink-3" title="Rooms with friends arrive with multiplayer">
-              Create room · soon
-            </span>
-            <span className="inline-flex min-h-12 items-center rounded-full border border-[rgba(17,35,43,.16)] bg-white/70 px-5 text-[14.5px] font-bold text-ink-3">Join with code · soon</span>
+            <RoomButtons />
           </div>
           <p className="flex flex-wrap gap-x-4 gap-y-1 text-[13.5px] font-semibold text-ink-2">
-            <span>Solo against 5 bots today</span>
+            <span>Solo against 5 bots, or a room with friends</span>
             <span>About 20 minutes a match</span>
             <span>Free · no download · no login</span>
           </p>
