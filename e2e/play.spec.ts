@@ -28,7 +28,8 @@ test("the Play page leads into a match", async ({ page }, info) => {
   await japan.scrollIntoViewIfNeeded();
   await expect(japan).toBeVisible({ timeout: 30_000 });
   await japan.click();
-  await expect(page.getByRole("heading", { name: "Who will you lead?" })).toBeVisible({ timeout: 30_000 });
+  await page.waitForURL(/\/play\/match\?country=JPN/, { timeout: 30_000 });
+  await expect(page.getByRole("dialog", { name: "Who will you lead?" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("button", { name: /Japan/ }).first()).toHaveClass(/border-\[var\(--gold\)\]/);
 });
 
