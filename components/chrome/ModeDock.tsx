@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { flags } from "@/config/flags";
 import { useGlobe, type Mode } from "@/lib/store";
 
-const MODES: { id: Mode; label: string; Icon: typeof Globe; enabled: boolean; when: string }[] = [
+export const MODES: { id: Mode; label: string; Icon: typeof Globe; enabled: boolean; when: string }[] = [
   { id: "home", label: "Global Pulse", Icon: Globe, enabled: true, when: "" },
   { id: "economy", label: "Economy", Icon: ChartNoAxesColumn, enabled: flags.economyMode, when: "Coming in the next release" },
   { id: "defense", label: "Defense", Icon: Shield, enabled: flags.defenseMode, when: "Coming in the next release" },

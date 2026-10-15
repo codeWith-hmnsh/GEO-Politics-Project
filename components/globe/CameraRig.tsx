@@ -152,11 +152,13 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
     const onCancel = (e: PointerEvent) => pointers.delete(e.pointerId);
     const onLeave = () => useGlobe.getState().setHover(null, null, 0, 0);
     const onWheel = (e: WheelEvent) => {
+      // The wheel zooms only over the globe itself (or on a trackpad pinch); off the globe it scrolls the page.
+      const ll = hit(e);
+      if (!ll && !e.ctrlKey) return;
       e.preventDefault();
       touch();
       const t = target.current;
       const next = clampCamera({ ...t, dist: t.dist * Math.exp(e.deltaY * 0.0013) }).dist;
-      const ll = hit(e);
       if (ll && next < t.dist) {
         const f = (1 - next / t.dist) * 0.9;
         t.lat += (ll[0] - t.lat) * f;

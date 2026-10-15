@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePulse } from "@/lib/api";
 import { pointInRing } from "@/lib/geo/sphere";
 import { REL_LABEL, relationsFor } from "@/lib/relations";
@@ -35,7 +36,8 @@ function HoverTooltip() {
     selected && iso3 && iso3 !== selected && data
       ? relationsFor(selected, data.data.relations, data.data.organizations).get(iso3)
       : undefined;
-  return (
+  // Portalled to <body>: the globe may sit inside a transformed, scrolling frame, but the pointer is in viewport space.
+  return createPortal(
     <div
       role="tooltip"
       className="pointer-events-none fixed z-50 rounded-lg bg-[var(--night)] px-2.5 py-1.5 text-xs font-semibold text-white"
@@ -44,7 +46,8 @@ function HoverTooltip() {
       {name}
       {selected && iso3 !== selected && <> · {REL_LABEL[rel?.status ?? "neutral"]}</>}
       {disputed && <span className="mt-1 block max-w-[260px] font-normal text-white/80">Disputed: {disputed.claimants}</span>}
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { loadCountries, type IndexedCountry } from "@/lib/geo/countries";
 import { useGlobe } from "@/lib/store";
 import { Atmosphere } from "./Atmosphere";
@@ -27,6 +27,17 @@ export default function GlobeCanvas({ game = false }: { game?: boolean }) {
   // Light globe on weak devices (ARCHITECTURE §3.5): no clouds, fewer polygons, lower resolution, half the arcs.
   const light = useGlobe((s) => s.tier === 1);
 
+  // Pages that scroll the globe away (Home) stop rendering it while it is off screen.
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [onScreen, setOnScreen] = useState(true);
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   useEffect(() => {
     let alive = true;
     loadCountries()
@@ -39,6 +50,8 @@ export default function GlobeCanvas({ game = false }: { game?: boolean }) {
 
   return (
     <Canvas
+      ref={canvasRef}
+      frameloop={onScreen ? "always" : "never"}
       className="!fixed inset-0"
       dpr={light ? [1, 1.25] : [1, 2]}
       gl={{ antialias: true, alpha: true }}

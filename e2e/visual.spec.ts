@@ -101,7 +101,7 @@ test.describe("visual reference", () => {
     await page.goto("/");
     await page.waitForTimeout(4500);
     await page.getByRole("navigation", { name: "Main" }).getByRole("button", { name: "Stories" }).click();
-    await page.getByRole("button", { name: /Why the Strait of Hormuz matters/ }).click();
+    await page.getByRole("button", { name: /Why the Strait of Hormuz matters/ }).first().click();
     const player = page.getByRole("region", { name: /Story: Why the Strait of Hormuz matters/ });
     await expect(player.getByRole("heading", { name: "A 33 km gap" })).toBeVisible();
     // Side cards step aside during a tour.

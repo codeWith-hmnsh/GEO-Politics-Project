@@ -163,9 +163,25 @@ function DateChip() {
   );
 }
 
+/** True once the page has scrolled past the top, so the header can grow a solid bar over page content. */
+function useScrolled() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const check = () => setScrolled(window.scrollY > 24);
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    return () => window.removeEventListener("scroll", check);
+  }, []);
+  return scrolled;
+}
+
 export function Header({ active = "home" }: { active?: string }) {
+  const scrolled = useScrolled();
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex h-[72px] items-center gap-9 px-6 max-md:h-[60px] max-md:gap-3 max-md:px-3.5">
+    <header
+      data-scrolled={scrolled || undefined}
+      className="pointer-events-none fixed inset-x-0 top-0 z-30 flex h-[72px] items-center gap-9 px-6 transition-[background-color,box-shadow,backdrop-filter] duration-300 data-[scrolled]:bg-[rgba(243,241,236,.84)] data-[scrolled]:shadow-[0_1px_0_var(--line),0_10px_30px_rgba(17,35,43,.06)] data-[scrolled]:backdrop-blur-xl max-md:h-[60px] max-md:gap-3 max-md:px-3.5"
+    >
       <Logo />
       <nav aria-label="Main" className="pointer-events-auto flex gap-7 max-[1280px]:hidden">
         {NAV.map((n) =>
