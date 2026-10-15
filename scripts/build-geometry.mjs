@@ -150,6 +150,7 @@ async function buildAdmin1() {
   mkdirSync(dir, { recursive: true });
   let total = 0;
   let written = 0;
+  const index = [];
   for (const [iso3, { states, rings }] of byCountry) {
     if (states.length < 2) continue;
     const lines = interiorLines(rings).map((l) => cleanLine(l, 0.004)).filter(Boolean);
@@ -158,7 +159,10 @@ async function buildAdmin1() {
     total += json.length;
     written++;
     writeFileSync(join(dir, `${iso3}.json`), json);
+    index.push(iso3);
   }
+  // The globe asks for a country's file only when the index lists it, so missing countries never 404.
+  writeFileSync(join(dir, "index.json"), JSON.stringify(index.sort()));
   console.log(`adm1/: ${written} countries, ${(total / 1e6).toFixed(1)} MB`);
 }
 

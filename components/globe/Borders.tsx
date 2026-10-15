@@ -85,7 +85,9 @@ export function AdminBorders({ countries }: { countries: IndexedCountry[] }) {
         if (!file) return;
         const geo = segmentsGeometry(file.lines, 1.0019);
         setGeos((prev) => ({ ...prev, [c.iso3]: geo }));
-        const labels = file.states.filter((s) => s.name && (s.label[0] !== 0 || s.label[1] !== 0));
+        // Some states come in several pieces with the same name; label each name once (names are the React keys).
+        const seen = new Set<string>();
+        const labels = file.states.filter((s) => s.name && (s.label[0] !== 0 || s.label[1] !== 0) && !seen.has(s.name) && !!seen.add(s.name));
         useGlobe.getState().addAdminLabels(c.iso3, labels);
       });
     }

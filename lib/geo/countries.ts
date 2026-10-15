@@ -65,12 +65,23 @@ export function loadCountries(): Promise<IndexedCountry[]> {
 export type Admin1File = { iso3: string; states: { name: string; label: [number, number] }[]; lines: Ring[] };
 
 const adm1Cache = new Map<string, Promise<Admin1File | null>>();
+let adm1Index: Promise<Set<string>> | undefined;
+
+/** Countries with an admin-1 file. Small countries have none; asking for them would only 404. */
+function loadAdmin1Index() {
+  adm1Index ??= fetch("/geo/adm1/index.json")
+    .then((r) => (r.ok ? (r.json() as Promise<string[]>) : []))
+    .then((list) => new Set(list))
+    .catch(() => new Set<string>());
+  return adm1Index;
+}
 
 export function loadAdmin1(iso3: string): Promise<Admin1File | null> {
   let p = adm1Cache.get(iso3);
   if (!p) {
-    p = fetch(`/geo/adm1/${iso3}.json`)
-      .then((r) => (r.ok ? (r.json() as Promise<Admin1File>) : null))
+    p = loadAdmin1Index()
+      .then((index) => (index.has(iso3) ? fetch(`/geo/adm1/${iso3}.json`) : null))
+      .then((r) => (r?.ok ? (r.json() as Promise<Admin1File>) : null))
       .catch(() => null);
     adm1Cache.set(iso3, p);
   }
