@@ -1,10 +1,13 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Flag } from "@/components/chrome/Flag";
 import { EVENT_BY_ID, SCENARIOS } from "@/lib/game/engine/events";
+import { createWorld } from "@/lib/game/engine/init";
+import { SEED_2026 } from "@/lib/game/seed";
 import { leaderScore, MISSIONS, ranks, standings } from "@/lib/game/engine/score";
 import type { Iso3, ScenarioId } from "@/lib/game/engine/types";
 import { DIMENSIONS, REGIONS, SEATS } from "@/lib/game/engine/types";
@@ -17,11 +20,9 @@ import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { encodeShare, type Share } from "@/lib/game/share";
 import { Btn, Portrait, eyebrow, glass } from "./bits";
+import { DIFF, PITCH, STRONG, WEAK } from "./seats";
 import { ShareCard } from "./ShareCard";
 
-const DIFF: Record<Iso3, string> = { IND: "Medium", CHN: "Medium", USA: "Medium", RUS: "Hard", SAU: "Medium", JPN: "Hard" };
-const STRONG: Record<Iso3, string> = { IND: "Growth, young workforce, food", CHN: "Industry, tech, reserves", USA: "Tech, energy, money", RUS: "Energy, food, military", SAU: "Oil, cash reserves", JPN: "Tech, money, skills" };
-const WEAK: Record<Iso3, string> = { IND: "Oil imports, jobs", CHN: "Energy imports, ageing", USA: "Debt, stability", RUS: "Sanctions, tech imports", SAU: "Food, jobs beyond oil", JPN: "Energy imports, ageing, debt" };
 const EVENT_PLACE: Record<string, [number, number]> = {
   "energy.hormuz": [26.6, 56.3],
   "energy.pipeline": [55, 15],
@@ -43,6 +44,8 @@ const EVENT_PLACE: Record<string, [number, number]> = {
 
 // ───────── Country pick ─────────
 
+const FRESH = createWorld(SEED_2026, { matchId: "pick", seed: 2026, scenario: "calmStart" });
+
 export function PickScreen() {
   const phase = useGame((s) => s.phase);
   const setup = useGame((s) => s.setup);
@@ -53,103 +56,232 @@ export function PickScreen() {
     if (phase === "pick" && !online) focus(CAPITAL[setup.me][0] - 6, CAPITAL[setup.me][1], 3.4, 1100);
   }, [phase, setup.me, online]);
   if (phase !== "pick" || online) return null;
+  const me = setup.me;
+  const c = FRESH.countries[me];
+  const [missionTitle, missionGoal] = MISSIONS[me].text.split(": ");
   const begin = () => {
-    if (!setup.leader.trim()) setSetup({ leader: LEADERS[setup.me] });
+    if (!setup.leader.trim()) setSetup({ leader: LEADERS[me] });
     start();
-    focus(CAPITAL[setup.me][0], CAPITAL[setup.me][1], 2.6, 1600);
+    focus(CAPITAL[me][0], CAPITAL[me][1], 2.6, 1600);
   };
   return (
-    <div className="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-[rgba(243,241,236,.5)] p-5 backdrop-blur-[3px]">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className={cn(glass, "w-[min(980px,100%)] p-7 max-md:p-5")} role="dialog" aria-labelledby="pick-title">
-        <div className={eyebrow}>Statecraft · solo match against 5 bots · about 20 minutes</div>
-        <h2 id="pick-title" className="mt-2 font-display text-[clamp(38px,6vw,72px)] leading-none font-semibold tracking-tight">
-          Who will you lead?
-        </h2>
-        <div className="mt-5 grid grid-cols-3 gap-3 max-md:grid-cols-1">
-          {SEATS.map((s) => (
-            <button
-              key={s}
-              onClick={() => {
-                setSetup({ me: s, leader: setup.leader && setup.leader !== LEADERS[setup.me] ? setup.leader : "" });
-                sound.click();
-              }}
-              className={cn("grid gap-2 rounded-2xl border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]", setup.me === s ? "border-[var(--gold)] shadow-[0_0_0_2px_var(--gold)]" : "border-border")}
-            >
-              <div className="flex items-center gap-2.5">
-                <Flag iso3={s} className="h-[22px] w-8 rounded" />
-                <b className="text-[16px]">{NAMES[s]}</b>
-                <span className="ml-auto text-[11px] font-extrabold tracking-[.08em] text-ink-3 uppercase">{DIFF[s]}</span>
-              </div>
-              <small className="text-[12.5px] text-ink-2">
-                <b>Strong:</b> {STRONG[s]}
-                <br />
-                <b>Weak:</b> {WEAK[s]}
-              </small>
-              <small className="text-[12.5px] text-ink">
-                <b>Mission:</b> {MISSIONS[s].text}
-              </small>
-            </button>
-          ))}
-        </div>
-        <div className="mt-5 flex flex-wrap items-center gap-2.5">
-          <span className={eyebrow}>Scenario</span>
-          {(Object.keys(SCENARIOS) as ScenarioId[]).map((id) => (
-            <Chip key={id} on={setup.scenario === id} onClick={() => setSetup({ scenario: id })}>
-              {SCENARIOS[id].name}
-            </Chip>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2.5">
-          <span className={eyebrow}>Bots</span>
-          {(["easy", "normal", "hard"] as const).map((d) => (
-            <Chip key={d} on={setup.difficulty === d} onClick={() => setSetup({ difficulty: d })}>
-              {cap(d)}
-            </Chip>
-          ))}
-          <span className={cn(eyebrow, "ml-3")}>Turn timer</span>
-          <Chip on={!setup.timed} onClick={() => setSetup({ timed: false })}>
-            Off
-          </Chip>
-          <Chip on={setup.timed} onClick={() => setSetup({ timed: true })}>
-            90 seconds
-          </Chip>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2.5">
-          <span className={eyebrow}>Leader</span>
-          <input
-            id="leader-name"
-            aria-label="Leader name"
-            maxLength={20}
-            placeholder={LEADERS[setup.me]}
-            value={setup.leader}
-            onChange={(e) => setSetup({ leader: e.target.value })}
-            className="h-10 w-[210px] rounded-full border border-[rgba(17,35,43,.16)] bg-white px-4 text-[14px]"
-          />
-          <div className="flex gap-1.5">
-            {Array.from({ length: 8 }, (_, i) => (
-              <button key={i} aria-label={`Portrait ${i + 1}`} onClick={() => setSetup({ portrait: i })} className={cn("rounded-full", setup.portrait === i && "outline-2 outline-offset-2 outline-[var(--gold)]")}>
-                <Portrait i={i} seat={SEAT_COLOR[setup.me]} size={30} />
-              </button>
-            ))}
+    <div className="fixed inset-0 z-40 overflow-y-auto bg-[rgba(243,241,236,.55)] backdrop-blur-[6px]">
+      <div className="grid min-h-full place-items-center p-5 max-md:p-2.5">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: ease.out }}
+          className="w-[min(1120px,100%)] overflow-hidden rounded-[26px] border border-white/70 bg-white/92 shadow-[0_40px_100px_rgba(17,35,43,.22),0_2px_8px_rgba(17,35,43,.06)] backdrop-blur-2xl"
+          role="dialog"
+          aria-labelledby="pick-title"
+        >
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border px-8 pt-7 pb-6 max-md:px-5">
+            <div>
+              <div className={eyebrow}>Statecraft · solo match against 5 bots · about 20 minutes</div>
+              <h2 id="pick-title" className="mt-2 font-display text-[clamp(34px,4.4vw,54px)] leading-none font-semibold tracking-tight">
+                Who will you lead?
+              </h2>
+            </div>
+            <Link href="/play" className="text-[13.5px] font-semibold text-ink-2 underline-offset-4 hover:text-ink hover:underline">
+              How Statecraft works
+            </Link>
           </div>
-        </div>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Btn className="min-w-[220px]" onClick={begin}>
-            Take office ▸
-          </Btn>
-          <Link href="/play" className="text-[14px] font-semibold text-ink-2 underline-offset-4 hover:underline">
-            How Statecraft works
-          </Link>
-          <span className="text-[12.5px] text-ink-3">Your first match has a short guided tour. You can skip it.</span>
-        </div>
-      </motion.div>
+
+          <div className="grid grid-cols-[300px_1fr] max-lg:grid-cols-1">
+            {/* the six seats */}
+            <div className="grid content-start gap-1.5 border-r border-border bg-[rgba(243,241,236,.55)] p-4 max-lg:grid-cols-3 max-lg:border-r-0 max-lg:border-b max-sm:grid-cols-2">
+              {SEATS.map((s) => {
+                const on = me === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => {
+                      setSetup({ me: s, leader: setup.leader && setup.leader !== LEADERS[me] ? setup.leader : "" });
+                      sound.click();
+                    }}
+                    className={cn(
+                      "relative flex items-center gap-3 overflow-hidden rounded-2xl border px-3.5 py-3 text-left transition",
+                      on ? "border-[var(--gold)] bg-white shadow-[0_0_0_1px_var(--gold),0_10px_24px_rgba(17,35,43,.08)]" : "border-transparent hover:bg-white/70",
+                    )}
+                  >
+                    <i className="absolute inset-y-2.5 left-0 w-1 rounded-r-full transition-opacity" style={{ background: SEAT_COLOR[s], opacity: on ? 1 : 0 }} />
+                    <Flag iso3={s} className="h-[22px] !w-[32px] !bg-cover rounded-[4px] shadow-[0_0_0_1px_rgba(17,35,43,.08)]" />
+                    <span className="min-w-0 flex-1">
+                      <b className="block truncate text-[15px] max-sm:whitespace-normal max-sm:leading-tight">{NAMES[s]}</b>
+                      <small className="block truncate text-[12px] text-ink-3 max-lg:hidden">{PITCH[s]}</small>
+                    </span>
+                    <Difficulty d={DIFF[s]} />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* the chosen seat */}
+            <motion.div key={me} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: ease.out }} className="grid content-start gap-6 p-8 max-md:p-5">
+              <div className="flex items-center gap-4">
+                <Flag iso3={me} className="h-[46px] !w-[68px] !bg-cover rounded-lg shadow-[0_0_0_1px_rgba(17,35,43,.08),0_8px_20px_rgba(17,35,43,.14)]" />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h3 className="font-display text-[34px] leading-none font-semibold tracking-tight">{NAMES[me]}</h3>
+                    <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-extrabold tracking-[.1em] uppercase", DIFF[me] === "Hard" ? "bg-[rgba(229,72,77,.1)] text-[var(--down)]" : "bg-[rgba(232,162,28,.14)] text-[#8a5d0b]")}>{DIFF[me]}</span>
+                  </div>
+                  <p className="mt-1.5 text-[15.5px] text-ink-2">{PITCH[me]}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-border">
+                {(
+                  [
+                    ["Economy", money(c.gdp)],
+                    ["Growth", `${c.growth.toFixed(1)}%`],
+                    ["Own energy", `${Math.round((c.goods.energy.prod / c.goods.energy.demand) * 100)}%`],
+                  ] as const
+                ).map(([l, v]) => (
+                  <div key={l} className="border-border px-4 py-3 not-last:border-r">
+                    <div className="text-[11px] font-bold text-ink-3">{l}</div>
+                    <div className="mt-0.5 text-[20px] font-extrabold tabular-nums">{v}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-2 gap-5 max-sm:grid-cols-1">
+                <Traits label="Strengths" items={STRONG[me]} good />
+                <Traits label="Weak spots" items={WEAK[me]} />
+              </div>
+
+              <div className="rounded-2xl border border-[rgba(242,179,61,.5)] bg-gradient-to-br from-[rgba(242,179,61,.14)] to-[rgba(242,179,61,.03)] px-5 py-4">
+                <div className="flex items-center gap-2 text-[11px] font-extrabold tracking-[.14em] text-[#8a5d0b] uppercase">
+                  <Target /> Your mission
+                </div>
+                <p className="mt-1.5 text-[17px] font-bold">{missionTitle}</p>
+                {missionGoal && <p className="text-[14px] text-ink-2">{cap(missionGoal)}</p>}
+              </div>
+
+              <div>
+                <div className={eyebrow}>Your leader</div>
+                <div className="mt-2.5 flex flex-wrap items-center gap-3">
+                  <input
+                    id="leader-name"
+                    aria-label="Leader name"
+                    maxLength={20}
+                    placeholder={LEADERS[me]}
+                    value={setup.leader}
+                    onChange={(e) => setSetup({ leader: e.target.value })}
+                    className="h-11 w-[220px] rounded-xl border border-[rgba(17,35,43,.16)] bg-white px-4 text-[14.5px] font-semibold outline-none focus:border-[var(--ink)] focus:ring-2 focus:ring-[rgba(17,35,43,.1)]"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {Array.from({ length: 8 }, (_, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        aria-label={`Portrait ${i + 1}`}
+                        aria-pressed={setup.portrait === i}
+                        onClick={() => setSetup({ portrait: i })}
+                        className={cn("rounded-full transition", setup.portrait === i ? "scale-110 outline-2 outline-offset-[3px] outline-[var(--gold)]" : "opacity-75 hover:opacity-100")}
+                      >
+                        <Portrait i={i} seat={SEAT_COLOR[me]} size={30} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* match settings */}
+          <div className="grid grid-cols-[1.5fr_1fr_.8fr] gap-5 border-t border-border bg-[rgba(243,241,236,.55)] px-8 py-5 max-lg:grid-cols-2 max-md:grid-cols-1 max-md:px-5">
+            <Setting label="Scenario" hint={SCENARIOS[setup.scenario].brief}>
+              {(Object.keys(SCENARIOS) as ScenarioId[]).map((id) => (
+                <Seg key={id} on={setup.scenario === id} onClick={() => setSetup({ scenario: id })}>
+                  {SCENARIOS[id].name}
+                </Seg>
+              ))}
+            </Setting>
+            <Setting label="Bots">
+              {(["easy", "normal", "hard"] as const).map((d) => (
+                <Seg key={d} on={setup.difficulty === d} onClick={() => setSetup({ difficulty: d })}>
+                  {cap(d)}
+                </Seg>
+              ))}
+            </Setting>
+            <Setting label="Turn timer">
+              <Seg on={!setup.timed} onClick={() => setSetup({ timed: false })}>
+                Off
+              </Seg>
+              <Seg on={setup.timed} onClick={() => setSetup({ timed: true })}>
+                90 seconds
+              </Seg>
+            </Setting>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border px-8 py-5 max-md:px-5">
+            <span className="text-[13px] text-ink-3">Your first match has a short guided tour. You can skip it.</span>
+            <Btn className="min-h-12 min-w-[240px] px-7 text-[15px] max-sm:w-full" onClick={begin}>
+              Take office as {SHORT[me]} <ArrowRight className="size-4" aria-hidden />
+            </Btn>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
 
-function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+function Difficulty({ d }: { d: "Medium" | "Hard" }) {
+  const n = d === "Hard" ? 3 : 2;
   return (
-    <button type="button" aria-pressed={on} onClick={onClick} className={cn("h-8 rounded-full border px-3.5 text-[13px] font-semibold", on ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white" : "border-[rgba(17,35,43,.16)] bg-white text-ink-2")}>
+    <span role="img" aria-label={`${d} difficulty`} title={`${d} difficulty`} className="flex items-end gap-[3px]">
+      {[1, 2, 3].map((i) => (
+        <i key={i} className={cn("w-1 rounded-full", i <= n ? (d === "Hard" ? "bg-[var(--down)]" : "bg-[var(--mixed)]") : "bg-[rgba(17,35,43,.12)]")} style={{ height: 5 + i * 3 }} />
+      ))}
+    </span>
+  );
+}
+
+function Traits({ label, items, good }: { label: string; items: string[]; good?: boolean }) {
+  return (
+    <div>
+      <div className={eyebrow}>{label}</div>
+      <ul className="mt-2.5 flex flex-wrap gap-1.5">
+        {items.map((t) => (
+          <li key={t} className={cn("rounded-full px-3 py-1 text-[13px] font-bold", good ? "bg-[rgba(47,163,107,.1)] text-[var(--up)]" : "bg-[rgba(229,72,77,.08)] text-[var(--down)]")}>
+            {good ? "▲" : "▼"} {t}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Target() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="4.5" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+function Setting({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div role="group" aria-label={label}>
+      <div className={eyebrow}>{label}</div>
+      <div className="mt-2 inline-flex flex-wrap gap-1 rounded-xl border border-border bg-white p-1">{children}</div>
+      {hint && <p className="mt-2 max-w-[52ch] text-[12.5px] text-ink-3">{hint}</p>}
+    </div>
+  );
+}
+
+function Seg({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={onClick}
+      className={cn("h-8 rounded-lg px-3 text-[13px] font-semibold whitespace-nowrap transition", on ? "bg-[var(--ink-strong)] text-white shadow-sm" : "text-ink-2 hover:bg-paper hover:text-ink")}
+    >
       {children}
     </button>
   );

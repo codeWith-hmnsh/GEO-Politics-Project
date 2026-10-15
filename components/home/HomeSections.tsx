@@ -69,7 +69,7 @@ export function HomeSections() {
                 <span className="absolute top-0 right-0 size-2.5 rounded-full border-2 border-white" />
               </span>
             </span>
-            <b className="text-ink">GeoPolitics</b> · The world, explained
+            <span className="font-semibold text-ink">{"GeoPolitics · The world, explained"}</span>
           </span>
           <nav aria-label="Footer" className="flex flex-wrap gap-5 font-semibold">
             <Link href="/glossary" className="hover:text-ink">Glossary</Link>
@@ -178,7 +178,7 @@ function Pulse() {
                   <Intensity n={c.intensity} />
                   <span className="text-[11px] font-extrabold tracking-[.12em] text-ink-3 uppercase">{c.status === "ceasefire" ? "Ceasefire" : "Active"} · since {c.start.slice(0, 4)}</span>
                 </div>
-                <h3 className="mt-2.5 text-[17px] leading-snug font-bold">{c.name}</h3>
+                <p className="mt-2.5 text-[17px] leading-snug font-bold">{c.name}</p>
                 <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{c.why[0]}</p>
               </li>
             ))}
@@ -372,7 +372,7 @@ function Statecraft() {
           {SEATS.map((s) => (
             <li key={s} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.06] p-3.5 backdrop-blur">
               <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full" style={{ boxShadow: `0 0 0 2px ${SEAT_COLOR[s]}` }}>
-                <Flag iso3={s} className="h-10 w-14 scale-110" />
+                <Flag iso3={s} className="h-10 !w-14 !bg-cover" />
               </span>
               <span className="text-[13.5px] font-bold">{SHORT[s]}</span>
             </li>

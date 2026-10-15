@@ -16,18 +16,17 @@ import { SEATS } from "@/lib/game/engine/types";
 import { closeTurn, planBots } from "@/lib/game/match";
 import { SEED_2026 } from "@/lib/game/seed";
 import { useGame } from "@/lib/game/store";
-import { CAPITAL, NAMES, SEAT_COLOR, SHORT, money } from "@/lib/game/text";
+import { CAPITAL, NAMES, SEAT_COLOR, SHORT } from "@/lib/game/text";
 import { useGlobe } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Portrait, eyebrow, glass } from "./bits";
 import { RoomButtons } from "./RoomButtons";
+import { DIFF, PITCH, STRONG } from "./seats";
 
 /**
  * Statecraft Play page (UI-DESIGN §5.2): the 1.0 globe stays fixed behind a long scroll. The hero and the
  * "How a year works" story drive the globe; then countries, the Why chain, the ranking and the FAQ.
  */
-
-const DIFF: Record<Iso3, string> = { IND: "Medium", CHN: "Medium", USA: "Medium", RUS: "Hard", SAU: "Medium", JPN: "Hard" };
 
 type Step = { k: string; title: string; text: string; show: () => void };
 
@@ -160,24 +159,46 @@ export function PlayLanding() {
             </Link>
             <RoomButtons />
           </div>
-          <p className="flex flex-wrap gap-x-4 gap-y-1 text-[13.5px] font-semibold text-ink-2">
-            <span>Solo against 5 bots, or a room with friends</span>
-            <span>About 20 minutes a match</span>
-            <span>Free · no download · no login</span>
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <span className="flex -space-x-2.5" aria-hidden>
+              {SEATS.map((s) => (
+                <span key={s} className="grid size-9 place-items-center overflow-hidden rounded-full border-2 border-paper shadow-[0_4px_10px_rgba(17,35,43,.15)]">
+                  <Flag iso3={s} className="!h-full !w-full !rounded-none !bg-cover" />
+                </span>
+              ))}
+            </span>
+            <span className="text-[13.5px] leading-snug font-semibold text-ink-2">
+              Six real powers · about 20 minutes
+              <br />
+              <span className="text-ink-3">Free · no download · no login</span>
+            </span>
+          </div>
         </section>
 
         <section className="pointer-events-auto max-w-[520px] pt-[8vh]">
           <div className={eyebrow}>How a year works</div>
           <h2 className="mt-2 font-display text-[clamp(34px,4vw,54px)] leading-tight font-semibold">One turn is one year.</h2>
         </section>
-        <div className="pb-[14vh]">
+        <div className="relative pb-[14vh]">
+          {/* progress rail: one dot per step, the line fills as the story advances */}
+          <div aria-hidden className="pointer-events-none sticky top-[45dvh] z-10 -mb-[120px] h-[120px] w-0 max-md:hidden">
+            <div className="absolute top-0 -left-9 h-[120px] w-[3px] overflow-hidden rounded-full bg-[rgba(17,35,43,.1)] max-lg:hidden">
+              <motion.i className="block w-full rounded-full bg-[var(--gold)]" animate={{ height: `${((Math.max(step, 0) + 1) / STEPS.length) * 100}%` }} transition={{ duration: 0.5 }} />
+            </div>
+          </div>
           {STEPS.map((s, i) => (
-            <article key={s.k} data-step={i} className="pointer-events-auto flex min-h-[78dvh] max-w-[480px] flex-col justify-center max-md:min-h-[70dvh]">
-              <motion.div animate={{ scale: step === i ? 1 : 0.97 }} transition={{ duration: 0.4 }} className={cn(glass, "p-6 transition-shadow", step === i && "ring-2 ring-[var(--gold)]")}>
-                <div className="flex items-center gap-3">
-                  <b className="grid size-8 place-items-center rounded-full bg-[var(--ink-strong)] text-[13px] text-white">{i + 1}</b>
+            <article key={s.k} data-step={i} className="pointer-events-auto flex min-h-[70dvh] max-w-[480px] flex-col justify-center max-md:min-h-[64dvh]">
+              <motion.div
+                animate={{ scale: step === i ? 1 : 0.97 }}
+                transition={{ duration: 0.4 }}
+                className={cn(glass, "relative overflow-hidden p-7 transition-shadow", step === i && "shadow-[0_0_0_2px_var(--gold),var(--shadow-card)]")}
+              >
+                <i className="absolute inset-y-0 left-0 w-1 bg-[var(--gold)] transition-opacity" style={{ opacity: step === i ? 1 : 0 }} />
+                <div className="flex items-center justify-between gap-3">
                   <span className={eyebrow}>{s.k}</span>
+                  <span className="font-display text-[15px] font-semibold text-ink-3 tabular-nums">
+                    {String(i + 1).padStart(2, "0")} <span className="font-normal">/ {String(STEPS.length).padStart(2, "0")}</span>
+                  </span>
                 </div>
                 <h3 className="mt-3 font-display text-[clamp(28px,3vw,40px)] leading-tight font-semibold">{s.title}</h3>
                 <p className="mt-2 text-[16.5px] leading-relaxed text-ink-2">{s.text}</p>
@@ -194,12 +215,18 @@ export function PlayLanding() {
         <RankDemo />
         <Learn />
         <Faq />
-        <section className="grid justify-items-center gap-5 px-5 py-28 text-center">
-          <div className={eyebrow}>Statecraft</div>
-          <h2 className="font-display text-[clamp(40px,5.6vw,76px)] leading-none font-semibold tracking-tight">Your country is waiting.</h2>
-          <Link href="/play/match" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--ink-strong)] px-7 text-[15px] font-bold text-white">
-            Start a match <ArrowRight className="size-4" />
-          </Link>
+        <section className="px-5 pt-6 pb-20">
+          <div className="relative mx-auto grid max-w-[1240px] justify-items-center gap-6 overflow-hidden rounded-[32px] bg-[var(--ink-strong)] px-6 py-24 text-center text-white shadow-[0_30px_80px_rgba(15,29,36,.3)] max-md:py-16">
+            <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_75%_at_50%_0%,rgba(242,179,61,.22),transparent_65%)]" />
+            <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 size-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[.07]" />
+            <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 size-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[.07]" />
+            <div className={cn(eyebrow, "relative text-[var(--gold)]")}>Statecraft</div>
+            <h2 className="relative font-display text-[clamp(40px,5.6vw,76px)] leading-none font-semibold tracking-tight">Your country is waiting.</h2>
+            <p className="relative max-w-[44ch] text-[17px] text-white/70">Twelve years, five rivals, one shared world. See how far you can take it.</p>
+            <Link href="/play/match" className="relative inline-flex min-h-12 items-center gap-2 rounded-full bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] px-7 text-[15px] font-bold text-[var(--ink-strong)] shadow-[0_10px_28px_rgba(242,179,61,.35)] transition active:scale-[.97]">
+              Start a match <ArrowRight className="size-4" />
+            </Link>
+          </div>
         </section>
         <footer className="border-t border-border px-5 py-7 text-[13px] text-ink-3">
           <div className="mx-auto flex max-w-[1240px] flex-wrap justify-between gap-4">
@@ -219,42 +246,52 @@ function useStartWorld() {
 }
 
 function Countries() {
-  const w = useStartWorld();
   return (
     <Band>
-      <div className={eyebrow}>Six seats</div>
-      <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-tight font-semibold">Who will you lead?</h2>
-      <p className="mt-3 max-w-[60ch] text-[17px] text-ink-2">Every country starts from real 2025 data and carries its real problem. India needs jobs for a young workforce. Japan imports almost all its energy. Saudi Arabia must build an economy beyond oil.</p>
-      <div className="mt-9 grid grid-cols-3 gap-4 max-lg:grid-cols-2 max-sm:grid-cols-1">
-        {SEATS.map((s) => {
-          const c = w.countries[s];
-          return (
-            <Link key={s} href={`/play/match?country=${s}`} className="group relative grid gap-3 overflow-hidden rounded-[20px] border border-border bg-white p-5 shadow-[0_6px_18px_rgba(17,35,43,.08)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-card)]">
-              <i className="absolute inset-x-0 top-0 h-1" style={{ background: SEAT_COLOR[s] }} />
-              <div className="flex items-center gap-3">
-                <Flag iso3={s} className="h-6 w-9 rounded" />
-                <b className="text-[20px]">{NAMES[s]}</b>
-                <span className="ml-auto text-[11px] font-extrabold tracking-[.1em] text-ink-3 uppercase">{DIFF[s]}</span>
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <div className={eyebrow}>Six seats</div>
+          <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-tight font-semibold">Who will you lead?</h2>
+        </div>
+        <p className="max-w-[46ch] text-[16px] text-ink-2">Every country starts from real 2025 data and carries its real problem. Pick the one you want to fix.</p>
+      </div>
+      <div className="mt-10 grid grid-cols-3 gap-5 max-lg:grid-cols-2 max-sm:grid-cols-1">
+        {SEATS.map((s, i) => (
+          <motion.div key={s} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ delay: (i % 3) * 0.07, duration: 0.5 }}>
+            <Link
+              href={`/play/match?country=${s}`}
+              className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-border bg-white shadow-[0_1px_2px_rgba(17,35,43,.04),0_12px_32px_rgba(17,35,43,.07)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_50px_rgba(17,35,43,.14)]"
+            >
+              <div className="relative h-[118px] overflow-hidden">
+                <Flag iso3={s} className="absolute inset-0 !h-full !w-full !rounded-none !bg-cover transition duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(15,29,36,.82)] via-[rgba(15,29,36,.25)] to-transparent" />
+                <div className="absolute inset-x-5 bottom-3.5 flex items-end justify-between gap-3 text-white">
+                  <b className="font-display text-[28px] leading-none font-semibold tracking-tight [text-shadow:0_2px_12px_rgba(0,0,0,.35)]">{NAMES[s]}</b>
+                  <span className={cn("rounded-full px-2.5 py-0.5 text-[10.5px] font-extrabold tracking-[.12em] uppercase backdrop-blur", DIFF[s] === "Hard" ? "bg-[rgba(229,72,77,.85)]" : "bg-white/25")}>{DIFF[s]}</span>
+                </div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  [money(c.gdp), "GDP"],
-                  [`${c.growth.toFixed(1)}%`, "Growth"],
-                  [`${Math.round((c.goods.energy.prod / c.goods.energy.demand) * 100)}%`, "Own energy"],
-                ].map(([v, l]) => (
-                  <div key={l} className="rounded-[10px] bg-paper px-2.5 py-2">
-                    <b className="block text-[16px] tabular-nums">{v}</b>
-                    <small className="text-[11px] font-bold text-ink-3">{l}</small>
-                  </div>
-                ))}
-              </div>
-              <div className="rounded-xl border border-dashed border-[rgba(17,35,43,.18)] px-3 py-2.5 text-[13.5px] font-bold">{MISSIONS[s].text}</div>
-              <div className="flex items-center justify-between text-[13.5px] font-extrabold">
-                Lead {SHORT[s]} <ArrowRight className="size-4 transition group-hover:translate-x-1" />
+              <div className="flex flex-1 flex-col gap-4 p-5">
+                <p className="text-[15.5px] font-semibold">{PITCH[s]}</p>
+                <ul className="flex flex-wrap gap-1.5">
+                  {STRONG[s].map((t) => (
+                    <li key={t} className="rounded-full bg-paper px-2.5 py-1 text-[12px] font-bold text-ink-2">
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-auto flex items-start gap-2 border-t border-border pt-4 text-[13px] text-ink-2">
+                  <span className="mt-0.5 size-2 shrink-0 rounded-full" style={{ background: SEAT_COLOR[s] }} />
+                  <span>
+                    <b className="text-ink">Mission:</b> {MISSIONS[s].text.split(": ")[0]}
+                  </span>
+                </p>
+                <span className="flex items-center justify-between rounded-xl bg-[var(--ink-strong)] px-4 py-2.5 text-[13.5px] font-bold text-white transition group-hover:bg-[#1b313b]">
+                  Lead {SHORT[s]} <ArrowRight className="size-4 transition group-hover:translate-x-1" />
+                </span>
               </div>
             </Link>
-          );
-        })}
+          </motion.div>
+        ))}
       </div>
     </Band>
   );
@@ -284,24 +321,27 @@ function WhyDemo() {
     ] as [string, string, boolean?][];
   }, [w]);
   return (
-    <Band className="grid grid-cols-[.9fr_1.1fr] items-center gap-12 max-lg:grid-cols-1">
-      <div>
-        <div className={eyebrow}>The Why chain</div>
-        <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-tight font-semibold">Every change has a reason.</h2>
-        <p className="mt-3 max-w-[48ch] text-[17px] text-ink-2">After every year, tap any number and the game shows the chain that moved it. This one was computed live by the game engine: the same year run twice, once with the pact and once without.</p>
-      </div>
-      <ol className="grid max-w-[460px] gap-0">
-        {rows.map(([t, v, root], i) => (
-          <li key={t}>
-            {i > 0 && <span className="ml-6 block h-6 w-0.5 bg-ink-3" />}
-            <motion.div initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }} className={cn("flex justify-between gap-3 rounded-[14px] border px-4 py-3 text-[14px] font-bold shadow-[0_6px_18px_rgba(17,35,43,.08)]", root ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white" : "border-border bg-white")}>
-              <span>{t}</span>
-              <small className={cn("font-semibold tabular-nums", root ? "text-white/70" : "text-ink-3")}>{v}</small>
-            </motion.div>
-          </li>
-        ))}
-      </ol>
-    </Band>
+    <div className="relative overflow-hidden bg-[var(--ink-strong)] text-white">
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_70%_at_85%_40%,rgba(242,179,61,.16),transparent_60%),radial-gradient(40%_60%_at_0%_100%,rgba(76,116,217,.18),transparent_60%)]" />
+      <Band className="relative grid grid-cols-[.9fr_1.1fr] items-center gap-12 max-lg:grid-cols-1">
+        <div>
+          <div className={cn(eyebrow, "text-[var(--gold)]")}>The Why chain</div>
+          <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-tight font-semibold">Every change has a reason.</h2>
+          <p className="mt-3 max-w-[48ch] text-[17px] text-white/70">After every year, tap any number and the game shows the chain that moved it. This one was computed live by the game engine: the same year run twice, once with the pact and once without.</p>
+        </div>
+        <ol className="grid max-w-[460px] gap-0">
+          {rows.map(([t, v, root], i) => (
+            <li key={t}>
+              {i > 0 && <span className="ml-6 block h-6 w-0.5 bg-gradient-to-b from-white/10 to-white/35" />}
+              <motion.div initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }} className={cn("flex justify-between gap-3 rounded-[14px] border px-4 py-3 text-[14px] font-bold", root ? "border-transparent bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] text-[var(--ink-strong)]" : "border-white/10 bg-white/[.06] backdrop-blur")}>
+                <span>{t}</span>
+                <small className={cn("font-semibold tabular-nums", root ? "text-[var(--ink-strong)]/70" : "text-white/60")}>{v}</small>
+              </motion.div>
+            </li>
+          ))}
+        </ol>
+      </Band>
+    </div>
   );
 }
 
