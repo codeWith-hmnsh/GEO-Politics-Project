@@ -11,23 +11,30 @@ import { GlobeClient } from "@/components/globe/GlobeClient";
 import { HideDuringTour } from "@/components/learn/HideDuringTour";
 import { StoryPlayer } from "@/components/learn/StoryPlayer";
 import { TermFromUrl } from "@/components/learn/TermFromUrl";
-import { HomeSections, ScrollCue } from "@/components/home/HomeSections";
+import { Chapters } from "@/components/home/Chapters";
+import { StatecraftBand, StoriesRail, Ticker, Outro } from "@/components/home/Finale";
+import { ChapterDots, Cosmos, GlobeStage, HeroChrome, IslandNav, ScrollCue, StoryScrim } from "@/components/home/Stage";
 
-// Landing screen (docs/UI-DESIGN.md §2). The globe hero is the first screen of a scrolling page: a transform on
-// the hero makes its fixed-position chrome (cards, dock, panels) belong to it, so they scroll away with the globe.
+// Landing screen (docs/UI-DESIGN.md §2). The globe stays pinned while the page scrolls: at the top it is the
+// explorer; below, five chapters fly the camera through conflict, money, energy, force and alliances, and the
+// night sky takes over before the stories, Statecraft and the footer cover it.
 export default function Home() {
   return (
     <main className="relative bg-paper">
-      <div className="relative h-dvh overflow-hidden [transform:translateZ(0)]">
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0"
-          style={{
-            background:
-              "radial-gradient(48% 62% at 50% 52%, #d7e3ea 0%, rgba(215,227,234,.6) 45%, rgba(243,241,236,0) 75%), radial-gradient(35% 40% at 92% 12%, rgba(200,214,222,.7), rgba(243,241,236,0) 70%), linear-gradient(180deg,#f6f4ef,#efede7)",
-          }}
-        />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0"
+        style={{
+          background:
+            "radial-gradient(48% 62% at 50% 52%, #d7e3ea 0%, rgba(215,227,234,.6) 45%, rgba(243,241,236,0) 75%), radial-gradient(35% 40% at 92% 12%, rgba(200,214,222,.7), rgba(243,241,236,0) 70%), linear-gradient(180deg,#f6f4ef,#efede7)",
+        }}
+      />
+      <Cosmos />
+      <GlobeStage>
         <GlobeClient />
+      </GlobeStage>
+      <HeroChrome>
+        <Header />
         <Intro />
         <HideDuringTour>
           <PulseCard />
@@ -40,13 +47,24 @@ export default function Home() {
         </HideDuringTour>
         <PanelHost />
         <TermFromUrl />
-        <StoryPlayer />
-        {/* soft hand-off from the globe into the page below */}
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-paper" />
-      </div>
-      <Header />
+      </HeroChrome>
+      <StoryPlayer />
+      <StoryScrim />
       <h1 className="sr-only">GeoPolitics: the world, explained</h1>
-      <HomeSections />
+      {/* click-through over the globe; each section turns input back on for its own content */}
+      <div className="pointer-events-none relative z-10">
+        <Chapters />
+        <Ticker />
+        {/* from here on the page is opaque and the globe stops rendering */}
+        <div id="globe-cover" data-chapter={5} className="pointer-events-auto bg-[#05090d]">
+          <div aria-hidden className="h-40 bg-gradient-to-b from-transparent to-[#05090d] -mt-40" />
+          <StoriesRail />
+          <StatecraftBand />
+          <Outro />
+        </div>
+      </div>
+      <ChapterDots />
+      <IslandNav />
     </main>
   );
 }

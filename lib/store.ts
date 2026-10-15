@@ -75,6 +75,9 @@ type GlobeState = {
   /** Statecraft (/play) is on: the explore layers stay hidden and the game draws its own layers. */
   play: boolean;
   setPlay: (on: boolean) => void;
+  /** The page has scrolled the globe fully under opaque content (Home): stop rendering it. */
+  stageHidden: boolean;
+  setStageHidden: (hidden: boolean) => void;
 };
 
 let requestId = 0;
@@ -162,4 +165,6 @@ export const useGlobe = create<GlobeState>((set) => ({
   addAdminLabels: (iso3, labels) => set((s) => ({ adminLabels: { ...s.adminLabels, [iso3]: labels } })),
   play: false,
   setPlay: (on) => set({ play: on }),
+  stageHidden: false,
+  setStageHidden: (hidden) => set({ stageHidden: hidden }),
 }));

@@ -30,6 +30,7 @@ export default function GlobeCanvas({ game = false }: { game?: boolean }) {
   // Pages that scroll the globe away (Home) stop rendering it while it is off screen.
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [onScreen, setOnScreen] = useState(true);
+  const covered = useGlobe((s) => s.stageHidden);
   useEffect(() => {
     const el = canvasRef.current;
     if (!el) return;
@@ -51,7 +52,7 @@ export default function GlobeCanvas({ game = false }: { game?: boolean }) {
   return (
     <Canvas
       ref={canvasRef}
-      frameloop={onScreen ? "always" : "never"}
+      frameloop={onScreen && !covered ? "always" : "never"}
       className="!fixed inset-0"
       dpr={light ? [1, 1.25] : [1, 2]}
       gl={{ antialias: true, alpha: true }}
