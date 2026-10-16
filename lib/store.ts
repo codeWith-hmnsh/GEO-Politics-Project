@@ -78,6 +78,9 @@ type GlobeState = {
   /** The page has scrolled the globe fully under opaque content (Home): stop rendering it. */
   stageHidden: boolean;
   setStageHidden: (hidden: boolean) => void;
+  /** Home has scrolled past the explorer into the story: the globe trades resolution for smooth chapter changes. */
+  scrollStory: boolean;
+  setScrollStory: (on: boolean) => void;
 };
 
 let requestId = 0;
@@ -174,4 +177,6 @@ export const useGlobe = create<GlobeState>((set) => ({
   setPlay: (on) => set({ play: on }),
   stageHidden: false,
   setStageHidden: (hidden) => set({ stageHidden: hidden }),
+  scrollStory: false,
+  setScrollStory: (on) => set({ scrollStory: on }),
 }));

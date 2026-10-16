@@ -3,11 +3,11 @@
 import { ArrowRight, Mouse } from "lucide-react";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { panelOpenSelector, stageView, useGlobe } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { CHAPTERS } from "./chapterData";
-import { backToGlobe, useHomeStory } from "./homeStore";
+import { backToGlobe, scrollToY, useHomeStory } from "./homeStore";
 
 /**
  * The Home stage: the globe stays pinned while the page scrolls. At the top it is the interactive explorer;
@@ -48,14 +48,32 @@ export function GlobeStage({ children }: { children: React.ReactNode }) {
       stageView.y = 0;
     };
   }, [place, scrollY]);
+  // where the opaque cover starts, measured on resize rather than on every scroll frame
+  const coverTop = useRef(Infinity);
+  useEffect(() => {
+    const measure = () => {
+      const cover = document.getElementById("globe-cover");
+      coverTop.current = cover ? cover.getBoundingClientRect().top + window.scrollY : Infinity;
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(document.body);
+    return () => {
+      ro.disconnect();
+      const g = useGlobe.getState();
+      g.setStageHidden(false);
+      g.setScrollStory(false);
+    };
+  }, []);
   useMotionValueEvent(scrollY, "change", (v) => {
     place(v);
-    setLive(v < h * 0.3);
-    const cover = document.getElementById("globe-cover");
-    const hidden = !!cover && cover.getBoundingClientRect().top <= 0;
-    if (hidden !== useGlobe.getState().stageHidden) useGlobe.getState().setStageHidden(hidden);
+    const nextLive = v < h * 0.3;
+    setLive(nextLive);
+    const g = useGlobe.getState();
+    if (g.scrollStory === nextLive) g.setScrollStory(!nextLive);
+    const hidden = v >= coverTop.current;
+    if (hidden !== g.stageHidden) g.setStageHidden(hidden);
   });
-  useEffect(() => () => useGlobe.getState().setStageHidden(false), []);
   return (
     <div className={cn("fixed inset-0", !live && "pointer-events-none [&_*]:!pointer-events-none")}>
       {children}
@@ -78,7 +96,8 @@ export function HeroChrome({ children }: { children: React.ReactNode }) {
     if (next && g.tour === null && panelOpenSelector(g)) g.closePanel();
   });
   return (
-    <motion.div style={{ opacity }} inert={hidden} className="relative z-20">
+    // hidden, not just transparent, once faded: its glass cards would otherwise keep blurring the moving globe
+    <motion.div style={{ opacity }} inert={hidden} className={cn("relative z-20", hidden && "invisible")}>
       {children}
     </motion.div>
   );
@@ -101,7 +120,7 @@ export function IslandNav() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.96 }}
           transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
-          className="fixed top-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full border border-[var(--line)] bg-white/80 p-1.5 text-[var(--ink-strong)] shadow-[0_18px_44px_rgba(17,35,43,.14),inset_0_1px_0_#fff] backdrop-blur-2xl"
+          className="fixed top-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full border border-[var(--line)] bg-white/95 p-1.5 text-[var(--ink-strong)] shadow-[0_18px_44px_rgba(17,35,43,.14),inset_0_1px_0_#fff]"
         >
           <button type="button" onClick={() => backToGlobe()} aria-label="Back to the globe" className="flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 hover:bg-[var(--paper-2)]">
             <span className="grid size-8 place-items-center rounded-full bg-[var(--ink-strong)]">
@@ -116,9 +135,9 @@ export function IslandNav() {
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.span
                 key={label?.id ?? "more"}
-                initial={{ y: 14, opacity: 0, filter: "blur(4px)" }}
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                exit={{ y: -14, opacity: 0, filter: "blur(4px)" }}
+                initial={{ y: 14, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -14, opacity: 0 }}
                 transition={{ duration: 0.35 }}
                 className="flex items-center gap-2 whitespace-nowrap"
               >
@@ -203,7 +222,7 @@ export function ScrollCue() {
     <motion.button
       type="button"
       style={{ opacity }}
-      onClick={() => window.scrollTo({ top: window.innerHeight * 0.95, behavior: "smooth" })}
+      onClick={() => scrollToY(window.innerHeight * 0.95)}
       className="group fixed bottom-[104px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-2.5 rounded-full border border-white/40 bg-[rgba(15,29,36,.55)] py-2.5 pr-4 pl-3 text-[12.5px] font-bold text-white shadow-[0_12px_30px_rgba(0,0,0,.25)] backdrop-blur-xl transition hover:bg-[rgba(15,29,36,.75)] max-md:bottom-[84px]"
     >
       <Mouse className="size-4 motion-safe:animate-bounce" aria-hidden />

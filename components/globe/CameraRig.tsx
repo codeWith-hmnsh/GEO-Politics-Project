@@ -65,6 +65,8 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
   useEffect(() => {
     const el = gl.domElement;
     const ray = new THREE.Raycaster();
+    const sphere = new THREE.Sphere(new THREE.Vector3(), 1);
+    const pt = new THREE.Vector3();
     const ndc = new THREE.Vector2();
     const pointers = new Map<number, { x: number; y: number }>();
     let moved = 0;
@@ -79,8 +81,8 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
       const r = el.getBoundingClientRect();
       ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
       ray.setFromCamera(ndc, camera);
-      const h = ray.intersectObject(earth, false)[0];
-      return h ? vec3ToLatLng([h.point.x, h.point.y, h.point.z]) : null;
+      // the earth is a unit sphere at the origin: test the sphere itself, not the mesh's tens of thousands of triangles
+      return ray.ray.intersectSphere(sphere, pt) ? vec3ToLatLng([pt.x, pt.y, pt.z]) : null;
     };
     const touch = () => {
       lastInput.current = performance.now();
@@ -156,6 +158,8 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
       const ll = hit(e);
       if (!ll && !e.ctrlKey) return;
       e.preventDefault();
+      // the globe takes this wheel: keep a page-level smooth scroller from also scrolling
+      e.stopPropagation();
       touch();
       const t = target.current;
       const next = clampCamera({ ...t, dist: t.dist * Math.exp(e.deltaY * 0.0013) }).dist;

@@ -39,7 +39,7 @@ export function Ticker() {
     </ul>
   );
   return (
-    <section aria-label="Latest headlines" className="pointer-events-auto relative overflow-hidden border-y border-[var(--line)] bg-white/85 py-4 backdrop-blur-xl">
+    <section aria-label="Latest headlines" className="pointer-events-auto relative overflow-hidden border-y border-[var(--line)] bg-white py-4">
       <div className="absolute inset-y-0 left-0 z-10 flex items-center bg-gradient-to-r from-white via-white to-transparent pr-16 pl-6">
         <span className="flex items-center gap-2 rounded-full bg-[var(--down)] px-3 py-1 text-[11px] font-extrabold tracking-[.16em] text-white uppercase">
           <span className="size-1.5 rounded-full bg-white motion-safe:animate-pulse" /> Live

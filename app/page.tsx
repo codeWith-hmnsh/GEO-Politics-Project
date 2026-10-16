@@ -13,6 +13,7 @@ import { StoryPlayer } from "@/components/learn/StoryPlayer";
 import { TermFromUrl } from "@/components/learn/TermFromUrl";
 import { Chapters } from "@/components/home/Chapters";
 import { StatecraftBand, Ticker, Outro } from "@/components/home/Finale";
+import { SmoothScroll } from "@/components/home/SmoothScroll";
 import { ChapterDots, GlobeStage, HeroChrome, IslandNav, ScrollCue, StoryScrim } from "@/components/home/Stage";
 
 // Landing screen (docs/UI-DESIGN.md §2). The globe stays pinned while the page scrolls: at the top it is the
@@ -62,6 +63,7 @@ export default function Home() {
       </div>
       <ChapterDots />
       <IslandNav />
+      <SmoothScroll />
     </main>
   );
 }

@@ -74,8 +74,8 @@ export function Reveal({ text, className, wordClassName, delay = 0 }: { text: st
           <motion.span
             key={i}
             className={cn("inline-block whitespace-pre", wordClassName)}
-            initial={{ opacity: 0, y: "0.35em", filter: "blur(12px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: "0.35em" }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-10% 0px" }}
             transition={{ duration: 0.8, delay: delay + i * 0.06, ease }}
           >
@@ -100,7 +100,7 @@ function ChapterFrame({ i, title, body, children }: { i: number; title: string; 
   return (
     <section id={`chapter-${c.id}`} data-chapter={i} aria-labelledby={`chapter-${c.id}-title`} className="pointer-events-none relative flex min-h-[130vh] items-center max-md:min-h-[150vh] max-md:items-end max-md:pb-[20vh]">
       <div className="mx-auto w-full max-w-[1380px] px-10 max-md:px-4">
-        <div className="pointer-events-auto max-w-[520px] max-md:rounded-[28px] max-md:border max-md:border-[var(--line)] max-md:bg-white/85 max-md:p-6 max-md:shadow-[0_20px_50px_rgba(17,35,43,.12)] max-md:backdrop-blur-xl">
+        <div className="pointer-events-auto max-w-[520px] max-md:rounded-[28px] max-md:border max-md:border-[var(--line)] max-md:bg-white/95 max-md:p-6 max-md:shadow-[0_20px_50px_rgba(17,35,43,.12)]">
           <motion.div {...fadeUp()} className="flex items-center gap-4">
             <span className="font-display text-[88px] leading-[.8] font-semibold tracking-tight text-transparent [-webkit-text-stroke:1.2px_rgba(17,35,43,.32)] max-md:text-[60px]">
               {String(i + 1).padStart(2, "0")}
@@ -235,7 +235,7 @@ function Energy() {
           </button>
         ))}
       </div>
-      <motion.div key={id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-2xl border border-[var(--line)] bg-white/85 p-5 shadow-[0_12px_30px_rgba(17,35,43,.08)] backdrop-blur">
+      <motion.div key={id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-2xl border border-[var(--line)] bg-white/95 p-5 shadow-[0_12px_30px_rgba(17,35,43,.08)]">
         <div className="text-[11px] font-extrabold tracking-[.18em] text-[var(--up)] uppercase">{c.name}</div>
         <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink)]">{c.flow}</p>
       </motion.div>
@@ -287,7 +287,7 @@ function Alliances() {
           </button>
         ))}
       </div>
-      <motion.div key={o.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 flex items-start gap-5 rounded-2xl border border-[var(--line)] bg-white/85 p-5 shadow-[0_12px_30px_rgba(17,35,43,.08)] backdrop-blur">
+      <motion.div key={o.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 flex items-start gap-5 rounded-2xl border border-[var(--line)] bg-white/95 p-5 shadow-[0_12px_30px_rgba(17,35,43,.08)]">
         <div className="text-center">
           <div className="font-display text-[44px] leading-none font-semibold text-[var(--ink-strong)] tabular-nums">{o.members.length}</div>
           <div className="mt-1 text-[11px] font-bold text-[var(--ink-3)]">members</div>

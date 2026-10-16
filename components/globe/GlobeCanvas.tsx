@@ -18,6 +18,7 @@ import { WarsLayer } from "./layers/WarsLayer";
 import { GameLayers } from "./game/GameLayers";
 import { MarkerProjector } from "./MarkerProjector";
 import { PerfGuard } from "./PerfGuard";
+import { Precompile } from "./Precompile";
 
 /** The WebGL globe. Mounted once; layers are added on top in later milestones. `game` swaps the explore layers for Statecraft layers. */
 export default function GlobeCanvas({ game = false }: { game?: boolean }) {
@@ -26,6 +27,9 @@ export default function GlobeCanvas({ game = false }: { game?: boolean }) {
   const [mobile] = useState(() => window.matchMedia("(max-width: 760px)").matches);
   // Light globe on weak devices (ARCHITECTURE §3.5): no clouds, fewer polygons, lower resolution, half the arcs.
   const light = useGlobe((s) => s.tier === 1);
+  // Home's scroll story repaints the data overlay on every chapter: a smaller texture keeps that under a frame or two
+  const story = useGlobe((s) => s.scrollStory);
+  const overlaySize = light || mobile || story ? 2048 : 4096;
 
   // Pages that scroll the globe away (Home) stop rendering it while it is off screen.
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -54,7 +58,7 @@ export default function GlobeCanvas({ game = false }: { game?: boolean }) {
       ref={canvasRef}
       frameloop={onScreen && !covered ? "always" : "never"}
       className="!fixed inset-0"
-      dpr={light ? [1, 1.25] : [1, 2]}
+      dpr={light ? [1, 1.25] : story ? [1, 1.5] : [1, 2]}
       gl={{ antialias: true, alpha: true }}
       camera={{ fov: 34, near: 0.005, far: 200, position: [0, 0, 6.5] }}
       role="application"
@@ -75,7 +79,7 @@ export default function GlobeCanvas({ game = false }: { game?: boolean }) {
           </>
         ) : (
           <>
-            <DataOverlay countries={countries} size={light || mobile ? 2048 : 4096} />
+            <DataOverlay countries={countries} size={overlaySize} />
             <CountryBorders countries={countries} />
             <CountryOutlines countries={countries} />
             <AdminBorders countries={countries} />
@@ -89,6 +93,7 @@ export default function GlobeCanvas({ game = false }: { game?: boolean }) {
       <CameraRig countries={countries} />
       <MarkerProjector />
       <PerfGuard />
+      <Precompile ready={countries.length > 0} />
     </Canvas>
   );
 }
