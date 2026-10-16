@@ -1,22 +1,24 @@
 "use client";
 
 import { ArrowRight, ArrowUpRight, Clock, Play } from "lucide-react";
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
+import { AnimatePresence, motion, type MotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from "motion/react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Flag } from "@/components/chrome/Flag";
 import { Portrait } from "@/components/game/bits";
+import { DIFF, PITCH } from "@/components/game/seats";
 import glossary from "@/data/curated/glossary.json";
-import { timeAgo, useNews } from "@/lib/api";
+import { timeAgo, useNews, usePulse } from "@/lib/api";
 import { createWorld } from "@/lib/game/engine/init";
 import { SEATS } from "@/lib/game/engine/types";
 import { SEED_2026 } from "@/lib/game/seed";
 import { SEAT_COLOR, SHORT } from "@/lib/game/text";
-import { useGlobe } from "@/lib/store";
+import { HOME_VIEW, homeView, panelOpenSelector, useGlobe } from "@/lib/store";
 import { TOURS } from "@/lib/tours";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./Chapters";
-import { backToGlobe } from "./homeStore";
+import { STORIES_AT } from "./chapterData";
+import { backToGlobe, useHomeStory } from "./homeStore";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const TOUR_TINT = ["#e5484d", "#e8a21c", "#4c74d9", "#2fa36b", "#a07cf0", "#0ea5c6"];
@@ -56,186 +58,280 @@ export function Ticker() {
   );
 }
 
-/** Story Tours as a horizontal reel, pinned while the page scrolls past it. */
-export function StoriesRail() {
-  const outer = useRef<HTMLElement>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const [span, setSpan] = useState(0);
+/**
+ * Story Tours over the live globe: the page pins while the reader scrolls through the six tours, and the
+ * globe behind locks onto each tour's first stop. One clear button plays the tour that is on screen.
+ */
+export function StoryAtlas() {
+  const ref = useRef<HTMLElement>(null);
+  const n = TOURS.length;
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const [active, setActive] = useState(0);
+  useMotionValueEvent(scrollYProgress, "change", (p) => setActive(Math.min(n - 1, Math.max(0, Math.floor(p * n)))));
+  const fill = useTransform(scrollYProgress, (p) => `${Math.min(1, p) * 100}%`);
+  const here = useHomeStory((s) => s.chapter === STORIES_AT);
+  const { data: pulse } = usePulse();
+  const tour = TOURS[active];
+  const stop = tour.stops[0];
+  const tint = TOUR_TINT[active % TOUR_TINT.length];
+
+  // while the stories are on screen the explorer's markers step aside
   useEffect(() => {
-    const el = track.current;
+    useGlobe.getState().setStoryFocus(here);
+    return () => useGlobe.getState().setStoryFocus(false);
+  }, [here]);
+
+  // the globe behind follows the story on screen
+  useEffect(() => {
+    if (!here) return;
+    const g = useGlobe.getState();
+    if (g.tour) return;
+    if (panelOpenSelector(g)) g.closePanel();
+    const members = stop.highlight_org ? (pulse?.data.organizations.find((o) => o.id === stop.highlight_org)?.members ?? []) : (stop.highlight ?? []);
+    useGlobe.setState({ mode: "home", highlight: members });
+    g.setOrbit(0);
+    g.flyTo({ lat: stop.camera.lat, lng: stop.camera.lng, dist: Math.max(2.4, 1 + stop.camera.altitude) * (homeView().dist / HOME_VIEW.dist), durationMs: 1800 });
+  }, [here, stop, pulse]);
+
+  const jump = (i: number) => {
+    const el = ref.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setSpan(Math.max(0, el.scrollWidth - window.innerWidth)));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  const { scrollYProgress } = useScroll({ target: outer, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], [0, -span]);
-  const bar = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+    const top = el.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: top + ((i + 0.5) / n) * (el.offsetHeight - window.innerHeight), behavior: "smooth" });
+  };
+  const play = () => backToGlobe(() => useGlobe.getState().startTour(tour.id));
+
   return (
-    <section id="stories" ref={outer} style={{ height: `calc(100vh + ${span}px)` }} className="relative scroll-mt-0">
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <div className="mx-auto mb-10 flex w-full max-w-[1380px] items-end justify-between gap-6 px-10 max-md:px-5">
-          <div>
-            <div className="text-[11.5px] font-extrabold tracking-[.22em] text-white/55 uppercase">Story Tours</div>
-            <h2 className="mt-3 font-display text-[clamp(40px,5vw,72px)] leading-[.98] font-semibold tracking-[-.025em] text-white">
-              <Reveal text="Two minutes. One big story." />
-            </h2>
-          </div>
-          <div className="w-[220px] max-md:hidden">
-            <div className="h-[3px] overflow-hidden rounded-full bg-white/10">
-              <motion.i style={{ width: bar }} className="block h-full rounded-full bg-[var(--gold)]" />
+    <section id="stories" ref={ref} data-chapter={STORIES_AT} aria-labelledby="stories-title" style={{ height: `${100 + n * 60}vh` }} className="relative">
+      <div className="sticky top-0 h-screen overflow-hidden">
+        <TargetLock key={tour.id} tint={tint} lat={stop.camera.lat} lng={stop.camera.lng} label={stop.caption_title} />
+        {/* local scrim so the list reads over bright land */}
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-[rgba(4,8,12,.88)] via-[rgba(4,8,12,.55)] to-transparent max-md:hidden" />
+        <div className="pointer-events-auto relative mx-auto flex h-full w-full max-w-[1380px] flex-col justify-center px-10 max-md:justify-end max-md:px-4 max-md:pb-8">
+          <div className="max-w-[540px] max-md:rounded-[28px] max-md:border max-md:border-white/10 max-md:bg-[rgba(4,8,12,.72)] max-md:p-6 max-md:backdrop-blur-xl">
+            <div className="flex items-center gap-3 text-[11.5px] font-extrabold tracking-[.22em] text-white/65 uppercase">
+              <span className="h-[3px] w-10 rounded-full bg-[var(--gold)]" />
+              Story tours
             </div>
-            <p className="mt-2 text-right text-[12px] font-semibold text-white/60">Keep scrolling</p>
+            <h2 id="stories-title" className="mt-4 font-display text-[clamp(30px,3.4vw,48px)] leading-[1.02] font-semibold tracking-[-.02em] text-white max-md:sr-only">
+              Pick a story. The globe takes you there.
+            </h2>
+            {/* progress for the whole reel: six segments on phones, a rail beside the list on larger screens */}
+            <div aria-hidden className="mt-4 hidden gap-1.5 max-md:flex">
+              {TOURS.map((t, i) => (
+                <span key={t.id} className={cn("h-[3px] flex-1 rounded-full transition-colors duration-500", i <= active ? "bg-white" : "bg-white/20")} />
+              ))}
+            </div>
+            <div className="relative mt-8 pl-6 max-md:mt-5 max-md:pl-0">
+              <div aria-hidden className="absolute inset-y-1 left-0 w-[2px] overflow-hidden rounded-full bg-white/10 max-md:hidden">
+                <motion.i style={{ height: fill }} className="block w-full rounded-full bg-[var(--gold)]" />
+              </div>
+              <ol className="grid gap-1">
+                {TOURS.map((t, i) => {
+                  const on = i === active;
+                  return (
+                    <li key={t.id} className={cn(!on && "max-md:hidden")}>
+                      <button
+                        type="button"
+                        onClick={() => jump(i)}
+                        aria-current={on ? "step" : undefined}
+                        className="group grid w-full grid-cols-[36px_1fr] items-baseline gap-2 py-1.5 text-left"
+                      >
+                        <span className={cn("font-mono text-[12px] font-bold tabular-nums transition-colors", on ? "text-[var(--gold)]" : "text-white/55")}>{String(i + 1).padStart(2, "0")}</span>
+                        <span
+                          className={cn(
+                            "font-display font-semibold tracking-[-.015em] transition-all duration-500",
+                            on ? "text-[clamp(26px,2.6vw,36px)] leading-[1.08] text-white" : "text-[19px] leading-[1.25] text-white/60 group-hover:text-white",
+                          )}
+                        >
+                          {t.title}
+                        </span>
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {on && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.45, ease }}
+                            className="overflow-hidden pl-[44px] max-md:pl-0"
+                          >
+                            <p className="pt-2 text-[15.5px] leading-relaxed text-white/70">{t.summary}</p>
+                            <p className="mt-3 text-[12.5px] font-semibold text-white/60">
+                              {t.stops
+                                .slice(1, 4)
+                                .map((s) => s.caption_title)
+                                .join("  ·  ")}
+                              {t.stops.length > 4 && <span className="text-white/45">{`  ·  +${t.stops.length - 4} more`}</span>}
+                            </p>
+                            <div className="mt-5 mb-4 flex items-center gap-4">
+                              <button
+                                type="button"
+                                onClick={play}
+                                className="group/play inline-flex h-12 items-center gap-3 rounded-full bg-white pr-1.5 pl-5 text-[14.5px] font-bold text-[#0a1218] shadow-[0_10px_30px_rgba(255,255,255,.12)] transition hover:bg-[#fff4d6] active:scale-[.97]"
+                              >
+                                Play this story
+                                <span className="grid size-9 place-items-center rounded-full text-white transition group-hover/play:scale-105" style={{ background: tint }}>
+                                  <Play className="size-3.5 fill-current" aria-hidden />
+                                </span>
+                              </button>
+                              <span className="flex items-center gap-1.5 text-[13px] font-semibold text-white/65 tabular-nums">
+                                <Clock className="size-3.5" aria-hidden />
+                                {Math.max(1, Math.round(t.duration_s / 60))} min · {t.stops.length} stops
+                              </span>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
           </div>
         </div>
-        <motion.div ref={track} style={{ x }} className="flex w-max gap-5 px-10 max-md:px-5">
-          {TOURS.map((t, i) => (
-            <TourCard key={t.id} i={i} title={t.title} summary={t.summary} minutes={Math.max(1, Math.round(t.duration_s / 60))} stops={t.stops.length} onWatch={() => backToGlobe(() => useGlobe.getState().startTour(t.id))} />
-          ))}
-          <div className="flex w-[360px] shrink-0 flex-col justify-end rounded-[28px] border border-dashed border-white/15 p-8 max-md:w-[78vw]">
-            <p className="font-display text-[30px] leading-tight font-semibold text-white">More stories are on the way.</p>
-            <button type="button" onClick={() => backToGlobe(() => useGlobe.getState().openSide("stories"))} className="mt-5 inline-flex items-center gap-2 self-start text-[14px] font-bold text-[var(--gold)] hover:underline">
-              Open the story list <ArrowRight className="size-4" aria-hidden />
-            </button>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
 }
 
-function TourCard({ i, title, summary, minutes, stops, onWatch }: { i: number; title: string; summary: string; minutes: number; stops: number; onWatch: () => void }) {
-  const tint = TOUR_TINT[i % TOUR_TINT.length];
+const fmt = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(1)}°${v >= 0 ? pos : neg}`;
+
+/** Brackets that close in on the globe's centre, with the place's name and coordinates beside them. */
+function TargetLock({ tint, lat, lng, label }: { tint: string; lat: number; lng: number; label: string }) {
   return (
-    <article
-      onPointerMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
-        e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
-      }}
-      className="group relative flex h-[min(520px,62vh)] w-[420px] shrink-0 flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#0b131a] p-8 max-md:w-[78vw] max-md:p-6"
-    >
-      {/* spotlight that follows the pointer */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: `radial-gradient(420px circle at var(--mx) var(--my), ${tint}33, transparent 60%)` }} />
-      <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl" style={{ background: `${tint}2e` }} />
-      <div aria-hidden data-n={String(i + 1).padStart(2, "0")} className="pointer-events-none absolute -right-6 -bottom-16 font-display text-[240px] leading-none font-semibold text-white/[.04] before:content-[attr(data-n)]" />
-      {/* a dotted planet with an orbit, turning slowly */}
-      <div aria-hidden className="pointer-events-none absolute top-14 right-8 size-[190px] max-md:size-[150px]">
-        <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,.55)_1px,transparent_1.6px)] [background-size:9px_9px] [mask-image:radial-gradient(circle_at_38%_35%,#000_30%,transparent_70%)] motion-safe:animate-[spin_60s_linear_infinite]" />
-        <div className="absolute inset-0 rounded-full shadow-[inset_-20px_-24px_60px_rgba(0,0,0,.6)]" style={{ background: `radial-gradient(circle at 35% 30%, ${tint}55, transparent 62%)` }} />
-        <div className="absolute -inset-6 rounded-full border border-white/10 [transform:rotateX(70deg)_rotateZ(-20deg)]" />
-        <span className="absolute top-1/2 -right-5 size-2.5 rounded-full shadow-[0_0_12px_currentColor]" style={{ background: tint, color: tint }} />
-      </div>
-      <div className="relative flex items-center gap-3 text-[12px] font-bold text-white/55">
-        <span className="h-[3px] w-8 rounded-full" style={{ background: tint }} />
-        <span className="flex items-center gap-1">
-          <Clock className="size-3.5" aria-hidden /> {minutes} min
-        </span>
-        <span>· {stops} stops</span>
-      </div>
-      <h3 className="relative mt-auto font-display text-[34px] leading-[1.05] font-semibold tracking-tight text-white max-md:text-[28px]">{title}</h3>
-      <p className="relative mt-3 text-[15px] leading-relaxed text-white/60">{summary}</p>
-      <button
-        type="button"
-        onClick={onWatch}
-        aria-label={`Watch the story tour: ${title}`}
-        className="relative mt-7 inline-flex items-center gap-2.5 self-start rounded-full bg-white py-2.5 pr-5 pl-2.5 text-[14px] font-bold text-[#0a1218] transition hover:gap-3.5 active:scale-[.97]"
+    <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 min-[900px]:left-[75%] max-md:top-[34%]">
+      <motion.div
+        initial={{ scale: 2.2, opacity: 0, rotate: -45 }}
+        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+        transition={{ duration: 1.1, delay: 0.5, ease }}
+        className="absolute -top-14 -left-14 size-28"
       >
-        <span className="grid size-8 place-items-center rounded-full text-white" style={{ background: tint }}>
-          <Play className="size-3.5 fill-current" aria-hidden />
-        </span>
-        Watch on the globe
-      </button>
-    </article>
+        {["top-0 left-0 border-t-2 border-l-2", "top-0 right-0 border-t-2 border-r-2", "bottom-0 left-0 border-b-2 border-l-2", "right-0 bottom-0 border-r-2 border-b-2"].map((c) => (
+          <span key={c} className={cn("absolute size-4 rounded-[3px]", c)} style={{ borderColor: tint }} />
+        ))}
+        <span className="absolute top-1/2 left-1/2 size-2 -translate-1/2 rounded-full" style={{ background: tint, boxShadow: `0 0 0 6px ${tint}33, 0 0 24px ${tint}` }} />
+        <span className="absolute inset-5 rounded-full border motion-safe:animate-ping" style={{ borderColor: `${tint}66` }} />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: -8 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 1.2, ease }}
+        className="absolute top-12 left-20 w-max rounded-xl border border-white/10 bg-[#0a1016] px-3 py-2 shadow-[0_12px_30px_rgba(0,0,0,.4)] max-md:hidden"
+      >
+        <div className="font-mono text-[10.5px] font-bold tracking-[.12em] text-white/60 uppercase">
+          {fmt(lat, "N", "S")} {fmt(lng, "E", "W")}
+        </div>
+        <div className="mt-0.5 text-[13px] font-bold text-white">{label}</div>
+      </motion.div>
+    </div>
   );
 }
 
-/** Statecraft call to action with a card that tilts toward the pointer. */
+const LEADER_ORDER = ["IND", "USA", "CHN", "RUS", "JPN", "SAU"] as const;
+
+/** Statecraft call to action: the six seats dealt out like a hand of cards as the section scrolls in. */
 export function StatecraftBand() {
   const w = useMemo(() => createWorld(SEED_2026, { matchId: "home", seed: 2026, scenario: "calmStart" }), []);
-  const order = [...SEATS].sort((a, b) => w.power[b][0] - w.power[a][0]);
-  const max = w.power[order[0]][0];
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [10, -10]), { stiffness: 150, damping: 18 });
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-14, 14]), { stiffness: 150, damping: 18 });
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "center center"] });
+  const spread = useSpring(scrollYProgress, { stiffness: 90, damping: 22 });
   return (
-    <section className="relative overflow-hidden px-10 py-32 max-md:px-5 max-md:py-20">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_55%_at_75%_50%,rgba(242,179,61,.16),transparent_70%)]" />
-      <div className="relative mx-auto grid max-w-[1380px] grid-cols-[1fr_1fr] items-center gap-16 max-lg:grid-cols-1">
+    <section ref={ref} aria-labelledby="statecraft-title" className="relative overflow-hidden px-10 pt-36 pb-28 max-md:px-5 max-md:pt-24">
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+      <div className="relative mx-auto grid max-w-[1380px] grid-cols-[.9fr_1.1fr] items-center gap-10 max-lg:grid-cols-1">
         <div>
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease }} className="text-[11.5px] font-extrabold tracking-[.22em] text-[var(--gold)] uppercase">
-            Statecraft · geopolitics you play
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease }} className="flex items-center gap-3 text-[11.5px] font-extrabold tracking-[.22em] text-[var(--gold)] uppercase">
+            <span className="h-[3px] w-10 rounded-full bg-[var(--gold)]" />
+            Statecraft
           </motion.div>
-          <h2 className="mt-4 font-display text-[clamp(48px,6.4vw,104px)] leading-[.92] font-semibold tracking-[-.035em] text-white">
-            <Reveal text="Now run a country" />{" "}
-            <em className="font-medium">
-              <Reveal text="yourself." delay={0.25} wordClassName="bg-[linear-gradient(100deg,#f7c65e,#fff2cc_45%,#f2b33d)] bg-clip-text pr-[.08em] text-transparent" />
-            </em>
+          <h2 id="statecraft-title" className="mt-4 font-display text-[clamp(44px,5.6vw,92px)] leading-[.94] font-semibold tracking-[-.035em] text-white">
+            <Reveal text="Now run a country" /> <Reveal text="yourself." delay={0.25} wordClassName="text-[var(--gold)]" />
           </h2>
-          <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.3, ease }} className="mt-6 max-w-[46ch] text-[18px] leading-relaxed text-white/65">
-            Six leaders, twelve years, one shared world. Strike deals, ride out oil shocks and climb the World Power Index. About 20 minutes. Free, no login.
+          <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.3, ease }} className="mt-6 max-w-[42ch] text-[18px] leading-relaxed text-white/70">
+            Pick a seat, strike deals, ride out oil shocks and climb the World Power Index against five rivals.
           </motion.p>
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.45, ease }} className="mt-9 flex flex-wrap gap-3">
-            <Link href="/play" className="group relative inline-flex min-h-14 items-center gap-2.5 overflow-hidden rounded-full bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] px-8 text-[16px] font-bold text-[#0a1218] shadow-[0_14px_40px_rgba(242,179,61,.35)] transition active:scale-[.97]">
-              <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition duration-700 group-hover:translate-x-full" />
-              <span className="relative">Play Statecraft</span> <ArrowRight className="relative size-4 transition group-hover:translate-x-1" aria-hidden />
+          <motion.dl initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.4, ease }} className="mt-8 grid max-w-[440px] grid-cols-3 border-y border-white/10 py-4">
+            {[
+              ["12", "years"],
+              ["20", "minutes"],
+              ["0", "sign-ups"],
+            ].map(([v, l]) => (
+              <div key={l} className="border-white/10 not-first:border-l not-first:pl-5">
+                <dd className="font-display text-[34px] leading-none font-semibold text-white">{v}</dd>
+                <dt className="mt-1 text-[12.5px] font-semibold text-white/60">{l}</dt>
+              </div>
+            ))}
+          </motion.dl>
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.5, ease }} className="mt-9 flex flex-wrap gap-3">
+            <Link href="/play" className="group inline-flex h-14 items-center gap-2.5 rounded-full bg-[var(--gold)] pr-2 pl-7 text-[16px] font-bold text-[#0a1218] shadow-[0_14px_40px_rgba(242,179,61,.3)] transition hover:bg-[#f7c65e] active:scale-[.97]">
+              Play Statecraft
+              <span className="grid size-10 place-items-center rounded-full bg-[#0a1218] text-[var(--gold)] transition group-hover:translate-x-0.5">
+                <ArrowRight className="size-4" aria-hidden />
+              </span>
             </Link>
-            <Link href="/play/match" className="inline-flex min-h-14 items-center rounded-full border border-white/20 px-7 text-[15px] font-bold text-white/90 transition hover:bg-white/10">
+            <Link href="/play/match" className="inline-flex h-14 items-center rounded-full border border-white/20 px-7 text-[15px] font-bold text-white/90 transition hover:bg-white/10">
               Jump into a match
             </Link>
           </motion.div>
         </div>
-        <div
-          className="[perspective:1200px]"
-          onPointerMove={(e) => {
-            const r = e.currentTarget.getBoundingClientRect();
-            mx.set((e.clientX - r.left) / r.width - 0.5);
-            my.set((e.clientY - r.top) / r.height - 0.5);
-          }}
-          onPointerLeave={() => {
-            mx.set(0);
-            my.set(0);
-          }}
-        >
-          <motion.div
-            style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d" }}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.9, ease }}
-            className="relative mx-auto w-full max-w-[520px] rounded-[30px] border border-white/15 bg-gradient-to-b from-white/[.12] to-white/[.04] p-6 shadow-[0_50px_120px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,255,255,.15)] backdrop-blur-2xl"
-          >
-            <div style={{ transform: "translateZ(40px)" }} className="flex items-baseline justify-between">
-              <span className="font-display text-[40px] leading-none font-semibold text-white">2026</span>
-              <span className="text-[11px] font-extrabold tracking-[.18em] text-white/65 uppercase">World Power Index</span>
-            </div>
-            <ol style={{ transform: "translateZ(60px)" }} className="mt-5 grid gap-2">
-              {order.map((s, i) => (
-                <li key={s} className={cn("grid grid-cols-[18px_32px_1fr_48px] items-center gap-3 rounded-2xl border px-3 py-2.5", s === "IND" ? "border-[var(--gold)]/70 bg-[rgba(242,179,61,.12)]" : "border-white/10 bg-white/[.04]")}>
-                  <span className="text-[13px] font-extrabold text-white/65">{i + 1}</span>
-                  <Portrait i={SEATS.indexOf(s)} seat={SEAT_COLOR[s]} size={28} />
-                  <div className="min-w-0">
-                    <b className="flex items-center gap-1.5 text-[13.5px] text-white">
-                      <Flag iso3={s} className="!w-[18px]" /> {SHORT[s]}
-                      {s === "IND" && <span className="rounded-full bg-[var(--gold)] px-1.5 text-[10px] font-extrabold text-[#0a1218]">YOU</span>}
-                    </b>
-                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <motion.i initial={{ width: 0 }} whileInView={{ width: `${(w.power[s][0] / max) * 100}%` }} viewport={{ once: true }} transition={{ duration: 1.2, delay: 0.3 + i * 0.08, ease }} className="block h-full rounded-full" style={{ background: SEAT_COLOR[s] }} />
-                    </div>
-                  </div>
-                  <span className="text-right text-[14px] font-extrabold text-white tabular-nums">{w.power[s][0].toFixed(1)}</span>
-                </li>
-              ))}
-            </ol>
-            <div style={{ transform: "translateZ(80px)" }} className="absolute -bottom-6 -left-6 rounded-2xl border border-white/15 bg-[#0b131a]/90 px-4 py-3 shadow-[0_20px_40px_rgba(0,0,0,.5)] backdrop-blur max-sm:hidden">
-              <div className="text-[10.5px] font-extrabold tracking-[.16em] text-[var(--gold)] uppercase">Your mission</div>
-              <div className="mt-0.5 text-[13.5px] font-bold text-white">Jobs for a young country</div>
-            </div>
-          </motion.div>
+        <div className="relative h-[420px] max-sm:-mx-5 max-sm:h-[300px]">
+          <div className="absolute top-10 left-1/2 max-sm:top-2 max-sm:scale-[.62] max-sm:[transform-origin:top_center]">
+            {LEADER_ORDER.map((s, i) => (
+              <SeatCard key={s} s={s} i={i} spread={spread} power={w.power[s][0]} />
+            ))}
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function SeatCard({ s, i, spread, power }: { s: (typeof LEADER_ORDER)[number]; i: number; spread: MotionValue<number>; power: number }) {
+  const k = i - (LEADER_ORDER.length - 1) / 2;
+  const x = useTransform(spread, (p) => k * 82 * p);
+  const y = useTransform(spread, (p) => Math.abs(k) ** 2 * 5 * p + (1 - p) * 30);
+  const rotate = useTransform(spread, (p) => k * 4.5 * p);
+  const tint = SEAT_COLOR[s];
+  return (
+    <motion.div style={{ x, y, rotate, zIndex: 10 - Math.round(Math.abs(k) * 2) }} className="absolute -ml-[98px] [transform-origin:50%_120%] hover:!z-20">
+      <motion.div whileHover={{ y: -34, scale: 1.05 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}>
+        <Link
+          href="/play/match"
+          aria-label={`Play as ${SHORT[s]}`}
+          onPointerMove={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty("--px", `${((e.clientX - r.left) / r.width) * 100}%`);
+            e.currentTarget.style.setProperty("--py", `${((e.clientY - r.top) / r.height) * 100}%`);
+          }}
+          className="group relative block h-[290px] w-[196px] overflow-hidden rounded-[22px] border border-white/15 bg-[#0c151c] shadow-[0_30px_60px_rgba(0,0,0,.55)] outline-offset-4 [--px:50%] [--py:30%]"
+        >
+          <div className="relative h-[124px] overflow-hidden">
+            <Flag iso3={s} className="!absolute !inset-0 !h-full !w-full !bg-cover opacity-80 saturate-[.85]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0c151c]/30 to-[#0c151c]" />
+          </div>
+          <div className="relative -mt-8 px-4">
+            <Portrait i={SEATS.indexOf(s)} seat={tint} size={50} />
+            <div className="mt-3 font-display text-[22px] leading-none font-semibold text-white">{SHORT[s]}</div>
+            <p className="mt-2 text-[12.5px] leading-snug text-white/65">{PITCH[s]}</p>
+          </div>
+          <div className="absolute inset-x-4 bottom-3.5 flex items-center justify-between border-t border-white/10 pt-2.5 text-[11.5px] font-bold">
+            <span className="text-white/60">{DIFF[s]}</span>
+            <span className="text-white tabular-nums">
+              <span className="text-white/60">Power </span>
+              {power.toFixed(1)}
+            </span>
+          </div>
+          {/* foil sheen that follows the pointer */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-0 mix-blend-overlay transition-opacity duration-300 group-hover:opacity-100"
+            style={{ background: "radial-gradient(circle at var(--px) var(--py), rgba(255,255,255,.55), transparent 45%), linear-gradient(115deg, transparent 30%, rgba(255,214,140,.35) 45%, rgba(140,200,255,.3) 55%, transparent 70%)" }}
+          />
+          <span aria-hidden className="pointer-events-none absolute inset-0 rounded-[22px] ring-1 ring-white/0 transition group-hover:ring-2" style={{ ["--tw-ring-color" as string]: tint }} />
+        </Link>
+      </motion.div>
+    </motion.div>
   );
 }
 

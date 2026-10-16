@@ -78,6 +78,9 @@ type GlobeState = {
   /** The page has scrolled the globe fully under opaque content (Home): stop rendering it. */
   stageHidden: boolean;
   setStageHidden: (hidden: boolean) => void;
+  /** Home's story tours own the globe: the explorer's markers and callouts step aside. */
+  storyFocus: boolean;
+  setStoryFocus: (on: boolean) => void;
 };
 
 let requestId = 0;
@@ -94,6 +97,13 @@ export const panelOpenSelector = (s: {
   sidePanel: string | null;
 }) =>
   s.selectedIso3 !== null || s.selectedConflict !== null || s.selectedOrg !== null || s.selectedSummit !== null || s.selectedChoke !== null || s.sidePanel !== null;
+
+/**
+ * Where the globe sits on screen: `x` is the fraction of the canvas width it is pushed right, `y` the fraction
+ * of the height it is pushed up (Home moves it aside for the story). Read by the camera every frame, so it is
+ * a plain object, not store state.
+ */
+export const stageView = { x: 0, y: 0 };
 
 export const HOME_VIEW: CameraState = { lat: 25, lng: 70, dist: 3.05 };
 
@@ -167,4 +177,6 @@ export const useGlobe = create<GlobeState>((set) => ({
   setPlay: (on) => set({ play: on }),
   stageHidden: false,
   setStageHidden: (hidden) => set({ stageHidden: hidden }),
+  storyFocus: false,
+  setStoryFocus: (on) => set({ storyFocus: on }),
 }));

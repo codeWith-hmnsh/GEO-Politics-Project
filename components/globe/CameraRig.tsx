@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { CAMERA_LIMITS, clampCamera, followFactor, planFly, sampleFly, tiltFor, type CameraState, type FlyPlan } from "@/lib/camera/fly";
 import { countryAt, type IndexedCountry } from "@/lib/geo/countries";
 import { latLngToVec3, lngDelta, vec3ToLatLng } from "@/lib/geo/sphere";
-import { homeView, useGlobe } from "@/lib/store";
+import { homeView, stageView, useGlobe } from "@/lib/store";
 import { globeRefs, prefersReducedMotion } from "./shared";
 
 const IDLE_MS = 20_000;
@@ -238,6 +238,10 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
     camera.lookAt(P.current);
     const persp = camera as THREE.PerspectiveCamera;
     persp.near = Math.max(0.002, h * 0.25);
+    // shift the picture sideways inside the canvas, so the globe can move aside without the canvas edge showing
+    const { width: w, height: ht } = gl.domElement;
+    if (stageView.x || stageView.y) persp.setViewOffset(w, ht, -stageView.x * w, stageView.y * ht, w, ht);
+    else if (persp.view?.enabled) persp.clearViewOffset();
     persp.updateProjectionMatrix();
 
     const live = useGlobe.getState().camera;

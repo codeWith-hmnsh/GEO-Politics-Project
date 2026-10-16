@@ -3,10 +3,10 @@
 import { ArrowRight, Mouse } from "lucide-react";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { panelOpenSelector, useGlobe } from "@/lib/store";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { panelOpenSelector, stageView, useGlobe } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { CHAPTERS } from "./chapterData";
+import { CHAPTERS, STORIES_AT } from "./chapterData";
 import { backToGlobe, useHomeStory } from "./homeStore";
 
 /**
@@ -26,14 +26,30 @@ function useViewport() {
   return vp;
 }
 
-/** Fixed wrapper around the globe: slides right and stops taking input once the story starts. */
+/** Fixed wrapper around the globe: moves it right and stops taking input once the story starts. */
 export function GlobeStage({ children }: { children: React.ReactNode }) {
   const { scrollY } = useScroll();
   const { h, wide } = useViewport();
-  const x = useTransform(scrollY, (v) => (wide ? `${Math.min(1, v / (h * 0.85)) * 25}vw` : "0vw"));
-  const scale = useTransform(scrollY, (v) => 1 - Math.min(1, v / (h * 0.85)) * (wide ? 0.04 : 0));
   const [live, setLive] = useState(true);
+  // the camera moves the picture, so the canvas still fills the screen: right of the text on wide screens,
+  // above the text cards on phones
+  const place = useCallback(
+    (v: number) => {
+      const p = Math.min(1, v / (h * 0.85));
+      stageView.x = wide ? p * 0.25 : 0;
+      stageView.y = wide ? 0 : p * 0.16;
+    },
+    [wide, h],
+  );
+  useEffect(() => {
+    place(scrollY.get());
+    return () => {
+      stageView.x = 0;
+      stageView.y = 0;
+    };
+  }, [place, scrollY]);
   useMotionValueEvent(scrollY, "change", (v) => {
+    place(v);
     setLive(v < h * 0.3);
     const cover = document.getElementById("globe-cover");
     const hidden = !!cover && cover.getBoundingClientRect().top <= 0;
@@ -41,9 +57,9 @@ export function GlobeStage({ children }: { children: React.ReactNode }) {
   });
   useEffect(() => () => useGlobe.getState().setStageHidden(false), []);
   return (
-    <motion.div style={{ x, scale }} className={cn("fixed inset-0 will-change-transform", !live && "pointer-events-none [&_*]:!pointer-events-none")}>
+    <div className={cn("fixed inset-0", !live && "pointer-events-none [&_*]:!pointer-events-none")}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -142,14 +158,19 @@ export function IslandNav() {
           <motion.div layout className="flex h-9 min-w-[150px] items-center justify-center overflow-hidden rounded-full bg-white/[.06] px-4 text-[12.5px] font-semibold max-sm:min-w-[110px]">
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.span
-                key={label?.id ?? "more"}
+                key={chapter === STORIES_AT ? "stories" : (label?.id ?? "more")}
                 initial={{ y: 14, opacity: 0, filter: "blur(4px)" }}
                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                 exit={{ y: -14, opacity: 0, filter: "blur(4px)" }}
                 transition={{ duration: 0.35 }}
                 className="flex items-center gap-2 whitespace-nowrap"
               >
-                {label ? (
+                {chapter === STORIES_AT ? (
+                  <>
+                    <span className="size-1.5 rounded-full bg-[var(--gold)]" />
+                    Story tours
+                  </>
+                ) : label ? (
                   <>
                     <span className="text-white/65 tabular-nums">{String(chapter + 1).padStart(2, "0")}</span>
                     <span className="size-1.5 rounded-full" style={{ background: label.tint }} />
@@ -181,7 +202,7 @@ export function StoryScrim() {
   const chapter = useHomeStory((s) => s.chapter);
   return (
     <AnimatePresence>
-      {chapter >= 0 && chapter < CHAPTERS.length && (
+      {chapter >= 0 && chapter <= STORIES_AT && (
         <motion.div
           aria-hidden
           initial={{ opacity: 0 }}

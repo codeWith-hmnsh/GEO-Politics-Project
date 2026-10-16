@@ -22,3 +22,6 @@ export const CHAPTERS: Chapter[] = [
   { id: "force", name: "Force", tint: "#4c74d9", mode: "defense", cam: { lat: 42, lng: 75, dist: 3.1 }, orbit: 1.6, metric: "nuclear" },
   { id: "alliances", name: "Alliances", tint: "#a07cf0", mode: "diplomacy", cam: { lat: 52, lng: 0, dist: 3.2 }, orbit: 1.2, diplo: { view: "blocs", bloc: "NATO" } },
 ];
+
+/** Scroll index of the Story Tours section, right after the chapters; the opaque cover follows it. */
+export const STORIES_AT = CHAPTERS.length;

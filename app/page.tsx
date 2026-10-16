@@ -12,12 +12,12 @@ import { HideDuringTour } from "@/components/learn/HideDuringTour";
 import { StoryPlayer } from "@/components/learn/StoryPlayer";
 import { TermFromUrl } from "@/components/learn/TermFromUrl";
 import { Chapters } from "@/components/home/Chapters";
-import { StatecraftBand, StoriesRail, Ticker, Outro } from "@/components/home/Finale";
+import { StatecraftBand, StoryAtlas, Ticker, Outro } from "@/components/home/Finale";
 import { ChapterDots, Cosmos, GlobeStage, HeroChrome, IslandNav, ScrollCue, StoryScrim } from "@/components/home/Stage";
 
 // Landing screen (docs/UI-DESIGN.md §2). The globe stays pinned while the page scrolls: at the top it is the
-// explorer; below, five chapters fly the camera through conflict, money, energy, force and alliances, and the
-// night sky takes over before the stories, Statecraft and the footer cover it.
+// explorer; below, five chapters fly the camera through conflict, money, energy, force and alliances, the story
+// tours lock onto their places, and then Statecraft and the footer cover it.
 export default function Home() {
   return (
     <main className="relative bg-paper">
@@ -55,10 +55,9 @@ export default function Home() {
       <div className="pointer-events-none relative z-10">
         <Chapters />
         <Ticker />
+        <StoryAtlas />
         {/* from here on the page is opaque and the globe stops rendering */}
-        <div id="globe-cover" data-chapter={5} className="pointer-events-auto bg-[#05090d]">
-          <div aria-hidden className="h-40 bg-gradient-to-b from-transparent to-[#05090d] -mt-40" />
-          <StoriesRail />
+        <div id="globe-cover" data-chapter={6} className="pointer-events-auto bg-[#05090d]">
           <StatecraftBand />
           <Outro />
         </div>

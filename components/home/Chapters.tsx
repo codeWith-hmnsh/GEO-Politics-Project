@@ -19,7 +19,7 @@ function applyChapter(c: Chapter) {
   const g = useGlobe.getState();
   if (g.tour) return;
   if (panelOpenSelector(g)) g.closePanel();
-  useGlobe.setState({ mode: c.mode, ...(c.diplo ? { diplo: c.diplo } : {}) });
+  useGlobe.setState({ mode: c.mode, highlight: [], ...(c.diplo ? { diplo: c.diplo } : {}) });
   if (c.metric && c.mode !== "home" && c.mode !== "diplomacy") g.setModeMetric(c.mode as ChoroplethMode, c.metric);
   if (c.id === "conflict" && !g.layers.wars) g.toggleLayer("wars");
   g.setOrbit(c.orbit);
@@ -30,7 +30,7 @@ function applyChapter(c: Chapter) {
 function resetToExplorer() {
   const g = useGlobe.getState();
   if (g.tour) return;
-  useGlobe.setState({ mode: "home" });
+  useGlobe.setState({ mode: "home", highlight: [] });
   g.setOrbit(0);
   g.flyTo({ ...homeView(), durationMs: 1600 });
 }
