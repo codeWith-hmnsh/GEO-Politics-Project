@@ -78,9 +78,6 @@ type GlobeState = {
   /** The page has scrolled the globe fully under opaque content (Home): stop rendering it. */
   stageHidden: boolean;
   setStageHidden: (hidden: boolean) => void;
-  /** Home's story tours own the globe: the explorer's markers and callouts step aside. */
-  storyFocus: boolean;
-  setStoryFocus: (on: boolean) => void;
 };
 
 let requestId = 0;
@@ -177,6 +174,4 @@ export const useGlobe = create<GlobeState>((set) => ({
   setPlay: (on) => set({ play: on }),
   stageHidden: false,
   setStageHidden: (hidden) => set({ stageHidden: hidden }),
-  storyFocus: false,
-  setStoryFocus: (on) => set({ storyFocus: on }),
 }));

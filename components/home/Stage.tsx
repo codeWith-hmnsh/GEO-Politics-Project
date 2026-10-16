@@ -3,16 +3,16 @@
 import { ArrowRight, Mouse } from "lucide-react";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { panelOpenSelector, stageView, useGlobe } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { CHAPTERS, STORIES_AT } from "./chapterData";
+import { CHAPTERS } from "./chapterData";
 import { backToGlobe, useHomeStory } from "./homeStore";
 
 /**
  * The Home stage: the globe stays pinned while the page scrolls. At the top it is the interactive explorer;
- * scrolling down fades the explorer chrome, drifts the globe to the right and turns the sky to night, and the
- * chapters below take over the camera.
+ * scrolling down fades the explorer chrome, moves the globe to the right and the chapters below take over the
+ * camera.
  */
 
 function useViewport() {
@@ -84,49 +84,6 @@ export function HeroChrome({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Night sky behind the globe: fades in as the page scrolls down. */
-export function Cosmos() {
-  const { scrollY } = useScroll();
-  const { h } = useViewport();
-  const opacity = useTransform(scrollY, (v) => Math.min(1, Math.max(0, (v - h * 0.08) / (h * 0.6))));
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    // drawn off-screen into an image, so the page keeps a single <canvas> (the globe)
-    const cv = document.createElement("canvas");
-    const draw = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      cv.width = innerWidth * dpr;
-      cv.height = innerHeight * dpr;
-      const g = cv.getContext("2d");
-      if (!g) return;
-      // seeded so the sky does not reshuffle on resize
-      let seed = 7;
-      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-      const n = Math.round((innerWidth * innerHeight) / 2600);
-      for (let i = 0; i < n; i++) {
-        const r = rnd() ** 3 * 1.6 + 0.25;
-        g.globalAlpha = 0.25 + rnd() * 0.75;
-        g.fillStyle = rnd() > 0.9 ? "#ffe2a8" : rnd() > 0.8 ? "#bcd4ff" : "#ffffff";
-        g.beginPath();
-        g.arc(rnd() * cv.width, rnd() * cv.height, r * dpr, 0, Math.PI * 2);
-        g.fill();
-      }
-      el.style.backgroundImage = `url(${cv.toDataURL("image/png")})`;
-    };
-    draw();
-    window.addEventListener("resize", draw);
-    return () => window.removeEventListener("resize", draw);
-  }, []);
-  return (
-    <motion.div aria-hidden style={{ opacity }} className="pointer-events-none fixed inset-0 bg-[#04080c]">
-      <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_70%_45%,rgba(40,90,140,.35),transparent_70%),radial-gradient(40%_40%_at_10%_90%,rgba(242,179,61,.10),transparent_70%),radial-gradient(35%_35%_at_15%_10%,rgba(120,80,200,.12),transparent_70%)]" />
-      <div ref={ref} className="absolute inset-0 bg-cover motion-safe:animate-[sky-drift_120s_linear_infinite_alternate]" />
-    </motion.div>
-  );
-}
-
 /** Floating island nav once the explorer header has faded: shows the chapter on screen. */
 export function IslandNav() {
   const chapter = useHomeStory((s) => s.chapter);
@@ -144,10 +101,10 @@ export function IslandNav() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.96 }}
           transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
-          className="fixed top-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/10 bg-[rgba(10,16,22,.72)] p-1.5 text-white shadow-[0_20px_50px_rgba(0,0,0,.45),inset_0_1px_0_rgba(255,255,255,.08)] backdrop-blur-2xl"
+          className="fixed top-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full border border-[var(--line)] bg-white/80 p-1.5 text-[var(--ink-strong)] shadow-[0_18px_44px_rgba(17,35,43,.14),inset_0_1px_0_#fff] backdrop-blur-2xl"
         >
-          <button type="button" onClick={() => backToGlobe()} aria-label="Back to the globe" className="flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 hover:bg-white/10">
-            <span className="grid size-8 place-items-center rounded-full bg-white/10">
+          <button type="button" onClick={() => backToGlobe()} aria-label="Back to the globe" className="flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 hover:bg-[var(--paper-2)]">
+            <span className="grid size-8 place-items-center rounded-full bg-[var(--ink-strong)]">
               <span className="relative block h-2.5 w-4">
                 <span className="absolute top-0 left-0 size-2.5 rounded-full bg-gold" />
                 <span className="absolute top-0 right-0 size-2.5 rounded-full border-2 border-white" />
@@ -155,37 +112,32 @@ export function IslandNav() {
             </span>
             <span className="text-[13.5px] font-bold max-sm:hidden">GeoPolitics</span>
           </button>
-          <motion.div layout className="flex h-9 min-w-[150px] items-center justify-center overflow-hidden rounded-full bg-white/[.06] px-4 text-[12.5px] font-semibold max-sm:min-w-[110px]">
+          <motion.div layout className="flex h-9 min-w-[150px] items-center justify-center overflow-hidden rounded-full bg-[var(--paper)] px-4 text-[12.5px] font-semibold max-sm:min-w-[110px]">
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.span
-                key={chapter === STORIES_AT ? "stories" : (label?.id ?? "more")}
+                key={label?.id ?? "more"}
                 initial={{ y: 14, opacity: 0, filter: "blur(4px)" }}
                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                 exit={{ y: -14, opacity: 0, filter: "blur(4px)" }}
                 transition={{ duration: 0.35 }}
                 className="flex items-center gap-2 whitespace-nowrap"
               >
-                {chapter === STORIES_AT ? (
+                {label ? (
                   <>
-                    <span className="size-1.5 rounded-full bg-[var(--gold)]" />
-                    Story tours
-                  </>
-                ) : label ? (
-                  <>
-                    <span className="text-white/65 tabular-nums">{String(chapter + 1).padStart(2, "0")}</span>
+                    <span className="text-[var(--ink-3)] tabular-nums">{String(chapter + 1).padStart(2, "0")}</span>
                     <span className="size-1.5 rounded-full" style={{ background: label.tint }} />
                     {label.name}
                   </>
                 ) : (
-                  <span className="text-white/70">The world, explained</span>
+                  <span className="text-[var(--ink-2)]">The world, explained</span>
                 )}
               </motion.span>
             </AnimatePresence>
           </motion.div>
-          <a href="#stories" className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-white/75 hover:bg-white/10 hover:text-white max-md:hidden">
+          <button type="button" onClick={() => backToGlobe(() => useGlobe.getState().openSide("stories"))} className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-[var(--ink-2)] hover:bg-[var(--paper-2)] hover:text-[var(--ink-strong)] max-md:hidden">
             Stories
-          </a>
-          <Link href="/glossary" className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-white/75 hover:bg-white/10 hover:text-white max-md:hidden">
+          </button>
+          <Link href="/glossary" className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-[var(--ink-2)] hover:bg-[var(--paper-2)] hover:text-[var(--ink-strong)] max-md:hidden">
             Glossary
           </Link>
           <Link href="/play" className="ml-1 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] px-4 py-2 text-[13px] font-bold text-[var(--ink-strong)]">
@@ -202,14 +154,14 @@ export function StoryScrim() {
   const chapter = useHomeStory((s) => s.chapter);
   return (
     <AnimatePresence>
-      {chapter >= 0 && chapter <= STORIES_AT && (
+      {chapter >= 0 && chapter < CHAPTERS.length && (
         <motion.div
           aria-hidden
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
-          className="pointer-events-none fixed inset-y-0 left-0 z-[5] w-[62vw] bg-gradient-to-r from-[rgba(4,8,12,.92)] via-[rgba(4,8,12,.55)] to-transparent max-md:inset-x-0 max-md:top-auto max-md:h-[70vh] max-md:w-full max-md:bg-gradient-to-t"
+          className="pointer-events-none fixed inset-y-0 left-0 z-[5] w-[62vw] bg-gradient-to-r from-[rgba(243,241,236,.97)] via-[rgba(243,241,236,.78)] to-transparent max-md:inset-x-0 max-md:top-auto max-md:h-[70vh] max-md:w-full max-md:bg-gradient-to-t"
         />
       )}
     </AnimatePresence>
@@ -232,8 +184,8 @@ export function ChapterDots() {
           {CHAPTERS.map((c, i) => (
             <li key={c.id}>
               <a href={`#chapter-${c.id}`} className="group flex items-center justify-end gap-3" aria-current={i === chapter ? "step" : undefined}>
-                <span className={cn("text-[11px] font-bold tracking-[.14em] uppercase transition", i === chapter ? "text-white" : "text-white/0 group-hover:text-white/60")}>{c.name}</span>
-                <span className={cn("block h-[3px] rounded-full transition-all duration-500", i === chapter ? "w-8" : "w-3 bg-white/30 group-hover:bg-white/60")} style={i === chapter ? { background: c.tint } : undefined} />
+                <span className={cn("text-[11px] font-bold tracking-[.14em] uppercase transition", i === chapter ? "text-[var(--ink-strong)]" : "text-transparent group-hover:text-[var(--ink-3)]")}>{c.name}</span>
+                <span className={cn("block h-[3px] rounded-full transition-all duration-500", i === chapter ? "w-8" : "w-3 bg-[rgba(17,35,43,.22)] group-hover:bg-[rgba(17,35,43,.5)]")} style={i === chapter ? { background: c.tint } : undefined} />
               </a>
             </li>
           ))}

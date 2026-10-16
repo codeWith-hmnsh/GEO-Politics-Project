@@ -141,12 +141,6 @@
     transform: translateX(-50%);
   }
 }
-@keyframes sky-drift {
-  to {
-    transform: translate3d(-2%, -3%, 0) scale(1.04);
-  }
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;

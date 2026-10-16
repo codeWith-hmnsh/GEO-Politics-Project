@@ -100,20 +100,20 @@ function ChapterFrame({ i, title, body, children }: { i: number; title: string; 
   return (
     <section id={`chapter-${c.id}`} data-chapter={i} aria-labelledby={`chapter-${c.id}-title`} className="pointer-events-none relative flex min-h-[130vh] items-center max-md:min-h-[150vh] max-md:items-end max-md:pb-[20vh]">
       <div className="mx-auto w-full max-w-[1380px] px-10 max-md:px-4">
-        <div className="pointer-events-auto max-w-[520px] max-md:rounded-[28px] max-md:border max-md:border-white/10 max-md:bg-[rgba(4,8,12,.62)] max-md:p-6 max-md:backdrop-blur-xl">
+        <div className="pointer-events-auto max-w-[520px] max-md:rounded-[28px] max-md:border max-md:border-[var(--line)] max-md:bg-white/85 max-md:p-6 max-md:shadow-[0_20px_50px_rgba(17,35,43,.12)] max-md:backdrop-blur-xl">
           <motion.div {...fadeUp()} className="flex items-center gap-4">
-            <span className="font-display text-[88px] leading-[.8] font-semibold tracking-tight text-transparent [-webkit-text-stroke:1.2px_rgba(255,255,255,.35)] max-md:text-[60px]">
+            <span className="font-display text-[88px] leading-[.8] font-semibold tracking-tight text-transparent [-webkit-text-stroke:1.2px_rgba(17,35,43,.32)] max-md:text-[60px]">
               {String(i + 1).padStart(2, "0")}
             </span>
             <span className="grid gap-1.5">
               <span className="block h-[3px] w-10 rounded-full" style={{ background: c.tint }} />
-              <span className="text-[11.5px] font-extrabold tracking-[.22em] text-white/60 uppercase">Chapter {i + 1} · {c.name}</span>
+              <span className="text-[11.5px] font-extrabold tracking-[.22em] text-[var(--ink-3)] uppercase">Chapter {i + 1} · {c.name}</span>
             </span>
           </motion.div>
-          <h2 id={`chapter-${c.id}-title`} className="mt-6 font-display text-[clamp(40px,5.2vw,76px)] leading-[.98] font-semibold tracking-[-.025em] text-white">
+          <h2 id={`chapter-${c.id}-title`} className="mt-6 font-display text-[clamp(40px,5.2vw,76px)] leading-[.98] font-semibold tracking-[-.025em] text-[var(--ink-strong)]">
             <Reveal text={title} />
           </h2>
-          <motion.div {...fadeUp(0.25)} className="mt-5 text-[17.5px] leading-relaxed text-white/70">
+          <motion.div {...fadeUp(0.25)} className="mt-5 text-[17.5px] leading-relaxed text-[var(--ink-2)]">
             {body}
           </motion.div>
           <motion.div {...fadeUp(0.4)} className="mt-8">
@@ -128,17 +128,17 @@ function ChapterFrame({ i, title, body, children }: { i: number; title: string; 
 const chip = (on: boolean) =>
   cn(
     "inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-[13px] font-semibold transition",
-    on ? "border-white/80 bg-white text-[#0a1218] shadow-[0_8px_24px_rgba(255,255,255,.18)]" : "border-white/15 bg-white/[.06] text-white/80 hover:border-white/35 hover:bg-white/[.12] hover:text-white",
+    on ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white shadow-[0_8px_20px_rgba(17,35,43,.2)]" : "border-[var(--line)] bg-white/80 text-[var(--ink)] hover:border-[rgba(17,35,43,.3)] hover:bg-white",
   );
 
 function Stat({ value, label, suffix }: { value: number; label: string; suffix?: string }) {
   return (
     <div>
-      <div className="font-display text-[56px] leading-none font-semibold tracking-tight text-white tabular-nums max-md:text-[44px]">
+      <div className="font-display text-[56px] leading-none font-semibold tracking-tight text-[var(--ink-strong)] tabular-nums max-md:text-[44px]">
         <CountUp to={value} duration={1.6} separator="," />
         {suffix}
       </div>
-      <div className="mt-1.5 text-[13px] font-semibold text-white/60">{label}</div>
+      <div className="mt-1.5 text-[13px] font-semibold text-[var(--ink-3)]">{label}</div>
     </div>
   );
 }
@@ -162,15 +162,15 @@ function Conflict() {
               aria-label={`Show on the globe: ${c.parties.join(" against ")}`}
               onMouseEnter={() => useGlobe.getState().flyTo({ lat: c.at[0], lng: c.at[1], dist: 2.3, durationMs: 1400 })}
               onClick={() => useGlobe.getState().flyTo({ lat: c.at[0], lng: c.at[1], dist: 2.1, durationMs: 1200 })}
-              className="group flex w-full items-center gap-4 rounded-2xl border border-transparent px-3 py-2.5 text-left transition hover:border-white/10 hover:bg-white/[.06]"
+              className="group flex w-full items-center gap-4 rounded-2xl border border-transparent px-3 py-2.5 text-left transition hover:border-[var(--line)] hover:bg-white/80"
             >
               <span className="flex gap-[3px]">
                 {[1, 2, 3].map((k) => (
-                  <i key={k} className={cn("h-4 w-[3px] rounded-full", k <= c.intensity ? "bg-[var(--conflict)]" : "bg-white/15")} />
+                  <i key={k} className={cn("h-4 w-[3px] rounded-full", k <= c.intensity ? "bg-[var(--conflict)]" : "bg-[rgba(17,35,43,.14)]")} />
                 ))}
               </span>
-              <span className="flex-1 text-[15px] font-semibold text-white">{c.name}</span>
-              <span className="text-[12px] font-semibold text-white/60">{c.status === "ceasefire" ? "Ceasefire" : `Since ${c.start.slice(0, 4)}`}</span>
+              <span className="flex-1 text-[15px] font-semibold text-[var(--ink-strong)]">{c.name}</span>
+              <span className="text-[12px] font-semibold text-[var(--ink-3)]">{c.status === "ceasefire" ? "Ceasefire" : `Since ${c.start.slice(0, 4)}`}</span>
             </button>
           </li>
         ))}
@@ -191,8 +191,8 @@ function MetricPicker({ mode, ids }: { mode: ChoroplethMode; ids: MetricId[] }) 
           </button>
         ))}
       </div>
-      <p className="mt-4 text-[13px] text-white/60">
-        On the globe: <b className="font-semibold text-white/85">{m.title}</b> · {m.source}
+      <p className="mt-4 text-[13px] text-[var(--ink-3)]">
+        On the globe: <b className="font-semibold text-[var(--ink)]">{m.title}</b> · {m.source}
       </p>
     </div>
   );
@@ -235,9 +235,9 @@ function Energy() {
           </button>
         ))}
       </div>
-      <motion.div key={id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-2xl border border-white/10 bg-white/[.05] p-5 backdrop-blur">
-        <div className="text-[11px] font-extrabold tracking-[.18em] text-[#7ee2a8] uppercase">{c.name}</div>
-        <p className="mt-2 text-[15px] leading-relaxed text-white/85">{c.flow}</p>
+      <motion.div key={id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-2xl border border-[var(--line)] bg-white/85 p-5 shadow-[0_12px_30px_rgba(17,35,43,.08)] backdrop-blur">
+        <div className="text-[11px] font-extrabold tracking-[.18em] text-[var(--up)] uppercase">{c.name}</div>
+        <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink)]">{c.flow}</p>
       </motion.div>
     </ChapterFrame>
   );
@@ -287,14 +287,14 @@ function Alliances() {
           </button>
         ))}
       </div>
-      <motion.div key={o.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 flex items-start gap-5 rounded-2xl border border-white/10 bg-white/[.05] p-5 backdrop-blur">
+      <motion.div key={o.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 flex items-start gap-5 rounded-2xl border border-[var(--line)] bg-white/85 p-5 shadow-[0_12px_30px_rgba(17,35,43,.08)] backdrop-blur">
         <div className="text-center">
-          <div className="font-display text-[44px] leading-none font-semibold text-white tabular-nums">{o.members.length}</div>
-          <div className="mt-1 text-[11px] font-bold text-white/60">members</div>
+          <div className="font-display text-[44px] leading-none font-semibold text-[var(--ink-strong)] tabular-nums">{o.members.length}</div>
+          <div className="mt-1 text-[11px] font-bold text-[var(--ink-3)]">members</div>
         </div>
         <div>
-          <div className="text-[15px] font-bold text-white">{o.name}</div>
-          <p className="mt-1 text-[14px] leading-relaxed text-white/70">{o.purpose}</p>
+          <div className="text-[15px] font-bold text-[var(--ink-strong)]">{o.name}</div>
+          <p className="mt-1 text-[14px] leading-relaxed text-[var(--ink-2)]">{o.purpose}</p>
         </div>
       </motion.div>
     </ChapterFrame>
