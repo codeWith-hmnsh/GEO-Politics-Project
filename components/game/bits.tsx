@@ -4,8 +4,8 @@ import type { Trend } from "@/lib/game/engine/types";
 import { cn } from "@/lib/utils";
 
 /** Glass surface used by every game panel (same look as the 1.0 cards). */
-export const glass = "rounded-[18px] bg-[var(--glass)] shadow-[var(--shadow-card)] backdrop-blur-xl";
-export const eyebrow = "text-[11px] font-extrabold uppercase tracking-[.14em] text-ink-3";
+export const glass = "glass rounded-[18px] bg-[var(--glass)] shadow-[var(--shadow-card)] backdrop-blur-xl";
+export const eyebrow = "eyebrow text-[11px] font-extrabold uppercase tracking-[.14em] text-ink-3";
 
 const BG = ["#E9DCC6", "#D9E4EA", "#E7D3D8", "#D8E6D6", "#E6E0F0", "#F0E2C9", "#DCE0E4", "#EAD9CF"];
 const SKIN = ["#8D5A3B", "#C68E63", "#E1B48B", "#6B4630", "#F1C9A5", "#A86E4A", "#D59F7A", "#7A5039"];
@@ -46,7 +46,7 @@ export function Delta({ v, d = 1, invert = false, unit = "", className }: { v: n
 }
 
 export function TrendChip({ t }: { t: Trend }) {
-  const style = t === "improving" ? "bg-[rgba(47,163,107,.12)] text-[#1f7a4f]" : t === "worsening" ? "bg-[rgba(229,72,77,.12)] text-[#b5313a]" : "bg-[rgba(17,35,43,.06)] text-ink-3";
+  const style = t === "improving" ? "bg-[rgba(47,163,107,.12)] text-[var(--up)]" : t === "worsening" ? "bg-[rgba(229,72,77,.12)] text-[var(--down)]" : "bg-[var(--hover)] text-ink-3";
   return (
     <span className={cn("inline-flex items-center gap-1 rounded-full px-1.5 py-px text-[10.5px] font-bold", style)}>
       {t === "improving" ? "▲" : t === "worsening" ? "▼" : "●"} {t}
@@ -59,7 +59,7 @@ export function MoveDots({ left, total }: { left: number; total: number }) {
   return (
     <span role="img" className="flex gap-1" aria-label={`${left} of ${total} moves left`}>
       {Array.from({ length: total }, (_, i) => (
-        <i key={i} className={cn("size-2.5 rounded-full transition-colors", i < left ? "bg-[var(--ink-strong)]" : "bg-[#e2ded4]")} />
+        <i key={i} className={cn("size-2.5 rounded-full transition-colors", i < left ? "bg-[var(--ink-strong)] shadow-[0_0_6px_var(--intel)]" : "bg-[var(--track)]")} />
       ))}
     </span>
   );
@@ -67,10 +67,10 @@ export function MoveDots({ left, total }: { left: number; total: number }) {
 
 export function Btn({ variant = "primary", className, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "glass" | "ghost" | "gold" }) {
   const v = {
-    primary: "bg-[var(--ink-strong)] text-white shadow-[0_8px_22px_rgba(15,29,36,.25)] hover:bg-[#1b313b]",
-    glass: "border border-[rgba(17,35,43,.16)] bg-white/80 text-ink hover:bg-white",
-    ghost: "text-ink-2 hover:bg-[rgba(17,35,43,.05)] hover:text-ink",
-    gold: "bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] text-[var(--ink-strong)] shadow-[0_8px_22px_rgba(185,130,26,.35)]",
+    primary: "bg-[var(--cta)] text-[var(--cta-ink)] shadow-[0_8px_22px_rgba(15,29,36,.25)] hover:brightness-110",
+    glass: "border border-[var(--input)] bg-card/80 text-ink hover:bg-card",
+    ghost: "text-ink-2 hover:bg-[var(--hover)] hover:text-ink",
+    gold: "bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] text-[#0f1d24] shadow-[0_8px_22px_rgba(185,130,26,.35)]",
   }[variant];
   return (
     <button

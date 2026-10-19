@@ -25,11 +25,13 @@ import { Delta, MoveDots, Portrait, TrendChip, eyebrow, glass } from "./bits";
 import { CommandPanel } from "./CommandPanel";
 import { NetError } from "./NetError";
 import { Coach, EndScreen, PickScreen, Reveal } from "./Overlays";
+import { EscalationPips, WarRoomFx, escalation, useWarRoom } from "./WarRoom";
 
 /** Statecraft solo match on the 1.0 globe (BUILD-PLAN S3). */
 export function PlayScreen({ online }: { online?: { matchId: string; code: string } } = {}) {
   const phase = useGame((s) => s.phase);
   const solo = !online;
+  useWarRoom();
 
   // The globe switches to game layers while this screen is mounted. ?country=IND pre-selects a seat (solo).
   useEffect(() => {
@@ -81,23 +83,21 @@ export function PlayScreen({ online }: { online?: { matchId: string; code: strin
   }, []);
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-paper">
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0"
-        style={{ background: "radial-gradient(48% 62% at 50% 52%, #d7e3ea 0%, rgba(215,227,234,.6) 45%, rgba(243,241,236,0) 75%), linear-gradient(180deg,#f6f4ef,#efede7)" }}
-      />
+    <main className="war relative min-h-dvh overflow-hidden bg-[#03060b] text-ink">
+      <div aria-hidden className="war-space pointer-events-none fixed inset-0" />
       <GlobeClient variant="game">
         <SeatLabels />
       </GlobeClient>
+      <WarRoomFx />
       <h1 className="sr-only">Statecraft: lead a country, shape the world</h1>
       {online && phase === "pick" && (
-        <div role="status" className="fixed inset-0 z-40 grid place-items-center text-[15px] font-semibold text-ink-2">
-          Loading room {online.code}…
+        <div role="status" className="fixed inset-0 z-40 grid place-items-center font-hud text-[13px] tracking-[.3em] text-[var(--hud-dim)] uppercase">
+          <span className="war-live">Establishing link · room {online.code}</span>
         </div>
       )}
       {phase !== "pick" && phase !== "end" && (
         <>
+          <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-[9] h-[150px] bg-gradient-to-b from-[rgba(2,5,10,.85)] to-transparent" />
           <TopBar />
           <Rail />
           <News />
@@ -126,8 +126,8 @@ function SeatLabels() {
             type="button"
             onClick={() => useGlobe.getState().select(s)}
             className={cn(
-              "flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full border py-1 pr-2.5 pl-1.5 text-[11.5px] font-bold whitespace-nowrap shadow-[0_6px_18px_rgba(17,35,43,.18)]",
-              s === me ? "border-[var(--gold)] bg-[var(--ink-strong)] text-white ring-2 ring-[var(--gold)]" : "border-white/80 bg-white/90 text-ink hover:bg-white",
+              "flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-[4px] border py-1 pr-2.5 pl-1.5 font-hud text-[10.5px] font-semibold tracking-[.14em] whitespace-nowrap uppercase",
+              s === me ? "border-[var(--gold)] bg-[var(--cta)] text-[var(--cta-ink)] ring-2 ring-[var(--gold)]" : "border-white/80 bg-card/90 text-ink hover:bg-card",
             )}
             title={s === me ? "Your country" : `Offer ${SHORT[s]} a deal`}
           >
@@ -155,54 +155,77 @@ function TopBar() {
   const r = ranks(world)[setup.me];
   const r0 = ranks(world, 0)[setup.me];
   const total = view ? turnSecondsFor(view.match.turnSeconds, world.turn) : TURN_SECONDS(world.turn);
-  const year = world.ended || phase === "reveal" || phase === "result" ? world.year - 1 : world.year;
+  const resolved = world.ended || phase === "reveal" || phase === "result";
+  const year = resolved ? world.year - 1 : world.year;
+  const done = Math.min(12, world.turn - 1); // years already resolved
+  const lvl = escalation(world.tension);
+  const status = phase === "locking" ? (view ? "Locked · waiting for the others" : "Leaders are locking…") : phase === "reveal" ? "The world moves" : phase === "result" ? "Year resolved" : `Year ${Math.min(12, world.turn)} of 12${paused ? " · paused" : ""}`;
   return (
     <header className="pointer-events-none fixed inset-x-4 top-[max(14px,env(safe-area-inset-top))] z-30 grid grid-cols-[1fr_auto_1fr] items-start gap-3 max-md:inset-x-2.5 max-md:grid-cols-[1fr_auto]">
+      {/* dossier: who you are, money, moves */}
       <div className={cn(glass, "pointer-events-auto flex items-center gap-3 justify-self-start py-2 pr-4 pl-2 max-md:gap-2 max-md:pr-2.5")}>
-        <Link href="/play" aria-label="Leave the match" className="grid size-9 place-items-center rounded-full text-ink-2 hover:bg-paper">
+        <Link href="/play" aria-label="Leave the match" className="grid size-9 place-items-center rounded-full text-ink-2 hover:bg-[var(--hover)] hover:text-ink">
           <ArrowLeft className="size-[18px]" />
         </Link>
         <Portrait i={setup.portrait} seat={SEAT_COLOR[setup.me]} size={36} />
         <div className="leading-tight max-md:hidden">
-          <b className="flex items-center gap-1.5 text-[13px] tracking-[.12em]">
+          <b className="flex items-center gap-1.5 font-hud text-[12px] font-semibold tracking-[.2em] text-[var(--gold)]">
             <Flag iso3={setup.me} className="h-3 w-[18px]" /> {SHORT[setup.me].toUpperCase()}
           </b>
           <small className="text-[11.5px] text-ink-3">{setup.leader}</small>
         </div>
         <div className="flex items-center gap-4 border-l border-border pl-3 max-md:gap-2.5 max-md:pl-2">
-          <div>
-            <span className="block text-[10.5px] font-extrabold tracking-[.12em] text-ink-3 uppercase">Treasury</span>
+          <HudStat label="Treasury">
             <span className="text-[18px] font-extrabold tabular-nums max-md:text-[15px]">{money(c.treasury - committed)}</span>
-          </div>
-          <div>
-            <span className="block text-[10.5px] font-extrabold tracking-[.12em] text-ink-3 uppercase">Moves</span>
+          </HudStat>
+          <HudStat label="Moves">
             <span className="mt-1.5 block">
               <MoveDots left={left} total={c.pc} />
             </span>
-          </div>
+          </HudStat>
         </div>
       </div>
-      <div className={cn(glass, "pointer-events-auto flex items-center gap-3 py-2 pr-4 pl-3")}>
+
+      {/* the clock: live tag, year, the 12-year term */}
+      <div className="pointer-events-auto flex items-center gap-3.5 px-2 text-center [text-shadow:0_1px_10px_rgba(0,0,0,.9)]">
         {setup.timed && (
-          <div className="relative size-11">
-            <svg viewBox="0 0 46 46" className="size-11 -rotate-90">
-              <circle cx="23" cy="23" r="20" fill="none" strokeWidth="4" stroke="#e2ded4" />
-              <circle cx="23" cy="23" r="20" fill="none" strokeWidth="4" strokeLinecap="round" stroke={timeLeft <= 10 ? "var(--conflict)" : "var(--ink)"} strokeDasharray="125.66" strokeDashoffset={125.66 * (1 - timeLeft / total)} />
+          <div className={cn("relative size-12", timeLeft <= 10 && phase === "plan" && "animate-pulse")}>
+            <svg viewBox="0 0 46 46" className="size-12 -rotate-90">
+              <circle cx="23" cy="23" r="20" fill="none" strokeWidth="3" stroke="var(--track)" />
+              <circle cx="23" cy="23" r="20" fill="none" strokeWidth="3" strokeLinecap="round" stroke={timeLeft <= 10 ? "var(--alert)" : "var(--intel)"} strokeDasharray="125.66" strokeDashoffset={125.66 * (1 - timeLeft / total)} />
             </svg>
-            <span className="absolute inset-0 grid place-items-center text-[12px] font-extrabold tabular-nums">
+            <span className={cn("absolute inset-0 grid place-items-center font-hud text-[11.5px] font-bold tabular-nums", timeLeft <= 10 && "text-[var(--alert)]")}>
               {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
             </span>
           </div>
         )}
-        <div className="leading-none">
-          <div className="font-display text-[26px] font-semibold tabular-nums max-md:text-[20px]">{year}</div>
-          <small className="text-[11.5px] font-semibold text-ink-3">{phase === "locking" ? (view ? "Locked · waiting for the others" : "Leaders are locking…") : phase === "reveal" ? "The world moves" : phase === "result" ? "Year resolved" : `Year ${Math.min(12, world.turn)} of 12${paused ? " · paused" : ""}`}</small>
+        <div className="grid justify-items-center leading-none">
+          <span className={cn("font-hud text-[10px] font-semibold tracking-[.26em] uppercase max-md:hidden", view ? "war-live text-[var(--alert)]" : "text-[var(--hud-dim)]")}>{view ? "Live · shared world" : "Simulation · solo"}</span>
+          <div className="mt-1 font-hud text-[30px] font-bold tracking-[.06em] tabular-nums max-md:text-[22px]">{year}</div>
+          <small className="mt-1 font-hud text-[10.5px] font-medium tracking-[.14em] text-[var(--hud-dim)] uppercase">{status}</small>
+          <span aria-hidden className="mt-2 flex gap-[3px]">
+            {Array.from({ length: 12 }, (_, i) => (
+              <i key={i} className={cn("h-[3px] w-3 rounded-[1px] max-md:w-2", i < done ? "bg-[var(--intel)] shadow-[0_0_6px_var(--intel)]" : i === done && !resolved ? "animate-pulse bg-[var(--gold)]" : "bg-white/12")} />
+            ))}
+          </span>
         </div>
       </div>
+
+      {/* threat board: rank, escalation, controls */}
       <div className="pointer-events-auto flex items-center gap-2 justify-self-end max-md:hidden">
-        <div className={cn(glass, "flex items-center gap-2 px-4 py-2.5 font-extrabold")}>
-          <small className="text-[10.5px] tracking-[.12em] text-ink-3">POWER RANK</small> #{r}
-          {r !== r0 && <Delta v={r0 - r} d={0} />}
+        <div className={cn(glass, "flex items-center gap-4 px-4 py-2")}>
+          <HudStat label="Power rank">
+            <span className="flex items-center gap-1.5 text-[20px] font-extrabold tabular-nums">
+              #{r}
+              {r !== r0 && <Delta v={r0 - r} d={0} className="text-[12px]" />}
+            </span>
+          </HudStat>
+          <div className="border-l border-border pl-4">
+            <HudStat label={`Tension ${world.tension.toFixed(0)}`}>
+              <EscalationPips tension={world.tension} className="mt-1.5" />
+              <span className={cn("mt-1 block font-hud text-[9.5px] tracking-[.2em] uppercase", lvl >= 4 ? "text-[var(--alert)]" : "text-[var(--hud-dim)]")}>{LEVEL[lvl]}</span>
+            </HudStat>
+          </div>
         </div>
         <IconBtn label="World view (V): influence, all treaties and sanctions" on={worldView} onClick={() => useGame.getState().toggleWorldView()}>
           <Globe2 className="size-[18px]" />
@@ -217,7 +240,7 @@ function TopBar() {
           {muted ? <VolumeX className="size-[18px]" /> : <Volume2 className="size-[18px]" />}
         </IconBtn>
         {view && (
-          <div className={cn(glass, "px-3.5 py-2.5 font-mono text-[13px] font-bold tracking-[.2em]")} title="Room code">
+          <div className={cn(glass, "px-3.5 py-2.5 font-hud text-[13px] font-bold tracking-[.3em] text-[var(--intel)]")} title="Room code">
             {view.match.code}
           </div>
         )}
@@ -231,9 +254,20 @@ function TopBar() {
   );
 }
 
+const LEVEL = ["", "Calm", "Guarded", "Elevated", "High", "Severe"];
+
+function HudStat({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <span className="block font-hud text-[9.5px] font-semibold tracking-[.2em] text-[var(--hud-dim)] uppercase">{label}</span>
+      {children}
+    </div>
+  );
+}
+
 function IconBtn({ label, on, onClick, children }: { label: string; on?: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" aria-label={label} title={label} aria-pressed={on} onClick={onClick} className={cn("grid size-[42px] place-items-center rounded-full border border-border shadow-[var(--shadow-card)] transition", on ? "bg-[var(--ink-strong)] text-white" : "bg-white/90 text-ink-2 hover:text-ink")}>
+    <button type="button" aria-label={label} title={label} aria-pressed={on} onClick={onClick} className={cn("grid size-[42px] place-items-center rounded-[10px] border transition", on ? "border-[var(--intel)] bg-[rgba(103,232,249,.14)] text-[var(--intel)] shadow-[0_0_14px_rgba(103,232,249,.35)]" : "border-[rgba(140,190,230,.2)] bg-[var(--glass)] text-ink-2 backdrop-blur-xl hover:border-[var(--intel)] hover:text-ink")}>
       {children}
     </button>
   );
@@ -251,11 +285,12 @@ function Rail() {
   const order = [...SEATS].sort((a, b) => r[a] - r[b]);
   const sanctions = SEATS.reduce((t, a) => t + SEATS.filter((b) => b !== a && world.pairs[a][b].sanction).length, 0);
   const led = REGIONS.filter((x) => world.regions[x].leader === me).length;
+  const top = Math.max(...SEATS.map((s) => world.power[s].at(-1) ?? 0));
   return (
     <aside aria-label="World Power Index" className={cn(glass, "fixed top-[92px] left-4 z-20 w-[272px] p-4 max-[1100px]:w-[244px] max-md:hidden")}>
       <div className="flex items-center justify-between">
-        <span className={eyebrow}>World Power Index</span>
-        <button className="text-[11px] font-extrabold tracking-[.08em] text-[var(--neutral)] uppercase hover:underline" onClick={() => setTable(true)}>
+        <span className={cn(eyebrow, "whitespace-nowrap")} style={{ letterSpacing: ".16em" }}>World Power Index</span>
+        <button className="rounded-[4px] border border-[rgba(103,232,249,.35)] px-1.5 py-0.5 whitespace-nowrap font-hud text-[9.5px] font-semibold tracking-[.16em] text-[var(--intel)] uppercase hover:bg-[rgba(103,232,249,.12)]" onClick={() => setTable(true)}>
           World table
         </button>
       </div>
@@ -266,8 +301,8 @@ function Rail() {
           const locked = online ? !!seat?.locked || (s === me && phase === "locking") : phase === "locking" ? !!botLocks[s] || s === me : false;
           const showLock = online ? human && (phase === "plan" || phase === "locking") : phase === "locking";
           return (
-            <motion.li key={s} layout transition={{ type: "spring", bounce: 0.2, visualDuration: 0.5 }} className={cn("grid grid-cols-[16px_30px_1fr_auto] items-center gap-2.5 rounded-xl px-1.5 py-2", s === me && "bg-[rgba(242,179,61,.16)] shadow-[inset_0_0_0_1px_rgba(242,179,61,.5)]")}>
-              <span className="text-[13px] font-extrabold text-ink-3">{r[s]}</span>
+            <motion.li key={s} layout transition={{ type: "spring", bounce: 0.2, visualDuration: 0.5 }} className={cn("grid grid-cols-[16px_30px_1fr_auto] items-center gap-2.5 rounded-lg px-1.5 py-2", s === me && "bg-[rgba(242,179,61,.1)] shadow-[inset_0_0_0_1px_rgba(242,179,61,.45)]")}>
+              <span className="font-hud text-[12px] font-bold text-[var(--hud-dim)]">{String(r[s]).padStart(2, "0")}</span>
               <Portrait i={seat ? seat.portrait : SEATS.indexOf(s)} seat={SEAT_COLOR[s]} size={28} />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 truncate text-[13.5px] font-bold">
@@ -277,10 +312,13 @@ function Rail() {
                 {human && s !== me && <small className="block truncate text-[11px] font-semibold text-ink-3">{seat.leader}</small>}
                 {seat?.kind === "caretaker" && <small className="block text-[11px] font-semibold text-ink-3">Away · bot is caretaker</small>}
                 {trend(world, s, "economy") !== "unchanging" && <TrendChip t={trend(world, s, "economy")} />}
+                <span aria-hidden className="mt-1 block h-[3px] overflow-hidden rounded-full bg-[var(--track)]">
+                  <i className="block h-full rounded-full transition-[width] duration-700" style={{ width: `${((world.power[s].at(-1) ?? 0) / top) * 100}%`, background: SEAT_COLOR[s], boxShadow: `0 0 6px ${SEAT_COLOR[s]}` }} />
+                </span>
               </div>
-              <div className="text-right">
-                <div className="text-[15px] font-extrabold tabular-nums">{(world.power[s].at(-1) ?? 0).toFixed(1)}</div>
-                {showLock && <span className={cn("inline-block size-2 rounded-full border-2", locked ? "border-[var(--ally)] bg-[var(--ally)]" : "border-ink-3")} title={locked ? "Locked" : "Thinking"} />}
+              <div className="flex items-center gap-1.5">
+                {showLock && <span className={cn("inline-block size-2 rounded-full", locked ? "bg-[var(--up)] shadow-[0_0_8px_var(--up)]" : "animate-pulse bg-ink-3")} title={locked ? "Locked" : "Thinking"} />}
+                <span className="font-hud text-[14px] font-bold tabular-nums">{(world.power[s].at(-1) ?? 0).toFixed(1)}</span>
               </div>
             </motion.li>
           );
@@ -302,7 +340,7 @@ function Rail() {
               <div className={cn(eyebrow, "mb-2")}>Treaties ({world.treaties.length})</div>
               {world.treaties.length === 0 && <p className="text-ink-3">None yet.</p>}
               {world.treaties.map((t) => (
-                <div key={t.id} className="mb-1.5 rounded-xl border border-border bg-white p-2.5 font-bold">
+                <div key={t.id} className="mb-1.5 rounded-xl border border-border bg-card p-2.5 font-bold">
                   <Flag iso3={t.a} /> {SHORT[t.a]} ⇄ <Flag iso3={t.b} /> {SHORT[t.b]} <span className="font-semibold text-ink-3">· {t.turnsLeft} yr left</span>
                 </div>
               ))}
@@ -311,7 +349,7 @@ function Rail() {
               <div className={cn(eyebrow, "mb-2")}>Sanctions and tariffs</div>
               {SEATS.flatMap((a) =>
                 SEATS.filter((b) => b !== a && (world.pairs[a][b].sanction || world.pairs[a][b].tariff)).map((b) => (
-                  <div key={a + b} className="mb-1.5 rounded-xl border border-border bg-white p-2.5 font-bold">
+                  <div key={a + b} className="mb-1.5 rounded-xl border border-border bg-card p-2.5 font-bold">
                     {SHORT[a]} {world.pairs[a][b].sanction ? "sanctions" : `has a ${world.pairs[a][b].tariff}% tariff on`} {SHORT[b]}
                   </div>
                 )),
@@ -323,7 +361,7 @@ function Rail() {
                 const reg = world.regions[rg];
                 const top = [...SEATS].sort((a, b) => reg.sway[b] - reg.sway[a]).slice(0, 3);
                 return (
-                  <div key={rg} className="mb-1.5 rounded-xl border border-border bg-white p-2.5">
+                  <div key={rg} className="mb-1.5 rounded-xl border border-border bg-card p-2.5">
                     <b>
                       {REGION_DEFS[rg].name} · {reg.leader ? `led by ${SHORT[reg.leader]}` : "no leader"}
                     </b>
@@ -331,7 +369,7 @@ function Rail() {
                       {top.map((s) => (
                         <i key={s} style={{ flexGrow: reg.sway[s], background: SEAT_COLOR[s] }} />
                       ))}
-                      <i style={{ flexGrow: Math.max(0, 100 - top.reduce((t, s) => t + reg.sway[s], 0)), background: "#eae7df" }} />
+                      <i style={{ flexGrow: Math.max(0, 100 - top.reduce((t, s) => t + reg.sway[s], 0)), background: "var(--track)" }} />
                     </div>
                     <small className="text-ink-3">{top.map((s) => `${SHORT[s]} ${reg.sway[s].toFixed(0)}`).join(" · ")}</small>
                   </div>
@@ -347,8 +385,8 @@ function Rail() {
 
 function Stat({ v, l }: { v: string | number; l: string }) {
   return (
-    <div className="rounded-[10px] border border-border bg-white px-2.5 py-2">
-      <b className="block text-[16px] text-ink tabular-nums">{v}</b>
+    <div className="rounded-lg border border-border bg-[rgba(255,255,255,.03)] px-2.5 py-2 font-hud text-[9.5px] tracking-[.12em] uppercase">
+      <b className="block font-sans text-[16px] tracking-normal text-ink tabular-nums">{v}</b>
       {l}
     </div>
   );
@@ -360,25 +398,25 @@ function News() {
   const last = world.history.at(-1);
   if (!last || phase === "reveal") return null;
   return (
-    <section aria-label="World news" className="fixed bottom-4 left-4 z-10 w-[340px] rounded-xl border border-[rgba(122,92,46,.2)] bg-[var(--wire-paper)] p-4 shadow-[var(--shadow-card)] max-[1100px]:hidden">
-      <div className="mb-2 flex items-center justify-between text-[11px] font-extrabold tracking-[.14em] text-[var(--wire)] uppercase">
-        World news · {last.year}
-        <span className="-rotate-3 rounded border-[1.5px] border-current px-1.5 py-px text-[9px]">Simulated</span>
+    <section aria-label="World news" className="fixed bottom-4 left-4 z-10 grid w-[360px] gap-1.5 max-[1100px]:hidden">
+      <div className="flex items-center justify-between px-1 font-hud text-[10px] font-semibold tracking-[.22em] text-[var(--hud-dim)] uppercase [text-shadow:0_1px_6px_#000]">
+        <span className="war-live">Intel feed · {last.year}</span>
+        <span className="rounded-[3px] border border-current bg-[var(--night)] px-1.5 text-[8.5px]">Simulated</span>
       </div>
-      <ul className="grid gap-2">
-        {last.news.slice(0, 3).map((n) => (
-          <li key={n.id}>
+      <ul className="grid gap-1.5">
+        {last.news.slice(0, 3).map((n, i) => (
+          <motion.li key={n.id} initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.12, duration: 0.45 }}>
             <button
               type="button"
-              className="text-left font-display text-[14.5px] leading-snug text-[var(--wire-ink)] italic hover:underline"
+              className="group block w-full rounded-[4px] border border-[rgba(140,190,230,.16)] border-l-[3px] border-l-[var(--intel)] bg-[var(--glass)] px-3 py-2 text-left backdrop-blur-xl transition hover:border-l-[var(--gold)] hover:bg-[rgba(10,18,28,.9)]"
               onClick={() => {
                 if (n.iso3) focus(CAPITAL[n.iso3][0], CAPITAL[n.iso3][1], 3.0);
               }}
             >
-              {n.headline}
+              <b className="block font-hud text-[9.5px] font-semibold tracking-[.16em] text-[var(--intel)] uppercase group-hover:text-[var(--gold)]">{n.place ?? (n.iso3 ? SHORT[n.iso3] : "World")}</b>
+              <span className="mt-0.5 block text-[13px] leading-snug font-semibold text-[var(--wire-ink)]">{n.headline}</span>
             </button>
-            <small className="block text-[11px] text-ink-3">{n.place ?? (n.iso3 ? SHORT[n.iso3] : "World")}</small>
-          </li>
+          </motion.li>
         ))}
       </ul>
     </section>
