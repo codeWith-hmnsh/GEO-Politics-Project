@@ -36,8 +36,6 @@ const GROUP: Record<CardDef["group"], { name: string; color: string }> = {
   people: { name: "People", color: "#C25A84" },
   diplomacy: { name: "Diplomacy", color: "#7A4FD0" },
 };
-/** Left-edge colours for a crisis's choices, after the reference sim's branch buttons. */
-const BRANCH = ["#3b82f6", "#f59e0b", "#ef4444", "#a78bfa"];
 const MIN_NAME: Record<Ministry, string> = { industry: "Industry & Jobs", infrastructure: "Infrastructure", agriculture: "Agriculture", energy: "Energy", education: "Education", welfare: "Health & Welfare", defence: "Defence" };
 
 export function CommandPanel() {
@@ -66,7 +64,7 @@ export function CommandPanel() {
                 role="tab"
                 aria-selected={tab === t.id}
                 onClick={() => setTab(t.id)}
-                className={cn("relative flex-1 border-b-2 px-1 pt-2.5 pb-3 font-hud text-[10.5px] font-semibold tracking-[.16em] uppercase transition-colors", tab === t.id ? "border-[var(--intel)] text-ink [text-shadow:0_0_12px_rgba(103,232,249,.6)]" : "border-transparent text-ink-3 hover:text-ink")}
+                className={cn("relative flex-1 border-b-2 px-1 pt-2 pb-3 text-[13px] font-bold transition-colors", tab === t.id ? "border-[var(--ink-strong)] text-ink" : "border-transparent text-ink-3 hover:text-ink")}
               >
                 {t.label}
                 {t.id === "deals" && inbox > 0 && <span className="absolute top-0.5 right-2 grid size-4 place-items-center rounded-full bg-[var(--conflict)] text-[10px] text-white">{inbox}</span>}
@@ -121,11 +119,10 @@ function YearPane() {
       </div>
 
       {goal && (
-        <section data-coach="goal" className="relative overflow-hidden rounded-xl border border-[rgba(242,179,61,.42)] bg-[linear-gradient(135deg,rgba(242,179,61,.18),rgba(242,179,61,.03)_60%)] p-4 text-ink">
-          <i aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-[var(--gold)] shadow-[0_0_12px_var(--gold)]" />
-          <div className="font-hud text-[10px] font-semibold tracking-[.24em] text-[var(--gold)] uppercase">Your goal this year</div>
+        <section data-coach="goal" className="rounded-2xl bg-gradient-to-br from-[#1A2C35] to-[var(--ink-strong)] p-4 text-[var(--paper)]">
+          <div className="text-[11px] font-extrabold tracking-[.14em] text-white/60 uppercase">Your goal this year</div>
           <h3 className="mt-1 font-display text-[22px] font-semibold">{goal.title}</h3>
-          <p className="mt-1 text-[13.5px] text-ink-2">{goal.detail}</p>
+          <p className="mt-1 text-[13.5px] text-white/75">{goal.detail}</p>
           {goal.metric && <GoalBar m={goal.metric} />}
         </section>
       )}
@@ -137,8 +134,8 @@ function YearPane() {
         <div className="grid gap-2">
           {recs.length === 0 && <p className="text-[13.5px] text-ink-3">No more moves recommended. You can lock the turn, or explore Moves and Deals.</p>}
           {recs.map((r) => (
-            <div key={`${r.kind}-${r.kind === "deal" ? r.to : r.id}`} className="grid grid-cols-[34px_1fr_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3">
-              <span className="grid size-[34px] place-items-center rounded-lg border border-[rgba(103,232,249,.3)] bg-[rgba(103,232,249,.08)] text-[var(--intel)]">
+            <div key={`${r.kind}-${r.kind === "deal" ? r.to : r.id}`} className="grid grid-cols-[34px_1fr_auto] items-center gap-3 rounded-2xl border border-border bg-white p-3">
+              <span className="grid size-[34px] place-items-center rounded-xl bg-paper text-ink-2">
                 {r.kind === "card" ? <Sparkles className="size-4" /> : r.kind === "project" ? <Hammer className="size-4" /> : <Handshake className="size-4" />}
               </span>
               <div className="min-w-0">
@@ -166,7 +163,7 @@ function YearPane() {
       <section className="rounded-2xl border border-border bg-paper p-3.5">
         <div className={eyebrow}>Your mission · worth up to 120 points</div>
         <div className="mt-1 text-[14px] font-extrabold">{MISSIONS[me].text}</div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--track)]">
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e2ded4]">
           <i className="block h-full rounded-full bg-gradient-to-r from-[#B9821A] to-[var(--gold)] transition-[width] duration-700" style={{ width: `${prog * 100}%` }} />
         </div>
       </section>
@@ -188,14 +185,14 @@ function GoalBar({ m }: { m: NonNullable<Goal["metric"]> }) {
   const pct = m.lowerIsBetter ? Math.max(0, Math.min(1, m.target / Math.max(m.now, 0.01))) : Math.max(0, Math.min(1, m.now / Math.max(m.target, 0.01)));
   return (
     <div className="mt-3">
-      <div className="flex justify-between text-[12px] font-bold text-ink-2">
+      <div className="flex justify-between text-[12px] font-bold text-white/70">
         <span>{m.label}</span>
         <span className="tabular-nums">
           now {fmt(m.now)} · goal {m.lowerIsBetter ? "≤" : "≥"} {fmt(m.target)}
         </span>
       </div>
-      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-card/15">
-        <i className="block h-full rounded-full bg-[var(--gold)] shadow-[0_0_8px_var(--gold)]" style={{ width: `${pct * 100}%` }} />
+      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/15">
+        <i className="block h-full rounded-full bg-[var(--gold)]" style={{ width: `${pct * 100}%` }} />
       </div>
     </div>
   );
@@ -208,7 +205,7 @@ function VoteCard() {
   if (!world.vote) return null;
   const res = RESOLUTION_BY_ID.get(world.vote.resolutionId)!;
   return (
-    <section className="rounded-2xl border border-[var(--input)] bg-card p-3.5">
+    <section className="rounded-2xl border border-[rgba(17,35,43,.16)] bg-white p-3.5">
       <div className={eyebrow}>World Vote · passes with 4 of 6 · votes stay secret until the reveal</div>
       <h4 className="mt-1 font-display text-[18px] font-semibold">{res.title(world.vote.target, world)}</h4>
       <p className="text-[12.5px] text-ink-2">
@@ -216,7 +213,7 @@ function VoteCard() {
       </p>
       <div className="mt-2.5 flex gap-1.5">
         {(["yes", "no", "abstain"] as const).map((v) => (
-          <button key={v} onClick={() => setVote(vote === v ? null : v)} className={cn("min-h-9 flex-1 rounded-full border text-[13px] font-bold", vote === v ? "border-[var(--cta)] bg-[var(--cta)] text-[var(--cta-ink)]" : "border-[var(--input)]")}>
+          <button key={v} onClick={() => setVote(vote === v ? null : v)} className={cn("min-h-9 flex-1 rounded-full border text-[13px] font-bold", vote === v ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white" : "border-[rgba(17,35,43,.16)]")}>
             {cap(v)}
           </button>
         ))}
@@ -235,12 +232,12 @@ function Warnings() {
     <section className="grid gap-2">
       {list.map((w) => (
         <div key={w.id} className="grid grid-cols-[20px_1fr] gap-2.5 rounded-xl border border-[rgba(232,162,28,.35)] bg-[rgba(232,162,28,.1)] p-3">
-          <AlertTriangle className="mt-0.5 size-[18px] text-[var(--warn-ink)]" aria-hidden />
+          <AlertTriangle className="mt-0.5 size-[18px] text-[#8a5b00]" aria-hidden />
           <div>
             <b className="text-[13.5px]">{w.text}</b>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {w.cards.map((id) => (
-                <button key={id} onClick={() => setTab(id === "diplomacy.proposeDeal" ? "deals" : "moves")} className="rounded-full border border-[var(--input)] bg-card px-2.5 py-0.5 text-[12px] font-semibold">
+                <button key={id} onClick={() => setTab(id === "diplomacy.proposeDeal" ? "deals" : "moves")} className="rounded-full border border-[rgba(17,35,43,.16)] bg-white px-2.5 py-0.5 text-[12px] font-semibold">
                   {cardName(id)}
                 </button>
               ))}
@@ -258,14 +255,13 @@ function CrisisCard({ id, chosen }: { id: string; chosen?: string }) {
   if (!cr) return null;
   const def = cr.choices.find((x) => x.id === cr.defaultChoice)!;
   return (
-    <section className="rounded-xl border border-[rgba(255,77,77,.35)] bg-[linear-gradient(180deg,rgba(255,77,77,.1),transparent_45%),var(--card)] p-3.5 shadow-[0_0_30px_rgba(255,60,60,.12)]">
-      <div className="war-live font-hud text-[10px] font-semibold tracking-[.26em] text-[var(--alert)] uppercase">Decision point</div>
-      <div className="mt-0.5 text-[11.5px] text-ink-3">If you do not choose: {def.label}</div>
-      <h4 className="mt-1.5 text-[17px] font-extrabold">{cr.title}</h4>
+    <section className="rounded-2xl border border-[rgba(17,35,43,.16)] bg-white p-3.5">
+      <div className={eyebrow}>Your call · if you do not choose: {def.label}</div>
+      <h4 className="mt-1 text-[16px] font-extrabold">{cr.title}</h4>
       <p className="text-[13.5px] text-ink-2">{cr.body}</p>
       <div className="mt-2.5 grid gap-1.5">
-        {cr.choices.map((ch, i) => (
-          <button key={ch.id} onClick={() => choose(id, ch.id)} style={{ borderLeftColor: BRANCH[i % BRANCH.length] }} className={cn("rounded-lg border border-l-4 px-3 py-2.5 text-left text-[13.5px] font-bold transition", chosen === ch.id ? "border-[var(--ink-strong)] bg-[rgba(255,255,255,.08)] shadow-[inset_0_0_0_1px_var(--ink-strong)]" : "border-[var(--input)] bg-[rgba(255,255,255,.03)] hover:bg-[rgba(255,255,255,.07)]")}>
+        {cr.choices.map((ch) => (
+          <button key={ch.id} onClick={() => choose(id, ch.id)} className={cn("rounded-xl border px-3 py-2.5 text-left text-[13.5px] font-bold transition", chosen === ch.id ? "border-[var(--ink-strong)] bg-white shadow-[inset_0_0_0_1px_var(--ink-strong)]" : "border-[rgba(17,35,43,.16)] bg-paper")}>
             {ch.label}
             <small className="block text-[12px] font-semibold text-ink-3">{ch.forecast}</small>
           </button>
@@ -351,16 +347,13 @@ function CardTile({ id, onDone }: { id: string; onDone?: () => void }) {
   const cost = cardCost(world, me, card, params);
   const g = GROUP[card.group];
   return (
-    <div
-      style={{ background: `linear-gradient(180deg, ${g.color}26, transparent 58%), var(--card)`, ["--g" as string]: g.color }}
-      className={cn("relative flex min-h-[136px] flex-col gap-1.5 overflow-hidden rounded-[10px] border border-border p-3.5 text-left transition", legal === true ? "hover:-translate-y-0.5 hover:border-[var(--g)] hover:shadow-[0_10px_30px_rgba(0,0,0,.5)]" : "opacity-50")}
-    >
-      <i className="absolute inset-x-0 top-0 h-[3px]" style={{ background: g.color, boxShadow: `0 0 10px ${g.color}` }} />
+    <div className={cn("relative flex min-h-[136px] flex-col gap-1.5 overflow-hidden rounded-[14px] border border-border bg-white p-3.5 text-left transition", legal === true ? "hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]" : "opacity-55")}>
+      <i className="absolute inset-x-0 top-0 h-[3px]" style={{ background: g.color }} />
       <div className="flex items-center justify-between">
-        <span className="font-hud text-[9.5px] font-semibold tracking-[.2em] uppercase brightness-125" style={{ color: g.color }}>
+        <span className="text-[10.5px] font-extrabold tracking-[.14em] uppercase" style={{ color: g.color }}>
           {g.name}
         </span>
-        <span className="font-hud text-[10px] font-semibold text-ink-3">
+        <span className="text-[11px] font-bold text-ink-3">
           {card.pc === 0 ? "free" : `${card.pc} move${card.pc > 1 ? "s" : ""}`}
           {cost ? ` · ${money(cost)}` : ""}
         </span>
@@ -389,7 +382,7 @@ function CardTile({ id, onDone }: { id: string; onDone?: () => void }) {
 
 function ParamPicker({ card, params, onChange }: { card: CardDef; params: CardParams; onChange: (p: CardParams) => void }) {
   const me = useGame((s) => s.setup.me);
-  const sel = "rounded-full border border-[var(--input)] bg-paper px-2 py-0.5 text-[12px] font-bold";
+  const sel = "rounded-full border border-[rgba(17,35,43,.16)] bg-paper px-2 py-0.5 text-[12px] font-bold";
   return (
     <div className="flex flex-wrap gap-1.5">
       {card.params.map((k) => {
@@ -513,7 +506,7 @@ function DealsPane() {
               const give = t.a === me ? t.aGives : t.bGives;
               const get = t.a === me ? t.bGives : t.aGives;
               return (
-                <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-[13px]">
+                <div key={t.id} className="rounded-xl border border-border bg-white p-3 text-[13px]">
                   <b className="flex items-center gap-2">
                     <Flag iso3={other} /> {SHORT[other]} · {t.turnsLeft} year{t.turnsLeft > 1 ? "s" : ""} left
                   </b>
@@ -547,9 +540,9 @@ function PropCard({ p }: { p: UIProposal }) {
   const give = p.inbox ? p.wants : p.gives;
   const get = p.inbox ? p.gives : p.wants;
   const status = p.thinking ? "thinking…" : p.counterOf ? `counter · ${p.status}` : p.status;
-  const color = p.status === "accepted" ? "text-[var(--up)]" : p.status === "rejected" ? "text-[var(--down)]" : p.status === "countered" ? "text-[var(--warn-ink)]" : "text-ink-3";
+  const color = p.status === "accepted" ? "text-[var(--up)]" : p.status === "rejected" ? "text-[var(--down)]" : p.status === "countered" ? "text-[#b47a0a]" : "text-ink-3";
   return (
-    <motion.div layout initial={{ rotateY: 60, opacity: 0 }} animate={{ rotateY: 0, opacity: 1 }} className="grid gap-1.5 rounded-2xl border border-[var(--input)] bg-card p-3 text-[13px]">
+    <motion.div layout initial={{ rotateY: 60, opacity: 0 }} animate={{ rotateY: 0, opacity: 1 }} className="grid gap-1.5 rounded-2xl border border-[rgba(17,35,43,.16)] bg-white p-3 text-[13px]">
       <div className="flex items-center gap-2 font-extrabold">
         <Flag iso3={other} /> {p.inbox ? `${SHORT[other]} offers` : `To ${SHORT[other]}`}
         <span className={cn("ml-auto text-[11px] tracking-[.1em] uppercase", color)}>{status}</span>
@@ -609,14 +602,14 @@ function Composer() {
   };
   const value = c.to ? (() => { const gain = termsValue(world, c.to!, c.gives, c.turns); const cost = termsCost(world, c.to!, c.wants, c.turns); return (gain - cost) / Math.max(1, gain + cost); })() : 0;
   const legal = c.to ? proposalLegal(world, { from: me, to: c.to, gives: c.gives, wants: c.wants, turns: c.turns }) : "Choose a country";
-  const sel = "h-8 rounded-full border border-[var(--input)] bg-card px-2.5 text-[12.5px] font-semibold";
+  const sel = "h-8 rounded-full border border-[rgba(17,35,43,.16)] bg-white px-2.5 text-[12.5px] font-semibold";
   const side = (s: "g" | "w") => (
     <div className="grid gap-1.5">
       <div className="flex flex-wrap gap-1.5">
         {(s === "g" ? c.gives : c.wants).map((t, i) => (
-          <span key={i} className="inline-flex items-center gap-1.5 rounded-full bg-[var(--cta)] py-1 pr-1.5 pl-2.5 text-[12px] font-bold text-[var(--cta-ink)]">
+          <span key={i} className="inline-flex items-center gap-1.5 rounded-full bg-[var(--ink-strong)] py-1 pr-1.5 pl-2.5 text-[12px] font-bold text-white">
             {termWords(t, world, s === "g" ? me : me)}
-            <button aria-label="Remove" className="size-[18px] rounded-full bg-card/20" onClick={() => update(s === "g" ? { gives: c.gives.filter((_, k) => k !== i) } : { wants: c.wants.filter((_, k) => k !== i) })}>
+            <button aria-label="Remove" className="size-[18px] rounded-full bg-white/20" onClick={() => update(s === "g" ? { gives: c.gives.filter((_, k) => k !== i) } : { wants: c.wants.filter((_, k) => k !== i) })}>
               ×
             </button>
           </span>
@@ -638,12 +631,12 @@ function Composer() {
     </div>
   );
   return (
-    <div className="grid gap-3 rounded-2xl border border-dashed border-[var(--input)] bg-gradient-to-b from-card to-paper p-3.5">
+    <div className="grid gap-3 rounded-2xl border border-dashed border-[rgba(17,35,43,.2)] bg-gradient-to-b from-white to-paper p-3.5">
       <div className="grid grid-cols-[62px_1fr] items-start gap-2">
         <b className="pt-1.5 text-[11px] tracking-[.08em] text-ink-3 uppercase">To</b>
         <div className="flex flex-wrap gap-1.5">
           {SEATS.filter((s) => s !== me).map((s) => (
-            <button key={s} onClick={() => update({ to: s })} className={cn("inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[12.5px] font-semibold", c.to === s ? "border-[var(--cta)] bg-[var(--cta)] text-[var(--cta-ink)]" : "border-[var(--input)] bg-card")}>
+            <button key={s} onClick={() => update({ to: s })} className={cn("inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[12.5px] font-semibold", c.to === s ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white" : "border-[rgba(17,35,43,.16)] bg-white")}>
               <Flag iso3={s} /> {SHORT[s]}
             </button>
           ))}
@@ -655,7 +648,7 @@ function Composer() {
         <b className="pt-1.5 text-[11px] tracking-[.08em] text-ink-3 uppercase">Years</b>
         <div className="flex gap-1.5">
           {[2, 3, 4, 5].map((n) => (
-            <button key={n} onClick={() => update({ turns: n })} className={cn("h-7 rounded-full border px-3 text-[12.5px] font-semibold", c.turns === n ? "border-[var(--cta)] bg-[var(--cta)] text-[var(--cta-ink)]" : "border-[var(--input)] bg-card")}>
+            <button key={n} onClick={() => update({ turns: n })} className={cn("h-7 rounded-full border px-3 text-[12.5px] font-semibold", c.turns === n ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white" : "border-[rgba(17,35,43,.16)] bg-white")}>
               {n}
             </button>
           ))}
@@ -668,7 +661,7 @@ function Composer() {
             <span className="text-ink-3">{value > 0.15 ? "Likely yes" : value > -0.2 ? "Maybe: expect a counter" : "Likely no"}</span>
           </div>
           <div className="relative mt-1.5 h-2 rounded-full bg-gradient-to-r from-[var(--conflict)] via-[var(--mixed)] to-[var(--ally)]">
-            <i className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--ink-strong)] bg-card transition-[left] duration-300" style={{ left: `${Math.max(4, Math.min(96, 50 + value * 60))}%` }} />
+            <i className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--ink-strong)] bg-white transition-[left] duration-300" style={{ left: `${Math.max(4, Math.min(96, 50 + value * 60))}%` }} />
           </div>
         </div>
       )}
@@ -720,7 +713,7 @@ function BudgetSection() {
       <p className="mt-1 text-[13.5px] text-ink-2">
         Revenue {money((c.gdp * tax) / 100)} · spending {money((c.gdp * total) / 100)}. Last year’s budget carries over.
       </p>
-      <div className="mt-3 flex h-3 overflow-hidden rounded-full shadow-[inset_0_0_0_1px_var(--line)]" aria-hidden>
+      <div className="mt-3 flex h-3 overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgba(17,35,43,.1)]" aria-hidden>
         {MINISTRIES.map((m) => (
           <i key={m} className="block h-full transition-[flex-grow] duration-300" style={{ flexGrow: b[m], background: MIN_COLOR[m] }} />
         ))}
@@ -777,7 +770,7 @@ function Slider({ label, dot, value, min, max, step, changed, display, sub, onCh
       <input id={id} type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)} className={cn("w-full", changed ? "accent-[var(--gold)]" : "accent-[var(--ink-strong)]")} />
       <div className="text-right text-[13.5px] font-extrabold tabular-nums">
         {display}
-        <small className={cn("block text-[11px] font-bold", changed ? "text-[var(--warn-ink)]" : "text-ink-3")}>{sub}</small>
+        <small className={cn("block text-[11px] font-bold", changed ? "text-[#8a5b00]" : "text-ink-3")}>{sub}</small>
       </div>
     </div>
   );
@@ -804,14 +797,14 @@ function ProjectsSection() {
           const d = PROJECT_BY_ID.get(p.id)!;
           const done = d.turns - p.turnsLeft;
           return (
-            <div key={p.id} className="grid gap-1.5 rounded-xl border border-border bg-card p-3">
+            <div key={p.id} className="grid gap-1.5 rounded-xl border border-border bg-white p-3">
               <div className="flex justify-between text-[13.5px] font-extrabold">
                 {d.name}
                 <span className="text-[12px] text-ink-3 tabular-nums">
                   {done} / {d.turns} years{p.paused ? " · paused: no money" : ""}
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--track)]">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[#e2ded4]">
                 <i className="block h-full bg-[var(--ink-strong)]" style={{ width: `${(done / d.turns) * 100}%` }} />
               </div>
             </div>
@@ -820,7 +813,7 @@ function ProjectsSection() {
         {c.completed.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {c.completed.map((id) => (
-              <span key={id} className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-0.5 text-[12px] font-semibold">
+              <span key={id} className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-2.5 py-0.5 text-[12px] font-semibold">
                 <Check className="size-3" /> {cardName(id)}
               </span>
             ))}
@@ -832,7 +825,7 @@ function ProjectsSection() {
           const legal = starting.includes(p.id) ? "Starting this year" : used >= c.slots ? "No free slot" : projectLegal(world, me, p.id);
           const cost = projectCost(c, p.id);
           return (
-            <button key={p.id} disabled={legal !== true} onClick={() => add(p.id)} className="grid gap-1 rounded-[14px] border border-border bg-card p-3 text-left transition enabled:hover:-translate-y-0.5 enabled:hover:shadow-[var(--shadow-card)] disabled:opacity-50">
+            <button key={p.id} disabled={legal !== true} onClick={() => add(p.id)} className="grid gap-1 rounded-[14px] border border-border bg-white p-3 text-left transition enabled:hover:-translate-y-0.5 enabled:hover:shadow-[var(--shadow-card)] disabled:opacity-50">
               <b className="text-[13.5px]">{p.name}</b>
               <small className="text-[12px] text-ink-2">{p.capability}</small>
               <span className="text-[12px] font-extrabold text-ink-3 tabular-nums">
@@ -875,8 +868,8 @@ function Tray() {
   // multiplayer: only other human leaders can keep the year open (bots and caretakers are always ready)
   const waiting = seats ? seats.filter((s) => !s.you && s.kind === "human" && !s.locked).length : SEATS.filter((s) => s !== me && !botLocks[s]).length;
   return (
-    <div className="grid gap-2.5 border-t border-border bg-[rgba(3,7,12,.6)] px-3.5 pt-3 pb-[calc(14px+env(safe-area-inset-bottom))]" data-coach="lock">
-      <div className="flex items-center justify-between font-hud text-[10px] font-semibold tracking-[.16em] text-[var(--hud-dim)] uppercase">
+    <div className="grid gap-2.5 border-t border-border bg-white/70 px-3.5 pt-3 pb-[calc(14px+env(safe-area-inset-bottom))]" data-coach="lock">
+      <div className="flex items-center justify-between text-[11px] font-extrabold tracking-[.1em] text-ink-3 uppercase">
         <span>Your orders · {world.year}</span>
         <span className="flex items-center gap-2 tabular-nums">
           Moves <MoveDots left={left} total={world.countries[me].pc} /> · {money(committed)}
@@ -886,7 +879,7 @@ function Tray() {
         {chips.length === 0 && <span className="text-[12.5px] text-ink-3">Nothing yet. Doing nothing is a valid choice.</span>}
         <AnimatePresence initial={false}>
           {chips.map((c) => (
-            <motion.span key={c.label} layout initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className={cn("inline-flex items-center gap-1.5 rounded-[10px] border py-1 pr-1.5 pl-2.5 text-[12px] font-bold", locking ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-transparent" : "border-[var(--input)] bg-card")}>
+            <motion.span key={c.label} layout initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className={cn("inline-flex items-center gap-1.5 rounded-[10px] border py-1 pr-1.5 pl-2.5 text-[12px] font-bold", locking ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-transparent" : "border-[rgba(17,35,43,.16)] bg-white")}>
               {c.label}
               {c.remove && !locking && (
                 <button aria-label={`Remove ${c.label}`} onClick={c.remove} className="size-[18px] rounded-full bg-paper text-[12px] text-ink-2">
@@ -897,7 +890,7 @@ function Tray() {
           ))}
         </AnimatePresence>
       </div>
-      <Btn className={cn("min-h-[50px] w-full rounded-[10px] font-hud text-[13px] tracking-[.22em] uppercase shadow-[0_0_26px_rgba(103,232,249,.28)]", locking && "bg-paper text-ink-2 shadow-none")} onClick={lock} disabled={locking}>
+      <Btn className={cn("min-h-[50px] w-full text-[15.5px]", locking && "bg-paper text-ink-2 shadow-none")} onClick={lock} disabled={locking}>
         {locking ? `Waiting for ${waiting || "no"} leader${waiting === 1 ? "" : "s"}…` : "Lock turn"}
       </Btn>
     </div>

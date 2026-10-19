@@ -65,19 +65,19 @@ export function PickScreen() {
     focus(CAPITAL[me][0], CAPITAL[me][1], 2.6, 1600);
   };
   return (
-    <div className="fixed inset-0 z-40 overflow-y-auto bg-[radial-gradient(ellipse_at_center,rgba(3,6,12,.45),rgba(0,0,0,.72))] backdrop-blur-[3px]">
+    <div className="fixed inset-0 z-40 overflow-y-auto bg-[rgba(243,241,236,.55)] backdrop-blur-[6px]">
       <div className="grid min-h-full place-items-center p-5 max-md:p-2.5">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: ease.out }}
-          className="glass w-[min(1120px,100%)] overflow-hidden rounded-2xl bg-[rgba(6,11,18,.86)] shadow-[0_40px_120px_rgba(0,0,0,.7)] backdrop-blur-2xl"
+          className="w-[min(1120px,100%)] overflow-hidden rounded-[26px] border border-white/70 bg-white/92 shadow-[0_40px_100px_rgba(17,35,43,.22),0_2px_8px_rgba(17,35,43,.06)] backdrop-blur-2xl"
           role="dialog"
           aria-labelledby="pick-title"
         >
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border px-8 pt-7 pb-6 max-md:px-5">
             <div>
-              <div className={cn(eyebrow, "war-live !text-[var(--alert)]")}>Statecraft · solo match against 5 bots · about 20 minutes</div>
+              <div className={eyebrow}>Statecraft · solo match against 5 bots · about 20 minutes</div>
               <h2 id="pick-title" className="mt-2 font-display text-[clamp(34px,4.4vw,54px)] leading-none font-semibold tracking-tight">
                 Who will you lead?
               </h2>
@@ -89,7 +89,7 @@ export function PickScreen() {
 
           <div className="grid grid-cols-[300px_1fr] max-lg:grid-cols-1">
             {/* the six seats */}
-            <div className="grid content-start gap-1.5 border-r border-border bg-[rgba(255,255,255,.02)] p-4 max-lg:grid-cols-3 max-lg:border-r-0 max-lg:border-b max-sm:grid-cols-2">
+            <div className="grid content-start gap-1.5 border-r border-border bg-[rgba(243,241,236,.55)] p-4 max-lg:grid-cols-3 max-lg:border-r-0 max-lg:border-b max-sm:grid-cols-2">
               {SEATS.map((s) => {
                 const on = me === s;
                 return (
@@ -103,11 +103,11 @@ export function PickScreen() {
                     }}
                     className={cn(
                       "relative flex items-center gap-3 overflow-hidden rounded-2xl border px-3.5 py-3 text-left transition",
-                      on ? "border-[var(--gold)] bg-[rgba(242,179,61,.08)] shadow-[0_0_0_1px_var(--gold),0_0_24px_rgba(242,179,61,.18)]" : "border-transparent hover:bg-[var(--hover)]",
+                      on ? "border-[var(--gold)] bg-white shadow-[0_0_0_1px_var(--gold),0_10px_24px_rgba(17,35,43,.08)]" : "border-transparent hover:bg-white/70",
                     )}
                   >
                     <i className="absolute inset-y-2.5 left-0 w-1 rounded-r-full transition-opacity" style={{ background: SEAT_COLOR[s], opacity: on ? 1 : 0 }} />
-                    <Flag iso3={s} className="h-[22px] !w-[32px] !bg-cover rounded-[3px] shadow-[0_0_0_1px_rgba(255,255,255,.12)]" />
+                    <Flag iso3={s} className="h-[22px] !w-[32px] !bg-cover rounded-[4px] shadow-[0_0_0_1px_rgba(17,35,43,.08)]" />
                     <span className="min-w-0 flex-1">
                       <b className="block truncate text-[15px] max-sm:whitespace-normal max-sm:leading-tight">{NAMES[s]}</b>
                       <small className="block truncate text-[12px] text-ink-3 max-lg:hidden">{PITCH[s]}</small>
@@ -121,17 +121,17 @@ export function PickScreen() {
             {/* the chosen seat */}
             <motion.div key={me} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: ease.out }} className="grid content-start gap-6 p-8 max-md:p-5">
               <div className="flex items-center gap-4">
-                <Flag iso3={me} className="h-[46px] !w-[68px] !bg-cover rounded-md shadow-[0_0_0_1px_rgba(255,255,255,.14),0_0_30px_rgba(242,179,61,.25)]" />
+                <Flag iso3={me} className="h-[46px] !w-[68px] !bg-cover rounded-lg shadow-[0_0_0_1px_rgba(17,35,43,.08),0_8px_20px_rgba(17,35,43,.14)]" />
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2.5">
                     <h3 className="font-display text-[34px] leading-none font-semibold tracking-tight">{NAMES[me]}</h3>
-                    <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-extrabold tracking-[.1em] uppercase", DIFF[me] === "Hard" ? "bg-[rgba(229,72,77,.1)] text-[var(--down)]" : "bg-[rgba(232,162,28,.14)] text-[var(--warn-ink)]")}>{DIFF[me]}</span>
+                    <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-extrabold tracking-[.1em] uppercase", DIFF[me] === "Hard" ? "bg-[rgba(229,72,77,.1)] text-[var(--down)]" : "bg-[rgba(232,162,28,.14)] text-[#8a5d0b]")}>{DIFF[me]}</span>
                   </div>
                   <p className="mt-1.5 text-[15.5px] text-ink-2">{PITCH[me]}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 overflow-hidden rounded-lg border border-border bg-[rgba(255,255,255,.03)]">
+              <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-border">
                 {(
                   [
                     ["Economy", money(c.gdp)],
@@ -140,8 +140,8 @@ export function PickScreen() {
                   ] as const
                 ).map(([l, v]) => (
                   <div key={l} className="border-border px-4 py-3 not-last:border-r">
-                    <div className="font-hud text-[9.5px] font-semibold tracking-[.2em] text-[var(--hud-dim)] uppercase">{l}</div>
-                    <div className="mt-1 font-hud text-[20px] font-bold tabular-nums">{v}</div>
+                    <div className="text-[11px] font-bold text-ink-3">{l}</div>
+                    <div className="mt-0.5 text-[20px] font-extrabold tabular-nums">{v}</div>
                   </div>
                 ))}
               </div>
@@ -151,9 +151,8 @@ export function PickScreen() {
                 <Traits label="Weak spots" items={WEAK[me]} />
               </div>
 
-              <div className="relative overflow-hidden rounded-lg border border-[rgba(242,179,61,.45)] bg-gradient-to-br from-[rgba(242,179,61,.16)] to-[rgba(242,179,61,.02)] px-5 py-4">
-                <i aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-[var(--gold)] shadow-[0_0_12px_var(--gold)]" />
-                <div className="flex items-center gap-2 font-hud text-[10px] font-semibold tracking-[.24em] text-[var(--gold)] uppercase">
+              <div className="rounded-2xl border border-[rgba(242,179,61,.5)] bg-gradient-to-br from-[rgba(242,179,61,.14)] to-[rgba(242,179,61,.03)] px-5 py-4">
+                <div className="flex items-center gap-2 text-[11px] font-extrabold tracking-[.14em] text-[#8a5d0b] uppercase">
                   <Target /> Your mission
                 </div>
                 <p className="mt-1.5 text-[17px] font-bold">{missionTitle}</p>
@@ -170,7 +169,7 @@ export function PickScreen() {
                     placeholder={LEADERS[me]}
                     value={setup.leader}
                     onChange={(e) => setSetup({ leader: e.target.value })}
-                    className="h-11 w-[220px] rounded-xl border border-[var(--input)] bg-card px-4 text-[14.5px] font-semibold outline-none focus:border-[var(--ink)] focus:ring-2 focus:ring-[var(--hover)]"
+                    className="h-11 w-[220px] rounded-xl border border-[rgba(17,35,43,.16)] bg-white px-4 text-[14.5px] font-semibold outline-none focus:border-[var(--ink)] focus:ring-2 focus:ring-[rgba(17,35,43,.1)]"
                   />
                   <div className="flex flex-wrap gap-2">
                     {Array.from({ length: 8 }, (_, i) => (
@@ -192,7 +191,7 @@ export function PickScreen() {
           </div>
 
           {/* match settings */}
-          <div className="grid grid-cols-[1.5fr_1fr_.8fr] gap-5 border-t border-border bg-[rgba(255,255,255,.02)] px-8 py-5 max-lg:grid-cols-2 max-md:grid-cols-1 max-md:px-5">
+          <div className="grid grid-cols-[1.5fr_1fr_.8fr] gap-5 border-t border-border bg-[rgba(243,241,236,.55)] px-8 py-5 max-lg:grid-cols-2 max-md:grid-cols-1 max-md:px-5">
             <Setting label="Scenario" hint={SCENARIOS[setup.scenario].brief}>
               {(Object.keys(SCENARIOS) as ScenarioId[]).map((id) => (
                 <Seg key={id} on={setup.scenario === id} onClick={() => setSetup({ scenario: id })}>
@@ -219,7 +218,7 @@ export function PickScreen() {
 
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border px-8 py-5 max-md:px-5">
             <span className="text-[13px] text-ink-3">Your first match has a short guided tour. You can skip it.</span>
-            <Btn className="min-h-12 min-w-[240px] rounded-[10px] px-7 text-[15px] shadow-[0_0_30px_rgba(103,232,249,.3)] max-sm:w-full" onClick={begin}>
+            <Btn className="min-h-12 min-w-[240px] px-7 text-[15px] max-sm:w-full" onClick={begin}>
               Take office as {SHORT[me]} <ArrowRight className="size-4" aria-hidden />
             </Btn>
           </div>
@@ -234,7 +233,7 @@ function Difficulty({ d }: { d: "Medium" | "Hard" }) {
   return (
     <span role="img" aria-label={`${d} difficulty`} title={`${d} difficulty`} className="flex items-end gap-[3px]">
       {[1, 2, 3].map((i) => (
-        <i key={i} className={cn("w-1 rounded-full", i <= n ? (d === "Hard" ? "bg-[var(--down)]" : "bg-[var(--mixed)]") : "bg-[var(--track)]")} style={{ height: 5 + i * 3 }} />
+        <i key={i} className={cn("w-1 rounded-full", i <= n ? (d === "Hard" ? "bg-[var(--down)]" : "bg-[var(--mixed)]") : "bg-[rgba(17,35,43,.12)]")} style={{ height: 5 + i * 3 }} />
       ))}
     </span>
   );
@@ -269,7 +268,7 @@ function Setting({ label, hint, children }: { label: string; hint?: string; chil
   return (
     <div role="group" aria-label={label}>
       <div className={eyebrow}>{label}</div>
-      <div className="mt-2 inline-flex flex-wrap gap-1 rounded-xl border border-border bg-card p-1">{children}</div>
+      <div className="mt-2 inline-flex flex-wrap gap-1 rounded-xl border border-border bg-white p-1">{children}</div>
       {hint && <p className="mt-2 max-w-[52ch] text-[12.5px] text-ink-3">{hint}</p>}
     </div>
   );
@@ -281,7 +280,7 @@ function Seg({ on, onClick, children }: { on: boolean; onClick: () => void; chil
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={cn("h-8 rounded-lg px-3 text-[13px] font-semibold whitespace-nowrap transition", on ? "bg-[var(--cta)] text-[var(--cta-ink)] shadow-sm" : "text-ink-2 hover:bg-paper hover:text-ink")}
+      className={cn("h-8 rounded-lg px-3 text-[13px] font-semibold whitespace-nowrap transition", on ? "bg-[var(--ink-strong)] text-white shadow-sm" : "text-ink-2 hover:bg-paper hover:text-ink")}
     >
       {children}
     </button>
@@ -296,7 +295,7 @@ export function Reveal() {
   const prev = useGame((s) => s.prev);
   const record = useGame((s) => s.record);
   const me = useGame((s) => s.setup.me);
-  const [beat, setBeat] = useState<"title" | "moves" | "prices" | "vote" | "done" | "completed" | null>(null);
+  const [beat, setBeat] = useState<"moves" | "prices" | "vote" | "done" | "completed" | null>(null);
   const [shown, setShown] = useState(0);
   const skip = useRef(false);
 
@@ -320,10 +319,6 @@ export function Reveal() {
     const g = useGame.getState();
     (async () => {
       focus(28, 60, 4.4, 1300);
-      setBeat("title");
-      sound.lock();
-      await wait(1500);
-      if (!alive) return;
       setBeat("moves");
       setShown(0);
       for (let i = 1; i <= 6; i++) {
@@ -390,16 +385,6 @@ export function Reveal() {
   return (
     <div className="pointer-events-none fixed inset-0 z-30">
       <AnimatePresence>
-        {beat === "title" && (
-          <motion.div key="title" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="absolute inset-0 grid place-items-center bg-[radial-gradient(ellipse_50%_38%_at_center,rgba(0,0,0,.72),transparent)] text-center text-white">
-            <div>
-              <div className="font-hud text-[12px] font-semibold tracking-[.5em] text-[var(--hud-dim)] uppercase">Orders are in</div>
-              <div className="my-3 text-[clamp(34px,5.6vw,76px)] leading-none font-extrabold tracking-[-.01em] [text-shadow:0_4px_30px_rgba(0,0,0,.9)]">The world moves</div>
-              <div className="font-hud text-[15px] font-semibold tracking-[.3em] text-[#fbbf24]">{record.year}</div>
-              <motion.div initial={{ width: 0 }} animate={{ width: 180 }} transition={{ duration: 1.2, delay: 0.2, ease: ease.out }} className="mx-auto mt-3.5 h-0.5 bg-[var(--alert)] shadow-[0_0_12px_var(--alert)]" />
-            </div>
-          </motion.div>
-        )}
         {beat === "moves" && (
           <motion.div exit={{ opacity: 0 }} className="absolute top-[104px] left-1/2 flex w-[min(1000px,calc(100%-32px))] -translate-x-1/2 flex-wrap justify-center gap-2.5 [perspective:900px]">
             {SEATS.map((s, i) => (
@@ -408,11 +393,10 @@ export function Reveal() {
                 initial={{ rotateY: 90, opacity: 0 }}
                 animate={i < shown ? { rotateY: 0, opacity: 1 } : {}}
                 transition={{ duration: 0.45, ease: ease.out }}
-                style={{ borderTopColor: SEAT_COLOR[s] }}
-                className={cn("grid min-h-[92px] w-[150px] content-start gap-1.5 rounded-md border border-t-2 border-[rgba(140,190,230,.2)] bg-[rgba(6,11,18,.86)] p-3 shadow-[0_14px_40px_rgba(0,0,0,.6)] backdrop-blur-xl max-md:w-[calc(33%-8px)]", s === me && "shadow-[0_0_0_1px_var(--gold),0_0_26px_rgba(242,179,61,.35)]")}
+                className={cn("grid min-h-[92px] w-[150px] gap-1.5 rounded-[14px] bg-white p-3 shadow-[var(--shadow-card)] max-md:w-[calc(33%-8px)]", s === me && "shadow-[0_0_0_2px_var(--gold),var(--shadow-card)]")}
               >
-                <div className="flex items-center gap-1.5 font-hud text-[10px] font-semibold tracking-[.18em] text-[var(--hud-dim)] uppercase">
-                  <Flag iso3={s} /> {SHORT[s]} · dispatch
+                <div className="flex items-center gap-1.5 text-[12px] font-extrabold">
+                  <Flag iso3={s} /> {SHORT[s]}
                 </div>
                 <p className="text-[12.5px] leading-snug font-bold">{record.moves[s] ?? "Held steady"}</p>
               </motion.div>
@@ -428,11 +412,11 @@ export function Reveal() {
                 ["Chips", "tech"],
               ] as const
             ).map(([n, g]) => (
-              <span key={g} className="rounded-md border border-[rgba(140,190,230,.22)] bg-[var(--night)] px-3.5 py-2 font-hud text-[13px] font-semibold tracking-[.06em] text-white">
+              <span key={g} className="rounded-full bg-[var(--night)] px-3.5 py-2 text-[13.5px] font-bold text-white">
                 {n} {p0[g].toFixed(0)} → <b>{p1[g].toFixed(0)}</b> {p1[g] > p0[g] + 0.5 ? "▲" : p1[g] < p0[g] - 0.5 ? "▼" : ""}
               </span>
             ))}
-            {record.eventId && <span className="w-full text-center text-[22px] font-extrabold text-white [text-shadow:0_2px_14px_#000]"><span className="mb-1 block font-hud text-[10.5px] font-semibold tracking-[.4em] text-[var(--alert)]">Breaking</span>{EVENT_BY_ID.get(record.eventId)?.title}</span>}
+            {record.eventId && <span className="w-full text-center font-display text-[17px] text-ink italic">{EVENT_BY_ID.get(record.eventId)?.title}</span>}
           </motion.div>
         )}
         {(beat === "vote" || beat === "completed") && (
@@ -441,14 +425,14 @@ export function Reveal() {
             animate={{ opacity: 1, scale: 1, rotate: -6 }}
             exit={{ opacity: 0 }}
             transition={{ type: "spring", bounce: 0.45, duration: 0.5 }}
-            className="absolute top-[42%] left-1/2 -translate-x-1/2 rounded-md border-[3px] border-current bg-[rgba(4,8,14,.88)] px-5 py-2 font-hud text-[28px] font-bold tracking-[.18em] uppercase shadow-[0_0_40px_currentColor]"
+            className="absolute top-[42%] left-1/2 -translate-x-1/2 rounded-lg border-[3px] border-current bg-white/90 px-5 py-2 text-[28px] font-extrabold tracking-[.16em] uppercase"
             style={{ color: beat === "completed" ? "#B9821A" : vote?.passed ? "var(--ally)" : "var(--conflict)" }}
           >
             {beat === "completed" ? "Completed" : vote?.passed ? `Passed ${SEATS.filter((s) => vote.votes[s] === "yes").length}–${SEATS.filter((s) => vote.votes[s] === "no").length}` : "Vote failed"}
           </motion.div>
         )}
       </AnimatePresence>
-      <button type="button" onClick={() => (skip.current = true)} className="pointer-events-auto fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-1/2 z-[31] -translate-x-1/2 rounded-md border border-[rgba(140,190,230,.3)] bg-[rgba(4,8,14,.85)] px-4 py-2 font-hud text-[12px] font-semibold tracking-[.2em] text-ink uppercase hover:border-[var(--intel)]">
+      <button type="button" onClick={() => (skip.current = true)} className="pointer-events-auto fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 rounded-full border border-border bg-white/90 px-4 py-2 text-[13px] font-bold shadow-[var(--shadow-card)]">
         Skip ▸▸
       </button>
     </div>
@@ -506,7 +490,7 @@ export function EndScreen() {
   const link = `${location.origin}/play/h/${encodeShare(share)}`;
   const text = `My Statecraft: ${SHORT[me]} ${years}. Power rank #${r0} → #${r1}. Leader Score ${mine.total}${winner === me ? " (winner)" : ""}. "${ach}" ${link}`;
   return (
-    <div className="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-[radial-gradient(ellipse_at_center,rgba(3,6,12,.5),rgba(0,0,0,.78))] p-5 backdrop-blur-[3px]">
+    <div className="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-[rgba(243,241,236,.55)] p-5 backdrop-blur-[4px]">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={cn(glass, "w-[min(1060px,100%)] p-7 max-md:p-5")} role="dialog" aria-labelledby="end-title">
         <div className={eyebrow}>
           {SCENARIOS[world.scenario].name} · {years}
@@ -527,7 +511,7 @@ export function EndScreen() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 + (st.length - i) * 0.18 }}
-                  className={cn("grid grid-cols-[28px_36px_1fr_auto] items-center gap-3 rounded-2xl border bg-card px-3 py-2.5", i === 0 ? "border-[var(--gold)] bg-gradient-to-r from-[rgba(242,179,61,.22)] to-card shadow-[0_0_24px_rgba(242,179,61,.2)]" : "border-border")}
+                  className={cn("grid grid-cols-[28px_36px_1fr_auto] items-center gap-3 rounded-2xl border bg-white px-3 py-2.5", i === 0 ? "border-[var(--gold)] bg-gradient-to-r from-[rgba(242,179,61,.28)] to-white" : "border-border")}
                 >
                   <span className="text-center font-extrabold">{i === 0 ? <Crown /> : i + 1}</span>
                   <Portrait i={SEATS.indexOf(x.iso3)} seat={SEAT_COLOR[x.iso3]} size={32} />
@@ -562,12 +546,12 @@ export function EndScreen() {
             </div>
             <div className="mt-5">
               <div className={eyebrow}>Your world history</div>
-              <div className="mt-2 rounded-lg border border-border border-l-[3px] border-l-[var(--intel)] bg-[var(--wire-paper)] px-4 py-1.5">
+              <div className="mt-2 rounded-xl border border-[rgba(122,92,46,.2)] bg-[var(--wire-paper)] px-4 py-1.5">
                 {history.map((h) => (
-                  <div key={h.y} className="grid grid-cols-[60px_1fr] gap-3 border-b border-dashed border-border py-2.5 last:border-0">
-                    <span className="font-hud text-[17px] font-bold text-[var(--wire)]">{h.y}</span>
+                  <div key={h.y} className="grid grid-cols-[60px_1fr] gap-3 border-b border-dashed border-[rgba(122,92,46,.25)] py-2.5 last:border-0">
+                    <span className="font-display text-[21px] font-semibold text-[var(--wire)]">{h.y}</span>
                     <div>
-                      <p className="text-[14.5px] font-semibold text-[var(--wire-ink)]">{h.head}</p>
+                      <p className="font-display text-[15px] text-[var(--wire-ink)] italic">{h.head}</p>
                       <small className="text-[12px] text-ink-2">Your move: {h.move}</small>
                     </div>
                   </div>
@@ -591,11 +575,11 @@ export function EndScreen() {
               >
                 {copied ? "Link copied" : "Copy share link"}
               </Btn>
-              <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-full px-4 text-[14px] font-bold text-ink-2 hover:bg-[var(--hover)]">
+              <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-full px-4 text-[14px] font-bold text-ink-2 hover:bg-[rgba(17,35,43,.05)]">
                 Open share page
               </a>
               {online ? (
-                <Link href="/play" className="inline-flex min-h-11 items-center rounded-full bg-[var(--gold)] px-5 text-[14px] font-bold text-[#0f1d24]">
+                <Link href="/play" className="inline-flex min-h-11 items-center rounded-full bg-[var(--gold)] px-5 text-[14px] font-bold text-[var(--ink-strong)]">
                   Back to the Play page
                 </Link>
               ) : (
@@ -699,8 +683,8 @@ export function Coach() {
   const top = Math.max(80, Math.min(window.innerHeight - 170, rect.top));
   return (
     <div className="pointer-events-none fixed inset-0 z-[35]">
-      <div className="absolute rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,.55)] ring-2 ring-[var(--gold)] transition-all duration-300" style={{ left: rect.left - 6, top: rect.top - 6, width: rect.width + 12, height: rect.height + 12 }} />
-      <motion.div key={step} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="pointer-events-auto absolute w-[320px] rounded-xl border border-[rgba(242,179,61,.45)] bg-[rgba(8,13,20,.95)] p-4 shadow-[0_0_30px_rgba(242,179,61,.2)]" style={{ left: rect.left - 340 < 12 ? left : rect.left - 340, top }}>
+      <div className="absolute rounded-2xl shadow-[0_0_0_9999px_rgba(15,29,36,.32)] ring-2 ring-[var(--gold)] transition-all duration-300" style={{ left: rect.left - 6, top: rect.top - 6, width: rect.width + 12, height: rect.height + 12 }} />
+      <motion.div key={step} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="pointer-events-auto absolute w-[320px] rounded-2xl bg-white p-4 shadow-[var(--shadow-card)]" style={{ left: rect.left - 340 < 12 ? left : rect.left - 340, top }}>
         <div className={eyebrow}>
           Guided first match · {step + 1} of {COACH.length}
         </div>

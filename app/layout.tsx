@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, JetBrains_Mono, Manrope } from "next/font/google";
+import { Fraunces, Manrope } from "next/font/google";
 import { Providers } from "./providers";
 import "flag-icons/css/flag-icons.min.css";
 import { Analytics } from "@vercel/analytics/next";
@@ -17,13 +17,6 @@ const fraunces = Fraunces({
   axes: ["opsz"],
 });
 
-// Statecraft's situation-room HUD only; not preloaded, so other pages never fetch it.
-const hudMono = JetBrains_Mono({
-  variable: "--font-jbmono",
-  subsets: ["latin"],
-  preload: false,
-});
-
 export const metadata: Metadata = {
   title: "GeoPolitics",
   description: "The world, explained: wars, alliances, money and power on one living globe.",
@@ -36,7 +29,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${manrope.variable} ${fraunces.variable} ${hudMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${manrope.variable} ${fraunces.variable} h-full antialiased`}>
       <body className="min-h-full">
         <Providers>{children}</Providers>
         {/* Vercel serves the analytics script; elsewhere it would only 404. */}

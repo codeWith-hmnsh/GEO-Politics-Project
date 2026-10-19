@@ -57,16 +57,15 @@ export function ResultView() {
           {r1 !== r0 && <Delta v={r0 - r1} d={0} className="text-[15px]" />}
         </h2>
 
-        <section className="relative mt-4 overflow-hidden rounded-xl border border-[rgba(103,232,249,.35)] bg-[linear-gradient(135deg,rgba(103,232,249,.14),rgba(103,232,249,.02)_60%)] p-4 text-ink">
-          <i aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-[var(--intel)] shadow-[0_0_12px_var(--intel)]" />
-          <div className="font-hud text-[10px] font-semibold tracking-[.24em] text-[var(--intel)] uppercase">What your decisions did</div>
-          <p className="mt-1 text-[12.5px] text-ink-2">Compared with the same year if you had done nothing.</p>
+        <section className="mt-4 rounded-2xl bg-gradient-to-br from-[#1A2C35] to-[var(--ink-strong)] p-4 text-[var(--paper)]">
+          <div className="text-[11px] font-extrabold tracking-[.14em] text-white/60 uppercase">What your decisions did</div>
+          <p className="mt-1 text-[12.5px] text-white/70">Compared with the same year if you had done nothing.</p>
           {impacts.length ? (
             <div className="mt-2.5 grid grid-cols-2 gap-2">
               {impacts.map(([label, v, d, inv]) => (
-                <div key={label} className="rounded-lg border border-border bg-[rgba(255,255,255,.04)] px-3 py-2">
-                  <div className="font-hud text-[9.5px] font-semibold tracking-[.14em] text-[var(--hud-dim)] uppercase">{label}</div>
-                  <div className={cn("text-[18px] font-extrabold tabular-nums", (inv ? v < 0 : v > 0) ? "text-[var(--up)]" : "text-[var(--down)]")}>{signed(v, d)}</div>
+                <div key={label} className="rounded-xl bg-white/8 px-3 py-2">
+                  <div className="text-[11.5px] font-bold text-white/60">{label}</div>
+                  <div className={cn("text-[18px] font-extrabold tabular-nums", (inv ? v < 0 : v > 0) ? "text-[#7fe0a8]" : "text-[#ff8f92]")}>{signed(v, d)}</div>
                 </div>
               ))}
             </div>
@@ -74,7 +73,7 @@ export function ResultView() {
             <p className="mt-2 text-[13.5px] font-semibold">No visible change this year. Projects and deals often pay off later.</p>
           )}
           {world.countries[me].projects.length > 0 && (
-            <p className="mt-2.5 text-[12.5px] text-ink-2">
+            <p className="mt-2.5 text-[12.5px] text-white/75">
               Building: {world.countries[me].projects.map((p) => `${PROJECT_BY_ID.get(p.id)?.name} (ready ${world.year - 1 + p.turnsLeft})`).join(", ")}
             </p>
           )}
@@ -97,8 +96,8 @@ export function ResultView() {
           </div>
         )}
       </div>
-      <div className="border-t border-border bg-[rgba(3,7,12,.6)] px-3.5 pt-3 pb-[calc(14px+env(safe-area-inset-bottom))]">
-        <Btn className="min-h-[50px] w-full rounded-[10px] font-hud text-[13px] tracking-[.18em] uppercase shadow-[0_0_26px_rgba(103,232,249,.28)]" onClick={next} data-coach="continue">
+      <div className="border-t border-border bg-white/70 px-3.5 pt-3 pb-[calc(14px+env(safe-area-inset-bottom))]">
+        <Btn className="min-h-[50px] w-full text-[15.5px]" onClick={next} data-coach="continue">
           {world.ended ? "See how the match ended" : `Continue to ${world.year}`} <ChevronRight className="size-4" />
         </Btn>
       </div>
@@ -147,7 +146,7 @@ function WhyChain({ field, causes, me }: { field: string; causes: Cause[]; me: I
   return (
     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
       <div className="grid gap-0 pt-2.5 pl-2">
-        {main.length === 0 && <div className="rounded-xl border border-border bg-card px-3 py-2 text-[13px] font-semibold text-ink-2">Nothing big changed this. It moved with the economy.</div>}
+        {main.length === 0 && <div className="rounded-xl border border-border bg-white px-3 py-2 text-[13px] font-semibold text-ink-2">Nothing big changed this. It moved with the economy.</div>}
         {main.map((c, k) => {
           const chain = whyChain(causes, c.id);
           const nodes = chain.length > 1 ? chain : [c];
@@ -159,10 +158,10 @@ function WhyChain({ field, causes, me }: { field: string; causes: Cause[]; me: I
                 return (
                   <div key={node.id}>
                     {j > 0 && <motion.span initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay }} className="ml-5 block h-3.5 w-0.5 origin-top bg-ink-3" />}
-                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }} className={cn("flex justify-between gap-2.5 rounded-xl border px-3 py-2 text-[13px] font-bold", j === 0 && nodes.length > 1 ? "border-[var(--cta)] bg-[var(--cta)] text-[var(--cta-ink)]" : "border-[var(--input)] bg-card")}>
+                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }} className={cn("flex justify-between gap-2.5 rounded-xl border px-3 py-2 text-[13px] font-bold", j === 0 && nodes.length > 1 ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white" : "border-[rgba(17,35,43,.16)] bg-white")}>
                       <span>
                         {causeText(node)}
-                        {actor && <small className={cn("font-semibold", j === 0 && nodes.length > 1 ? "opacity-70" : "text-ink-3")}> · {actor}</small>}
+                        {actor && <small className={cn("font-semibold", j === 0 && nodes.length > 1 ? "text-white/70" : "text-ink-3")}> · {actor}</small>}
                       </span>
                       <small className="font-semibold whitespace-nowrap tabular-nums opacity-80">{causeValue(node)}</small>
                     </motion.div>

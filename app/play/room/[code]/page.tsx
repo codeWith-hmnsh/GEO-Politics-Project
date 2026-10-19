@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 // Private multiplayer room: lobby, then the shared match (docs4.0 BUILD-PLAN S5).
 export default function RoomPage({ params }: Props) {
   return (
-    <Suspense fallback={<main className="min-h-dvh bg-[#03060b]" />}>
+    <Suspense fallback={<main className="min-h-dvh bg-paper" />}>
       <Room params={params} />
     </Suspense>
   );
