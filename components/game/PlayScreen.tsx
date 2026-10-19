@@ -87,6 +87,7 @@ export function PlayScreen({ online }: { online?: { matchId: string; code: strin
         className="pointer-events-none fixed inset-0"
         style={{ background: "radial-gradient(48% 62% at 50% 52%, #d7e3ea 0%, rgba(215,227,234,.6) 45%, rgba(243,241,236,0) 75%), linear-gradient(180deg,#f6f4ef,#efede7)" }}
       />
+      <div aria-hidden className="pointer-events-none fixed inset-0 bg-[radial-gradient(rgba(17,35,43,.07)_1px,transparent_1.2px)] [background-size:22px_22px] [mask-image:radial-gradient(70%_70%_at_50%_50%,transparent_35%,#000_75%)]" />
       <GlobeClient variant="game">
         <SeatLabels />
       </GlobeClient>
@@ -182,7 +183,7 @@ function TopBar() {
           </div>
         </div>
       </div>
-      <div className={cn(glass, "pointer-events-auto flex items-center gap-3 py-2 pr-4 pl-3")}>
+      <div className={cn(glass, "pointer-events-auto flex items-center gap-3 py-2 pr-5 pl-4")}>
         {setup.timed && (
           <div className="relative size-11">
             <svg viewBox="0 0 46 46" className="size-11 -rotate-90">
@@ -194,15 +195,31 @@ function TopBar() {
             </span>
           </div>
         )}
-        <div className="leading-none">
-          <div className="font-display text-[26px] font-semibold tabular-nums max-md:text-[20px]">{year}</div>
-          <small className="text-[11.5px] font-semibold text-ink-3">{phase === "locking" ? (view ? "Locked · waiting for the others" : "Leaders are locking…") : phase === "reveal" ? "The world moves" : phase === "result" ? "Year resolved" : `Year ${Math.min(12, world.turn)} of 12${paused ? " · paused" : ""}`}</small>
+        <div className="grid justify-items-center leading-none">
+          <div className="font-display text-[28px] font-semibold tabular-nums max-md:text-[20px]">{year}</div>
+          <small className="mt-0.5 text-[11.5px] font-semibold text-ink-3">{phase === "locking" ? (view ? "Locked · waiting for the others" : "Leaders are locking…") : phase === "reveal" ? "The world moves" : phase === "result" ? "Year resolved" : `Year ${Math.min(12, world.turn)} of 12${paused ? " · paused" : ""}`}</small>
+          <span aria-hidden className="mt-1.5 flex gap-[3px]">
+            {Array.from({ length: 12 }, (_, i) => {
+              const done = i < world.turn - 1;
+              const now = i === world.turn - 1 && !world.ended && phase !== "reveal" && phase !== "result";
+              return <i key={i} className={cn("h-1 w-2.5 rounded-full transition-colors max-md:w-1.5", done ? "bg-[var(--gold)]" : now ? "animate-pulse bg-[var(--ink-strong)]" : "bg-[#e2ded4]")} />;
+            })}
+          </span>
         </div>
       </div>
       <div className="pointer-events-auto flex items-center gap-2 justify-self-end max-md:hidden">
-        <div className={cn(glass, "flex items-center gap-2 px-4 py-2.5 font-extrabold")}>
-          <small className="text-[10.5px] tracking-[.12em] text-ink-3">POWER RANK</small> #{r}
-          {r !== r0 && <Delta v={r0 - r} d={0} />}
+        <div className={cn(glass, "flex items-center gap-4 px-4 py-2")}>
+          <div className="leading-none">
+            <small className="block text-[10px] font-extrabold tracking-[.12em] text-ink-3">POWER RANK</small>
+            <span className="mt-1 flex items-center gap-1.5 font-display text-[22px] font-semibold tabular-nums">
+              #{r}
+              {r !== r0 && <Delta v={r0 - r} d={0} className="font-sans text-[12px]" />}
+            </span>
+          </div>
+          <div className="border-l border-border pl-4 leading-none" title={`World tension ${world.tension.toFixed(0)} of 100`}>
+            <small className="block text-[10px] font-extrabold tracking-[.12em] text-ink-3">WORLD TENSION</small>
+            <TensionMeter v={world.tension} />
+          </div>
         </div>
         <IconBtn label="World view (V): influence, all treaties and sanctions" on={worldView} onClick={() => useGame.getState().toggleWorldView()}>
           <Globe2 className="size-[18px]" />
@@ -231,6 +248,23 @@ function TopBar() {
   );
 }
 
+const TENSION_WORD = ["Calm", "Calm", "Guarded", "Elevated", "High", "Severe"];
+
+/** World tension (0–100) as five steps: amber, then red from step 4. */
+function TensionMeter({ v }: { v: number }) {
+  const lvl = Math.max(1, Math.min(5, Math.ceil(v / 20)));
+  return (
+    <span className="mt-1.5 flex items-center gap-2">
+      <span role="img" aria-label={`World tension ${v.toFixed(0)}: ${TENSION_WORD[lvl]}`} className="flex gap-[3px]">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <i key={i} className={cn("h-2 w-3 rounded-[2px] transition-colors duration-700", i > lvl ? "bg-[#e2ded4]" : lvl >= 4 ? "bg-[var(--conflict)]" : "bg-[var(--mixed)]")} />
+        ))}
+      </span>
+      <b className={cn("text-[12px] font-extrabold", lvl >= 4 ? "text-[var(--down)]" : "text-ink-2")}>{TENSION_WORD[lvl]}</b>
+    </span>
+  );
+}
+
 function IconBtn({ label, on, onClick, children }: { label: string; on?: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button type="button" aria-label={label} title={label} aria-pressed={on} onClick={onClick} className={cn("grid size-[42px] place-items-center rounded-full border border-border shadow-[var(--shadow-card)] transition", on ? "bg-[var(--ink-strong)] text-white" : "bg-white/90 text-ink-2 hover:text-ink")}>
@@ -251,6 +285,7 @@ function Rail() {
   const order = [...SEATS].sort((a, b) => r[a] - r[b]);
   const sanctions = SEATS.reduce((t, a) => t + SEATS.filter((b) => b !== a && world.pairs[a][b].sanction).length, 0);
   const led = REGIONS.filter((x) => world.regions[x].leader === me).length;
+  const top = Math.max(...SEATS.map((s) => world.power[s].at(-1) ?? 0));
   return (
     <aside aria-label="World Power Index" className={cn(glass, "fixed top-[92px] left-4 z-20 w-[272px] p-4 max-[1100px]:w-[244px] max-md:hidden")}>
       <div className="flex items-center justify-between">
@@ -267,7 +302,7 @@ function Rail() {
           const showLock = online ? human && (phase === "plan" || phase === "locking") : phase === "locking";
           return (
             <motion.li key={s} layout transition={{ type: "spring", bounce: 0.2, visualDuration: 0.5 }} className={cn("grid grid-cols-[16px_30px_1fr_auto] items-center gap-2.5 rounded-xl px-1.5 py-2", s === me && "bg-[rgba(242,179,61,.16)] shadow-[inset_0_0_0_1px_rgba(242,179,61,.5)]")}>
-              <span className="text-[13px] font-extrabold text-ink-3">{r[s]}</span>
+              <span className="font-display text-[16px] font-semibold text-ink-3">{r[s]}</span>
               <Portrait i={seat ? seat.portrait : SEATS.indexOf(s)} seat={SEAT_COLOR[s]} size={28} />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 truncate text-[13.5px] font-bold">
@@ -277,10 +312,13 @@ function Rail() {
                 {human && s !== me && <small className="block truncate text-[11px] font-semibold text-ink-3">{seat.leader}</small>}
                 {seat?.kind === "caretaker" && <small className="block text-[11px] font-semibold text-ink-3">Away · bot is caretaker</small>}
                 {trend(world, s, "economy") !== "unchanging" && <TrendChip t={trend(world, s, "economy")} />}
+                <span aria-hidden className="mt-1 block h-1 overflow-hidden rounded-full bg-[#ece9e1]">
+                  <i className="block h-full rounded-full transition-[width] duration-700" style={{ width: `${((world.power[s].at(-1) ?? 0) / top) * 100}%`, background: SEAT_COLOR[s] }} />
+                </span>
               </div>
-              <div className="text-right">
-                <div className="text-[15px] font-extrabold tabular-nums">{(world.power[s].at(-1) ?? 0).toFixed(1)}</div>
-                {showLock && <span className={cn("inline-block size-2 rounded-full border-2", locked ? "border-[var(--ally)] bg-[var(--ally)]" : "border-ink-3")} title={locked ? "Locked" : "Thinking"} />}
+              <div className="flex items-center gap-1.5">
+                {showLock && <span className={cn("inline-block size-2 rounded-full border-2", locked ? "border-[var(--ally)] bg-[var(--ally)]" : "animate-pulse border-ink-3")} title={locked ? "Locked" : "Thinking"} />}
+                <span className="text-[15px] font-extrabold tabular-nums">{(world.power[s].at(-1) ?? 0).toFixed(1)}</span>
               </div>
             </motion.li>
           );

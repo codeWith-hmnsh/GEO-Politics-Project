@@ -81,6 +81,7 @@
   --summit: #3f63d8;
   --nuclear: #e8c21c;
   --gold: #f2b33d;
+  --gold-ink: #9a6a0c; /* gold as text on paper: 4.5:1 */
 
   /* Statecraft game tokens (docs4.0/UI-DESIGN.md §4.2) */
   --you: var(--gold);

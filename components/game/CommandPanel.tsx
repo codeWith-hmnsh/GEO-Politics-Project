@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Check, ChevronRight, Handshake, Hammer, Sparkles, Wallet } from "lucide-react";
+import { AlertTriangle, CalendarDays, Check, ChevronRight, Handshake, Hammer, Lock, SlidersHorizontal, Sparkles, Wallet, Zap } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -22,12 +22,14 @@ import { cn } from "@/lib/utils";
 import { Btn, Delta, MoveDots, eyebrow, glass } from "./bits";
 import { ResultView } from "./ResultView";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "year", label: "This year" },
-  { id: "moves", label: "Moves" },
-  { id: "deals", label: "Deals" },
-  { id: "advanced", label: "Advanced" },
+const TABS: { id: Tab; label: string; icon: typeof Zap }[] = [
+  { id: "year", label: "This year", icon: CalendarDays },
+  { id: "moves", label: "Moves", icon: Zap },
+  { id: "deals", label: "Deals", icon: Handshake },
+  { id: "advanced", label: "Advanced", icon: SlidersHorizontal },
 ];
+/** Left-edge colours for a crisis's choices, so each option reads as its own path. */
+const BRANCH = ["#3F63D8", "#E8A21C", "#E5484D", "#7A4FD0"];
 const GROUP: Record<CardDef["group"], { name: string; color: string }> = {
   economy: { name: "Economy", color: "#3F63D8" },
   trade: { name: "Trade", color: "#17A2B8" },
@@ -57,17 +59,18 @@ export function CommandPanel() {
         <ResultView />
       ) : (
         <>
-          <nav role="tablist" className="flex gap-1 border-b border-border px-2.5 pt-2.5" data-coach="tabs">
+          <nav role="tablist" className="m-2.5 mb-0 flex gap-1 rounded-[14px] bg-[rgba(17,35,43,.05)] p-1" data-coach="tabs">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 role="tab"
                 aria-selected={tab === t.id}
                 onClick={() => setTab(t.id)}
-                className={cn("relative flex-1 border-b-2 px-1 pt-2 pb-3 text-[13px] font-bold transition-colors", tab === t.id ? "border-[var(--ink-strong)] text-ink" : "border-transparent text-ink-3 hover:text-ink")}
+                className={cn("relative flex flex-1 items-center justify-center gap-1.5 rounded-[10px] px-1 py-2 text-[12.5px] font-bold transition", tab === t.id ? "bg-white text-ink shadow-[0_2px_8px_rgba(17,35,43,.12)]" : "text-ink-3 hover:text-ink")}
               >
+                <t.icon className="size-3.5 max-[1100px]:hidden" aria-hidden />
                 {t.label}
-                {t.id === "deals" && inbox > 0 && <span className="absolute top-0.5 right-2 grid size-4 place-items-center rounded-full bg-[var(--conflict)] text-[10px] text-white">{inbox}</span>}
+                {t.id === "deals" && inbox > 0 && <span className="absolute -top-1 -right-0.5 grid size-4 place-items-center rounded-full bg-[var(--conflict)] text-[10px] text-white ring-2 ring-white">{inbox}</span>}
               </button>
             ))}
           </nav>
@@ -119,10 +122,13 @@ function YearPane() {
       </div>
 
       {goal && (
-        <section data-coach="goal" className="rounded-2xl bg-gradient-to-br from-[#1A2C35] to-[var(--ink-strong)] p-4 text-[var(--paper)]">
-          <div className="text-[11px] font-extrabold tracking-[.14em] text-white/60 uppercase">Your goal this year</div>
-          <h3 className="mt-1 font-display text-[22px] font-semibold">{goal.title}</h3>
-          <p className="mt-1 text-[13.5px] text-white/75">{goal.detail}</p>
+        <section data-coach="goal" className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1A2C35] to-[var(--ink-strong)] p-4 text-[var(--paper)] shadow-[0_14px_34px_rgba(15,29,36,.28)]">
+          <i aria-hidden className="pointer-events-none absolute -top-12 -right-12 size-40 rounded-full bg-[radial-gradient(circle,rgba(242,179,61,.42),transparent_70%)]" />
+          <div className="relative flex items-center gap-1.5 text-[11px] font-extrabold tracking-[.14em] text-[var(--gold)] uppercase">
+            <TargetIcon /> Your goal this year
+          </div>
+          <h3 className="relative mt-1 font-display text-[23px] font-semibold">{goal.title}</h3>
+          <p className="relative mt-1 text-[13.5px] text-white/75">{goal.detail}</p>
           {goal.metric && <GoalBar m={goal.metric} />}
         </section>
       )}
@@ -133,10 +139,12 @@ function YearPane() {
         </div>
         <div className="grid gap-2">
           {recs.length === 0 && <p className="text-[13.5px] text-ink-3">No more moves recommended. You can lock the turn, or explore Moves and Deals.</p>}
-          {recs.map((r) => (
-            <div key={`${r.kind}-${r.kind === "deal" ? r.to : r.id}`} className="grid grid-cols-[34px_1fr_auto] items-center gap-3 rounded-2xl border border-border bg-white p-3">
-              <span className="grid size-[34px] place-items-center rounded-xl bg-paper text-ink-2">
+          {recs.map((r, i) => (
+            <div key={`${r.kind}-${r.kind === "deal" ? r.to : r.id}`} className="relative grid grid-cols-[34px_1fr_auto] items-center gap-3 overflow-hidden rounded-2xl border border-border bg-white p-3 transition hover:shadow-[var(--shadow-card)]">
+              <i aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: REC_COLOR[r.kind] }} />
+              <span className="relative grid size-[34px] place-items-center rounded-xl" style={{ background: `${REC_COLOR[r.kind]}1a`, color: REC_COLOR[r.kind] }}>
                 {r.kind === "card" ? <Sparkles className="size-4" /> : r.kind === "project" ? <Hammer className="size-4" /> : <Handshake className="size-4" />}
+                <b className="absolute -top-1.5 -left-1.5 grid size-[18px] place-items-center rounded-full bg-[var(--ink-strong)] text-[10px] text-white ring-2 ring-white">{i + 1}</b>
               </span>
               <div className="min-w-0">
                 <div className="text-[14px] leading-snug font-extrabold">{r.title}</div>
@@ -255,13 +263,17 @@ function CrisisCard({ id, chosen }: { id: string; chosen?: string }) {
   if (!cr) return null;
   const def = cr.choices.find((x) => x.id === cr.defaultChoice)!;
   return (
-    <section className="rounded-2xl border border-[rgba(17,35,43,.16)] bg-white p-3.5">
-      <div className={eyebrow}>Your call · if you do not choose: {def.label}</div>
-      <h4 className="mt-1 text-[16px] font-extrabold">{cr.title}</h4>
+    <section className="overflow-hidden rounded-2xl border border-[rgba(229,72,77,.3)] bg-white shadow-[0_10px_30px_rgba(229,72,77,.08)]">
+      <div className="flex items-center gap-2 bg-[rgba(229,72,77,.08)] px-3.5 py-2 text-[11px] font-extrabold tracking-[.14em] text-[var(--down)] uppercase">
+        <AlertTriangle className="size-3.5" aria-hidden /> Decision · your call
+      </div>
+      <div className="p-3.5 pt-3">
+      <div className="text-[12px] font-semibold text-ink-3">If you do not choose: {def.label}</div>
+      <h4 className="mt-1 font-display text-[19px] leading-tight font-semibold">{cr.title}</h4>
       <p className="text-[13.5px] text-ink-2">{cr.body}</p>
       <div className="mt-2.5 grid gap-1.5">
-        {cr.choices.map((ch) => (
-          <button key={ch.id} onClick={() => choose(id, ch.id)} className={cn("rounded-xl border px-3 py-2.5 text-left text-[13.5px] font-bold transition", chosen === ch.id ? "border-[var(--ink-strong)] bg-white shadow-[inset_0_0_0_1px_var(--ink-strong)]" : "border-[rgba(17,35,43,.16)] bg-paper")}>
+        {cr.choices.map((ch, i) => (
+          <button key={ch.id} onClick={() => choose(id, ch.id)} style={{ borderLeftColor: BRANCH[i % BRANCH.length] }} className={cn("rounded-xl border border-l-4 px-3 py-2.5 text-left text-[13.5px] font-bold transition", chosen === ch.id ? "border-[var(--ink-strong)] bg-white shadow-[inset_0_0_0_1px_var(--ink-strong),0_6px_16px_rgba(17,35,43,.1)]" : "border-[rgba(17,35,43,.16)] bg-paper hover:bg-white")}>
             {ch.label}
             <small className="block text-[12px] font-semibold text-ink-3">{ch.forecast}</small>
           </button>
@@ -278,7 +290,20 @@ function CrisisCard({ id, chosen }: { id: string; chosen?: string }) {
           <b className="text-ink-3">People:</b> {cr.advisors.people}
         </p>
       </div>
+      </div>
     </section>
+  );
+}
+
+const REC_COLOR: Record<"card" | "project" | "deal", string> = { card: "#3F63D8", project: "#B9821A", deal: "#2FA36B" };
+
+function TargetIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="4.5" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" />
+    </svg>
   );
 }
 
@@ -347,7 +372,7 @@ function CardTile({ id, onDone }: { id: string; onDone?: () => void }) {
   const cost = cardCost(world, me, card, params);
   const g = GROUP[card.group];
   return (
-    <div className={cn("relative flex min-h-[136px] flex-col gap-1.5 overflow-hidden rounded-[14px] border border-border bg-white p-3.5 text-left transition", legal === true ? "hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]" : "opacity-55")}>
+    <div style={{ background: `linear-gradient(180deg, ${g.color}14, #fff 55%)` }} className={cn("relative flex min-h-[136px] flex-col gap-1.5 overflow-hidden rounded-[14px] border border-border p-3.5 text-left transition", legal === true ? "hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]" : "opacity-55")}>
       <i className="absolute inset-x-0 top-0 h-[3px]" style={{ background: g.color }} />
       <div className="flex items-center justify-between">
         <span className="text-[10.5px] font-extrabold tracking-[.14em] uppercase" style={{ color: g.color }}>
@@ -891,6 +916,7 @@ function Tray() {
         </AnimatePresence>
       </div>
       <Btn className={cn("min-h-[50px] w-full text-[15.5px]", locking && "bg-paper text-ink-2 shadow-none")} onClick={lock} disabled={locking}>
+        {!locking && <Lock className="size-4" aria-hidden />}
         {locking ? `Waiting for ${waiting || "no"} leader${waiting === 1 ? "" : "s"}…` : "Lock turn"}
       </Btn>
     </div>
