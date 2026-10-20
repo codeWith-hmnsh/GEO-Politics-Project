@@ -207,13 +207,13 @@ export function PlayLanding() {
                     ["/play/quiz", "3 min", "Daily Quiz", "Play today's quiz"],
                   ] as const
                 ).map(([href, time, name, cta], i) => (
-                  <Link key={href} href={href} className={cn("group flex items-end justify-between gap-4 px-6 py-7 transition-colors duration-300 hover:bg-[var(--ink-strong)] hover:text-white max-md:px-4 max-md:py-5", i > 0 && "border-l border-[var(--ink-strong)] max-md:border-t max-md:border-l-0")}>
+                  <Link key={href} href={href} className={cn("group flex items-end justify-between gap-4 px-6 py-7 transition-colors duration-300 hover:bg-[var(--gold)] max-md:px-4 max-md:py-5", i > 0 && "border-l border-[var(--ink-strong)] max-md:border-t max-md:border-l-0")}>
                     <span>
-                      <span className="block text-[11px] font-extrabold tracking-[.18em] text-ink-3 uppercase transition-colors group-hover:text-[var(--gold)]">{time}</span>
+                      <span className="block text-[11px] font-extrabold tracking-[.18em] text-ink-3 uppercase transition-colors group-hover:text-[var(--ink-strong)]/70">{time}</span>
                       <b className="mt-1 block font-display text-[30px] leading-none font-semibold tracking-tight">{name}</b>
-                      <span className="mt-2 block text-[13.5px] font-bold text-ink-2 transition-colors group-hover:text-white/70">{cta}</span>
+                      <span className="mt-2 block text-[13.5px] font-bold text-ink-2 transition-colors group-hover:text-[var(--ink-strong)]">{cta}</span>
                     </span>
-                    <ArrowRight className="size-6 shrink-0 transition duration-300 group-hover:translate-x-1.5 group-hover:text-[var(--gold)]" aria-hidden />
+                    <ArrowRight className="size-6 shrink-0 transition duration-300 group-hover:translate-x-1.5" aria-hidden />
                   </Link>
                 ))}
               </div>
