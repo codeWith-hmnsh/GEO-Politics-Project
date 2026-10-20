@@ -800,10 +800,13 @@ function Slider({ label, dot, value, min, max, step, changed, display, sub, onCh
   );
 }
 
+/** One shared empty list: a selector that returned a fresh `[]` each time re-rendered forever. */
+const NO_PROJECTS: string[] = [];
+
 function ProjectsSection() {
   const world = useGame((s) => s.world)!;
   const me = useGame((s) => s.setup.me);
-  const starting = useGame((s) => s.orders.projects ?? []);
+  const starting = useGame((s) => s.orders.projects ?? NO_PROJECTS);
   const add = useGame((s) => s.addProject);
   const c = world.countries[me];
   const used = c.projects.length + starting.length;
