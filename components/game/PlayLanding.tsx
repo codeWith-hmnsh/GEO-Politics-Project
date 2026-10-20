@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Briefcase, Scale, Ship } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -20,8 +20,9 @@ import { CAPITAL, NAMES, SEAT_COLOR, SHORT } from "@/lib/game/text";
 import { useGlobe } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Portrait, eyebrow, glass } from "./bits";
+import { PlayGames } from "./PlayGames";
 import { RoomButtons } from "./RoomButtons";
-import { DIFF, PITCH, STRONG } from "./seats";
+import { DIFF, PITCH, STRONG, WEAK } from "./seats";
 
 /**
  * Statecraft Play page (UI-DESIGN §5.2): the 1.0 globe stays fixed behind a long scroll. The hero and the
@@ -220,6 +221,7 @@ export function PlayLanding() {
 
       {/* the rest of the page covers the globe */}
       <div className="relative z-10 bg-paper">
+        <PlayGames />
         <Countries />
         <WhyDemo />
         <RankDemo />
@@ -230,12 +232,20 @@ export function PlayLanding() {
             <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_75%_at_50%_0%,rgba(242,179,61,.22),transparent_65%)]" />
             <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 size-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[.07]" />
             <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 size-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[.07]" />
-            <div className={cn(eyebrow, "relative text-[var(--gold)]")}>Statecraft</div>
-            <h2 className="relative font-display text-[clamp(40px,5.6vw,76px)] leading-none font-semibold tracking-tight">Your country is waiting.</h2>
-            <p className="relative max-w-[44ch] text-[17px] text-white/70">Twelve years, five rivals, one shared world. See how far you can take it.</p>
-            <Link href="/play/match" className="relative inline-flex min-h-12 items-center gap-2 rounded-full bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] px-7 text-[15px] font-bold text-[var(--ink-strong)] shadow-[0_10px_28px_rgba(242,179,61,.35)] transition active:scale-[.97]">
-              Start a match <ArrowRight className="size-4" />
-            </Link>
+            <div className={cn(eyebrow, "relative text-[var(--gold)]")}>Three games · one world</div>
+            <h2 className="relative font-display text-[clamp(40px,5.6vw,76px)] leading-none font-semibold tracking-tight">The world is waiting.</h2>
+            <p className="relative max-w-[44ch] text-[17px] text-white/70">Three minutes or twenty. Pick a game and see how far you can take it.</p>
+            <div className="relative flex flex-wrap justify-center gap-2.5">
+              <Link href="/play/match" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] px-7 text-[15px] font-bold text-[var(--ink-strong)] shadow-[0_10px_28px_rgba(242,179,61,.35)] transition active:scale-[.97]">
+                Start a match <ArrowRight className="size-4" />
+              </Link>
+              <Link href="/play/crisis" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-white/[.06] px-6 text-[15px] font-bold text-white transition hover:bg-white/[.12] active:scale-[.97]">
+                Crisis Table
+              </Link>
+              <Link href="/play/quiz" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-white/[.06] px-6 text-[15px] font-bold text-white transition hover:bg-white/[.12] active:scale-[.97]">
+                Today&apos;s quiz
+              </Link>
+            </div>
           </div>
         </section>
         <footer className="border-t border-border px-5 py-7 text-[13px] text-ink-3">
@@ -249,7 +259,7 @@ export function PlayLanding() {
   );
 }
 
-const Band = ({ children, className }: { children: React.ReactNode; className?: string }) => <section className={cn("mx-auto max-w-[1240px] px-5 py-24 max-md:py-16", className)}>{children}</section>;
+const Band = ({ children, className }: { children: React.ReactNode; className?: string }) => <section className={cn("mx-auto max-w-[1240px] px-5 py-20 max-md:py-14", className)}>{children}</section>;
 
 function useStartWorld() {
   return useMemo(() => createWorld(SEED_2026, { matchId: "play-page", seed: 2026, scenario: "energyShock" }), []);
@@ -257,46 +267,57 @@ function useStartWorld() {
 
 function Countries() {
   return (
-    <Band>
+    <Band className="pt-10">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <div className={eyebrow}>Six seats</div>
-          <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-tight font-semibold">Who will you lead?</h2>
+          <div className={eyebrow}>Statecraft · six seats</div>
+          <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-[1.05] font-semibold tracking-tight">Who will you lead?</h2>
         </div>
         <p className="max-w-[46ch] text-[16px] text-ink-2">Every country starts from real 2025 data and carries its real problem. Pick the one you want to fix.</p>
       </div>
-      <div className="mt-10 grid grid-cols-3 gap-5 max-lg:grid-cols-2 max-sm:grid-cols-1">
+      <div className="mt-10 grid grid-cols-3 gap-4 max-lg:grid-cols-2 max-sm:grid-cols-1">
         {SEATS.map((s, i) => (
           <motion.div key={s} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ delay: (i % 3) * 0.07, duration: 0.5 }}>
             <Link
               href={`/play/match?country=${s}`}
-              className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-border bg-white shadow-[0_1px_2px_rgba(17,35,43,.04),0_12px_32px_rgba(17,35,43,.07)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_50px_rgba(17,35,43,.14)]"
+              aria-label={`Lead ${NAMES[s]}`}
+              className="group relative flex h-full flex-col overflow-hidden rounded-[22px] border border-border bg-white p-5 shadow-[0_1px_2px_rgba(17,35,43,.04),0_10px_28px_rgba(17,35,43,.06)] transition duration-300 hover:-translate-y-1 hover:border-[rgba(17,35,43,.16)] hover:shadow-[0_22px_48px_rgba(17,35,43,.12)]"
             >
-              <div className="relative h-[118px] overflow-hidden">
-                <Flag iso3={s} className="absolute inset-0 !h-full !w-full !rounded-none !bg-cover transition duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(15,29,36,.82)] via-[rgba(15,29,36,.25)] to-transparent" />
-                <div className="absolute inset-x-5 bottom-3.5 flex items-end justify-between gap-3 text-white">
-                  <b className="font-display text-[28px] leading-none font-semibold tracking-tight [text-shadow:0_2px_12px_rgba(0,0,0,.35)]">{NAMES[s]}</b>
-                  <span className={cn("rounded-full px-2.5 py-0.5 text-[10.5px] font-extrabold tracking-[.12em] uppercase backdrop-blur", DIFF[s] === "Hard" ? "bg-[rgba(229,72,77,.85)]" : "bg-white/25")}>{DIFF[s]}</span>
-                </div>
+              <i aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-[.18] transition duration-500 group-hover:scale-x-100" style={{ background: SEAT_COLOR[s] }} />
+              <div className="flex items-center gap-3.5">
+                <span className="grid h-11 w-[62px] shrink-0 overflow-hidden rounded-lg shadow-[0_4px_12px_rgba(17,35,43,.16)] ring-1 ring-black/5">
+                  <Flag iso3={s} className="!h-full !w-full !rounded-none !bg-cover" />
+                </span>
+                <span className="min-w-0">
+                  <b className="block font-display text-[23px] leading-tight font-semibold tracking-tight">{NAMES[s]}</b>
+                  <span className="text-[12.5px] font-semibold text-ink-3">{PITCH[s]}</span>
+                </span>
               </div>
-              <div className="flex flex-1 flex-col gap-4 p-5">
-                <p className="text-[15.5px] font-semibold">{PITCH[s]}</p>
-                <ul className="flex flex-wrap gap-1.5">
+              <div className="mt-4 grid gap-2 text-[12px] font-bold">
+                <span className="flex flex-wrap items-center gap-1.5">
+                  <span className="w-[52px] text-[10.5px] font-extrabold tracking-[.1em] text-ink-3 uppercase">Strong</span>
                   {STRONG[s].map((t) => (
-                    <li key={t} className="rounded-full bg-paper px-2.5 py-1 text-[12px] font-bold text-ink-2">
+                    <span key={t} className="rounded-full bg-[rgba(47,163,107,.1)] px-2 py-0.5 text-[var(--up)]">
                       {t}
-                    </li>
+                    </span>
                   ))}
-                </ul>
-                <p className="mt-auto flex items-start gap-2 border-t border-border pt-4 text-[13px] text-ink-2">
-                  <span className="mt-0.5 size-2 shrink-0 rounded-full" style={{ background: SEAT_COLOR[s] }} />
-                  <span>
-                    <b className="text-ink">Mission:</b> {MISSIONS[s].text.split(": ")[0]}
-                  </span>
-                </p>
-                <span className="flex items-center justify-between rounded-xl bg-[var(--ink-strong)] px-4 py-2.5 text-[13.5px] font-bold text-white transition group-hover:bg-[#1b313b]">
-                  Lead {SHORT[s]} <ArrowRight className="size-4 transition group-hover:translate-x-1" />
+                </span>
+                <span className="flex flex-wrap items-center gap-1.5">
+                  <span className="w-[52px] text-[10.5px] font-extrabold tracking-[.1em] text-ink-3 uppercase">Weak</span>
+                  {WEAK[s].map((t) => (
+                    <span key={t} className="rounded-full bg-[rgba(229,72,77,.08)] px-2 py-0.5 text-[var(--down)]">
+                      {t}
+                    </span>
+                  ))}
+                </span>
+              </div>
+              <div className="mt-auto flex items-center gap-3 border-t border-border pt-4">
+                <span className="min-w-0 flex-1 text-[13px] text-ink-2">
+                  <b className="text-ink">Mission</b> · {MISSIONS[s].text.split(": ")[0]}
+                </span>
+                <span className={cn("rounded-full px-2 py-0.5 text-[10.5px] font-extrabold tracking-[.1em] uppercase", DIFF[s] === "Hard" ? "bg-[rgba(229,72,77,.1)] text-[var(--down)]" : "bg-paper text-ink-2")}>{DIFF[s]}</span>
+                <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-paper text-ink transition duration-300 group-hover:bg-[var(--ink-strong)] group-hover:text-white">
+                  <ArrowUpRight className="size-4 transition group-hover:rotate-45" />
                 </span>
               </div>
             </Link>
@@ -434,6 +455,7 @@ function RankDemo() {
 }
 
 function Learn() {
+  const icons = { Trade: Ship, Jobs: Briefcase, Markets: Scale } as const;
   const tiles = [
     ["Trade", "Sanctions leakage", "Sanctions rarely stop trade fully. Goods find other buyers at a discount, through third countries.", "In the game: part of a sanctioned country's oil still reaches the market, at a lower price."],
     ["Jobs", "Okun's law", "A growing workforce needs growth just to keep unemployment flat. Faster growth cuts it; slower growth raises it.", "In the game: India needs about 6.5% growth before unemployment starts to fall."],
@@ -444,14 +466,22 @@ function Learn() {
       <div className={eyebrow}>Learn by leading</div>
       <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-tight font-semibold">You will meet real ideas.</h2>
       <div className="mt-9 grid grid-cols-3 gap-4 max-md:grid-cols-1">
-        {tiles.map(([tag, t, d, ex]) => (
-          <div key={t} className="grid gap-3 rounded-[18px] border border-border bg-white p-5">
-            <span className="justify-self-start rounded-full border border-border px-2.5 py-0.5 text-[12px] font-bold text-ink-2">{tag}</span>
-            <h3 className="font-display text-[23px] font-semibold">{t}</h3>
-            <p className="text-[14.5px] text-ink-2">{d}</p>
-            <p className="rounded-xl bg-paper px-3 py-2.5 text-[13px] font-bold">{ex}</p>
-          </div>
-        ))}
+        {tiles.map(([tag, t, d, ex]) => {
+          const Icon = icons[tag as keyof typeof icons];
+          return (
+            <div key={t} className="flex flex-col gap-3 rounded-[22px] border border-border bg-white p-6 shadow-[0_1px_2px_rgba(17,35,43,.04),0_10px_28px_rgba(17,35,43,.05)]">
+              <span className="flex items-center gap-2.5">
+                <span className="grid size-10 place-items-center rounded-xl bg-paper text-ink">
+                  <Icon className="size-[18px]" aria-hidden />
+                </span>
+                <span className={eyebrow}>{tag}</span>
+              </span>
+              <h3 className="font-display text-[24px] leading-tight font-semibold">{t}</h3>
+              <p className="text-[14.5px] leading-relaxed text-ink-2">{d}</p>
+              <p className="mt-auto rounded-xl border-l-[3px] border-[var(--gold)] bg-paper px-3.5 py-2.5 text-[13px] leading-snug font-semibold text-ink">{ex}</p>
+            </div>
+          );
+        })}
       </div>
     </Band>
   );
@@ -459,24 +489,28 @@ function Learn() {
 
 function Faq() {
   const qa = [
-    ["How long is a match?", "Twelve years, about 20 minutes. There is no timer in solo unless you turn it on."],
-    ["Do I need friends online?", "No. Today you play solo against five bots. Rooms with friends and Quick Match come with multiplayer."],
-    ["Is there a war?", "Not in this version. Military strength works through deterrence and security. Economy, trade and diplomacy decide the match."],
-    ["How is the winner chosen?", "By Leader Score: how much you improved your country compared with doing nothing, plus your mission, your rank climb and the scenario objectives."],
-    ["Is it free?", "Yes. No download, no login. Nothing you can buy will give power in ranked play."],
+    ["Which game should I start with?", "Short on time? Play today's Then · Now · Next quiz, three minutes. Want to bluff and bargain? Take a seat at the Crisis Table, about ten. Want to run a country properly? Start a Statecraft match, about twenty."],
+    ["Do I need friends online?", "No. Every game works solo, with bots in the other seats. In Statecraft you can also create a room and share the code with friends."],
+    ["Is there a war?", "No battles. Military strength works through deterrence and security, and at the Crisis Table you can choose to escalate, with consequences. Economy, trade and diplomacy decide who wins."],
+    ["How is the winner chosen?", "In Statecraft and the Crisis Table, by how much you improved your own country from where it started, plus your mission or secret agenda. So India or Saudi Arabia can beat the USA."],
+    ["Where do the questions and numbers come from?", "Starting data comes from the IMF and the World Bank. Quiz headlines come from the live news feed, and anything simulated is labelled."],
+    ["Is it free?", "Yes. No download and no login. Nothing you can buy will give power in ranked play."],
   ];
   return (
-    <Band>
-      <div className={eyebrow}>Questions</div>
-      <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-tight font-semibold">Before you take office</h2>
-      <div className="mt-7 grid max-w-[760px] gap-2.5">
+    <Band className="grid grid-cols-[.8fr_1.2fr] gap-12 max-lg:grid-cols-1 max-lg:gap-8">
+      <div className="self-start lg:sticky lg:top-28">
+        <div className={eyebrow}>Questions</div>
+        <h2 className="mt-2 font-display text-[clamp(32px,3.6vw,48px)] leading-[1.05] font-semibold tracking-tight">Before you take office</h2>
+        <p className="mt-3 max-w-[36ch] text-[16px] text-ink-2">Everything you need to know in a minute. The rest you learn by playing.</p>
+      </div>
+      <div className="grid gap-2.5">
         {qa.map(([q, a]) => (
-          <details key={q} className="group rounded-[14px] border border-border bg-white px-5 py-4">
-            <summary className="flex cursor-pointer list-none justify-between gap-3 font-extrabold">
+          <details key={q} className="group rounded-[18px] border border-border bg-white px-5 py-4 shadow-[0_1px_2px_rgba(17,35,43,.03)] transition open:shadow-[0_12px_30px_rgba(17,35,43,.08)]">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[15.5px] font-extrabold">
               {q}
-              <span className="text-ink-3 group-open:rotate-45">+</span>
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-paper text-[16px] text-ink-2 transition group-open:rotate-45 group-open:bg-[var(--ink-strong)] group-open:text-white">+</span>
             </summary>
-            <p className="mt-2 text-ink-2">{a}</p>
+            <p className="mt-2.5 text-[14.5px] leading-relaxed text-ink-2">{a}</p>
           </details>
         ))}
       </div>
