@@ -187,24 +187,36 @@ export function PlayLanding() {
         <WhyDemo />
         <RankDemo />
         <Faq />
-        <section className="px-5 pt-6 pb-20">
-          <div className="relative mx-auto grid max-w-[1240px] justify-items-center gap-6 overflow-hidden rounded-[32px] bg-[var(--ink-strong)] px-6 py-24 text-center text-white shadow-[0_30px_80px_rgba(15,29,36,.3)] max-md:py-16">
-            <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_75%_at_50%_0%,rgba(242,179,61,.22),transparent_65%)]" />
-            <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 size-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[.07]" />
-            <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 size-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[.07]" />
-            <div className={cn(eyebrow, "relative text-[var(--gold)]")}>Three games · one world</div>
-            <h2 className="relative font-display text-[clamp(40px,5.6vw,76px)] leading-none font-semibold tracking-tight">The world is waiting.</h2>
-            <p className="relative max-w-[44ch] text-[17px] text-white/70">Three minutes or twenty. Pick a game and see how far you can take it.</p>
-            <div className="relative flex flex-wrap justify-center gap-2.5">
-              <Link href="/play/match" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] px-7 text-[15px] font-bold text-[var(--ink-strong)] shadow-[0_10px_28px_rgba(242,179,61,.35)] transition active:scale-[.97]">
-                Start a match <ArrowRight className="size-4" />
-              </Link>
-              <Link href="/play/crisis" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-white/[.06] px-6 text-[15px] font-bold text-white transition hover:bg-white/[.12] active:scale-[.97]">
-                Crisis Table
-              </Link>
-              <Link href="/play/quiz" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-white/[.06] px-6 text-[15px] font-bold text-white transition hover:bg-white/[.12] active:scale-[.97]">
-                Today&apos;s quiz
-              </Link>
+        <section className="px-5 pt-8 pb-20">
+          <div className="mx-auto max-w-[1240px] border-y-[5px] border-[var(--ink-strong)] py-1.5">
+            <div className="border-y border-[var(--ink-strong)] px-8 pt-5 pb-0 max-md:px-4">
+              <div className="flex items-center justify-between gap-4 text-[11px] font-extrabold tracking-[.2em] text-ink-2 uppercase max-md:justify-center">
+                <span className="max-md:hidden">The play edition</span>
+                <span>Three games · one world</span>
+                <span className="max-md:hidden">Free · no login</span>
+              </div>
+              <h2 className="mt-8 text-center font-display text-[clamp(52px,9vw,124px)] leading-[.9] font-semibold tracking-[-.04em]">
+                The world is <em className="font-medium text-[var(--gold-ink)]">waiting.</em>
+              </h2>
+              <p className="mt-5 text-center text-[17px] text-ink-2">Three minutes or twenty. Pick a game.</p>
+              <div className="-mx-8 mt-10 grid grid-cols-3 border-t border-[var(--ink-strong)] max-md:-mx-4 max-md:grid-cols-1">
+                {(
+                  [
+                    ["/play/match", "20 min", "Statecraft", "Start a match"],
+                    ["/play/crisis", "10 min", "Crisis Table", "Take a seat"],
+                    ["/play/quiz", "3 min", "Daily Quiz", "Play today's quiz"],
+                  ] as const
+                ).map(([href, time, name, cta], i) => (
+                  <Link key={href} href={href} className={cn("group flex items-end justify-between gap-4 px-6 py-7 transition-colors duration-300 hover:bg-[var(--ink-strong)] hover:text-white max-md:px-4 max-md:py-5", i > 0 && "border-l border-[var(--ink-strong)] max-md:border-t max-md:border-l-0")}>
+                    <span>
+                      <span className="block text-[11px] font-extrabold tracking-[.18em] text-ink-3 uppercase transition-colors group-hover:text-[var(--gold)]">{time}</span>
+                      <b className="mt-1 block font-display text-[30px] leading-none font-semibold tracking-tight">{name}</b>
+                      <span className="mt-2 block text-[13.5px] font-bold text-ink-2 transition-colors group-hover:text-white/70">{cta}</span>
+                    </span>
+                    <ArrowRight className="size-6 shrink-0 transition duration-300 group-hover:translate-x-1.5 group-hover:text-[var(--gold)]" aria-hidden />
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -281,25 +293,35 @@ function WhyDemo() {
     ] as [string, string, boolean?][];
   }, [w]);
   return (
-    <div className="relative overflow-hidden bg-[var(--ink-strong)] text-white">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_70%_at_85%_40%,rgba(242,179,61,.16),transparent_60%),radial-gradient(40%_60%_at_0%_100%,rgba(76,116,217,.18),transparent_60%)]" />
-      <Band className="relative grid grid-cols-[.9fr_1.1fr] items-center gap-12 max-lg:grid-cols-1">
+    <div className="border-y border-[rgba(15,29,36,.12)] bg-[#ebe7de]">
+      <Band className="grid grid-cols-[.9fr_1.1fr] items-center gap-14 max-lg:grid-cols-1 max-lg:gap-10">
         <div>
-          <div className={cn(eyebrow, "text-[var(--gold)]")}>The Why chain</div>
-          <h2 className="mt-2 font-display text-[clamp(34px,4.2vw,56px)] leading-tight font-semibold">Every change has a reason.</h2>
-          <p className="mt-3 max-w-[40ch] text-[17px] text-white/70">Tap any number and see the chain that moved it.</p>
+          <div className={cn(eyebrow, "text-[var(--gold-ink)]")}>The Why chain</div>
+          <h2 className="mt-2 font-display text-[clamp(38px,4.6vw,64px)] leading-[1] font-semibold tracking-tight">
+            Every change
+            <br />
+            has a <em className="font-medium text-[var(--gold-ink)]">reason.</em>
+          </h2>
+          <p className="mt-4 max-w-[36ch] text-[17px] text-ink-2">Tap any number and see the chain that moved it.</p>
         </div>
-        <ol className="grid max-w-[460px] gap-0">
-          {rows.map(([t, v, root], i) => (
-            <li key={t}>
-              {i > 0 && <span className="ml-6 block h-6 w-0.5 bg-gradient-to-b from-white/10 to-white/35" />}
-              <motion.div initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }} className={cn("flex justify-between gap-3 rounded-[14px] border px-4 py-3 text-[14px] font-bold", root ? "border-transparent bg-gradient-to-b from-[#F7C65E] to-[var(--gold)] text-[var(--ink-strong)]" : "border-white/10 bg-white/[.06] backdrop-blur")}>
-                <span>{t}</span>
-                <small className={cn("font-semibold tabular-nums", root ? "text-[var(--ink-strong)]/70" : "text-white/60")}>{v}</small>
-              </motion.div>
-            </li>
-          ))}
-        </ol>
+        <figure className="relative rounded-[6px] bg-white px-7 pt-6 pb-7 shadow-[0_1px_0_rgba(15,29,36,.08),0_24px_50px_-20px_rgba(15,29,36,.3)] max-md:px-5">
+          <figcaption className="flex items-baseline justify-between gap-3 border-b-2 border-[var(--ink-strong)] pb-3">
+            <b className="font-display text-[20px] font-semibold">Why India grew faster</b>
+            <span className="text-[11px] font-extrabold tracking-[.16em] text-ink-3 uppercase">2026 · from the engine</span>
+          </figcaption>
+          <ol className="relative mt-1">
+            <motion.i aria-hidden initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={{ once: true }} transition={{ duration: 1.2, ease: "easeOut" }} className="absolute top-6 bottom-6 left-[13px] w-px origin-top bg-[var(--ink-strong)]" />
+            {rows.map(([t, v, root], i) => (
+              <motion.li key={t} initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 + i * 0.14, duration: 0.4 }} className="relative grid grid-cols-[28px_1fr_auto] items-center gap-3 border-b border-dashed border-[rgba(15,29,36,.18)] py-3.5 last:border-b-0">
+                <span className={cn("relative z-10 grid size-7 place-items-center rounded-full border text-[12px] font-extrabold tabular-nums", root ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-[var(--gold)]" : "border-[var(--ink-strong)] bg-white text-ink")}>{i + 1}</span>
+                <span className={cn("text-[15px] font-semibold", root && "font-extrabold")}>
+                  <span className={cn(root && "bg-[linear-gradient(transparent_58%,rgba(242,179,61,.55)_58%)] px-0.5")}>{t}</span>
+                </span>
+                <span className="font-display text-[15px] font-semibold whitespace-nowrap text-ink-2 tabular-nums">{v}</span>
+              </motion.li>
+            ))}
+          </ol>
+        </figure>
       </Band>
     </div>
   );
