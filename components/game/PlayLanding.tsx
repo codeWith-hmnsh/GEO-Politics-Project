@@ -151,6 +151,11 @@ export function PlayLanding() {
             Crisis Table: one crisis, six leaders, secret choices
             <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
           </Link>
+          <Link href="/play/quiz" className="group -mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(63,99,216,.35)] bg-white/85 py-1 pr-3 pl-1 text-[13px] font-bold shadow-[var(--shadow-card)] transition hover:bg-white">
+            <span className="rounded-full bg-[#2c4cb8] px-2 py-0.5 text-[10.5px] font-extrabold tracking-[.12em] text-white uppercase">Daily</span>
+            Then · Now · Next: ten questions, one globe
+            <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
+          </Link>
           <div className={eyebrow}>Statecraft · geopolitics you play</div>
           <h1 className="font-display text-[clamp(48px,7.2vw,92px)] leading-[.95] font-semibold tracking-[-.035em]">
             Run a country.

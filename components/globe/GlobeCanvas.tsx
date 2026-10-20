@@ -17,12 +17,13 @@ import { TradeLayer } from "./layers/TradeLayer";
 import { WarsLayer } from "./layers/WarsLayer";
 import { CrisisLayers } from "./game/CrisisLayers";
 import { GameLayers } from "./game/GameLayers";
+import { QuizLayers } from "./game/QuizLayers";
 import { MarkerProjector } from "./MarkerProjector";
 import { PerfGuard } from "./PerfGuard";
 import { Precompile } from "./Precompile";
 
-/** The WebGL globe. Mounted once; layers are added on top in later milestones. `game` swaps the explore layers for Statecraft layers; `crisis` picks the Crisis Table ones. */
-export default function GlobeCanvas({ game = false, crisis = false }: { game?: boolean; crisis?: boolean }) {
+/** The WebGL globe. Mounted once; layers are added on top in later milestones. `game` swaps the explore layers for Statecraft layers; `crisis` picks the Crisis Table ones and `quiz` the Then · Now · Next ones. */
+export default function GlobeCanvas({ game = false, crisis = false, quiz = false }: { game?: boolean; crisis?: boolean; quiz?: boolean }) {
   const [countries, setCountries] = useState<IndexedCountry[]>([]);
   const cloudsDimmed = useGlobe((s) => s.mode !== "home" || s.selectedIso3 !== null);
   const [mobile] = useState(() => window.matchMedia("(max-width: 760px)").matches);
@@ -73,7 +74,13 @@ export default function GlobeCanvas({ game = false, crisis = false }: { game?: b
       {countries.length > 0 &&
         (game ? (
           <>
-            {crisis ? <CrisisLayers countries={countries} size={light || mobile ? 2048 : 4096} /> : <GameLayers countries={countries} size={light || mobile ? 2048 : 4096} />}
+            {quiz ? (
+              <QuizLayers countries={countries} size={light || mobile ? 2048 : 4096} />
+            ) : crisis ? (
+              <CrisisLayers countries={countries} size={light || mobile ? 2048 : 4096} />
+            ) : (
+              <GameLayers countries={countries} size={light || mobile ? 2048 : 4096} />
+            )}
             <CountryBorders countries={countries} />
             <CountryOutlines countries={countries} />
             <AdminBorders countries={countries} />
