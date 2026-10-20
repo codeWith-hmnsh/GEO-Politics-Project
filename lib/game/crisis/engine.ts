@@ -193,7 +193,7 @@ export function planBots(m: MatchState): { plan: Partial<Record<Iso3, BotPlan>>;
 
 const PLEDGE_LINES: Record<Choice, [string, string]> = {
   coop: ["We're in. Count us for the {x}.", "Join us: {x}. We need three."],
-  self: ["We'll look after our own supply this time.", "Sorry, we're making our own arrangements."],
+  self: ["We'll go our own way this time: {x}.", "Sorry, we're handling this alone: {x}."],
   hard: ["Time to get tough. We choose: {x}.", "Weakness invites more of this. We act."],
   wait: ["Not our fight. We'll wait and see.", "We're staying out of this one."],
 };

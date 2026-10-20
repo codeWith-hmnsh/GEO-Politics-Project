@@ -38,7 +38,7 @@ export const AGENDAS: AgendaDef[] = [
   { id: "honest", title: "Word of honour", goal: "Keep 4 pledges and break none", progress: (m, iso) => (m.seats[iso].pledgesBroken ? 0 : Math.min(1, m.seats[iso].pledgesKept / 4)) },
   { id: "growth", title: "Economic miracle", goal: "Raise Economy by 15", progress: gain("economy", 15) },
   { id: "people", title: "People's champion", goal: "Raise People by 15", progress: gain("people", 15) },
-  { id: "power", title: "Rising power", goal: "Raise Military by 12", progress: gain("military", 12) },
+  { id: "power", title: "Rising power", goal: "Raise Military by 9", progress: gain("military", 9) },
   { id: "friends", title: "Friends everywhere", goal: "Raise Allies by 15", progress: gain("allies", 15) },
 ];
 
