@@ -60,18 +60,18 @@ function hasWebGL() {
   }
 }
 
-/** `variant="game"` (Statecraft, /play): the same globe with game layers instead of the explore markers. */
-export function GlobeClient({ variant = "explore", children }: { variant?: "explore" | "game"; children?: React.ReactNode }) {
+/** `variant="game"` (Statecraft, /play): the same globe with game layers instead of the explore markers; `"crisis"` is the Crisis Table. */
+export function GlobeClient({ variant = "explore", children }: { variant?: "explore" | "game" | "crisis"; children?: React.ReactNode }) {
   const [webgl, setWebgl] = useState<boolean | null>(null);
   useEffect(() => {
     const id = requestAnimationFrame(() => setWebgl(hasWebGL()));
     return () => cancelAnimationFrame(id);
   }, []);
   if (webgl === false) return <Fallback2D />;
-  if (variant === "game")
+  if (variant === "game" || variant === "crisis")
     return (
       <>
-        <GlobeCanvas game />
+        <GlobeCanvas game crisis={variant === "crisis"} />
         <MapLabels />
         {children}
         <HoverTooltip />

@@ -146,6 +146,11 @@ export function PlayLanding() {
       {/* hero + story: text on the left, the globe shows through on the right */}
       <div className="pointer-events-none relative z-10 mx-auto max-w-[1240px] px-5">
         <section className="pointer-events-auto flex min-h-[92dvh] max-w-[560px] flex-col justify-center gap-6 pt-24 pb-10 max-md:-mx-5 max-md:mt-[50dvh] max-md:min-h-0 max-md:bg-gradient-to-b max-md:from-transparent max-md:via-paper max-md:to-paper max-md:px-5 max-md:pt-14">
+          <Link href="/play/crisis" className="group inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(242,179,61,.6)] bg-white/85 py-1 pr-3 pl-1 text-[13px] font-bold shadow-[var(--shadow-card)] transition hover:bg-white">
+            <span className="rounded-full bg-[var(--ink-strong)] px-2 py-0.5 text-[10.5px] font-extrabold tracking-[.12em] text-[var(--gold)] uppercase">New</span>
+            Crisis Table: one crisis, six leaders, secret choices
+            <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
+          </Link>
           <div className={eyebrow}>Statecraft · geopolitics you play</div>
           <h1 className="font-display text-[clamp(48px,7.2vw,92px)] leading-[.95] font-semibold tracking-[-.035em]">
             Run a country.
