@@ -1,6 +1,14 @@
 // Shared look for the Crisis Table: choice colours, meter names and icons.
-import { Handshake, Hourglass, Package, Shield, Swords, TrendingUp, Users, UsersRound } from "lucide-react";
-import type { Choice, Meter } from "./types";
+import { Dices, Handshake, Hourglass, Package, Shield, ShieldCheck, Sprout, Swords, TrendingUp, Users, UsersRound, Zap } from "lucide-react";
+import type { Choice, Meter, ResponseKind } from "./types";
+
+export const KIND_LOOK: Record<ResponseKind, { name: string; color: string; soft: string; icon: typeof Users }> = {
+  protect: { name: "Protect", color: "#9a6a0c", soft: "rgba(242,179,61,.18)", icon: ShieldCheck },
+  invest: { name: "Invest", color: "#23855a", soft: "rgba(47,163,107,.12)", icon: Sprout },
+  quick: { name: "Quick win", color: "#8a5d0b", soft: "rgba(232,162,28,.13)", icon: Zap },
+  bet: { name: "Bet on the deal", color: "#2c4cb8", soft: "rgba(63,99,216,.1)", icon: Dices },
+  tough: { name: "Hit back", color: "#b5313a", soft: "rgba(229,72,77,.1)", icon: Swords },
+};
 
 export const CHOICE_LOOK: Record<Choice, { name: string; color: string; ink: string; soft: string; icon: typeof Users }> = {
   coop: { name: "Cooperate", color: "#3F63D8", ink: "#2c4cb8", soft: "rgba(63,99,216,.1)", icon: UsersRound },

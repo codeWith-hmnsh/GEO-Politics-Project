@@ -47,13 +47,22 @@ export interface CrisisDef {
   next?: { fail?: string; crowd?: string; escalate?: string; win?: string };
 }
 
-export interface PolicyDef {
+export type ResponseKind = "protect" | "invest" | "quick" | "bet" | "tough";
+
+/** A home response to one crisis: always a trade-off, always explained by the crisis. */
+export interface ResponseDef {
   id: string;
+  kind: ResponseKind;
   name: string;
-  line: string;
+  /** One sentence: why this card belongs to this crisis. */
+  why: string;
   effect: MeterDelta;
-  /** Halves this year's crisis damage when the crisis has this theme. */
-  shield?: Theme;
+  /** Halves your crisis damage if the joint answer fails. */
+  shield?: boolean;
+  /** Extra gain only if the joint answer works. */
+  ifWin?: MeterDelta;
+  /** Raises world tension. */
+  tension?: number;
 }
 
 export interface AgendaDef {

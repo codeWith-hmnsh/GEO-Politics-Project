@@ -2,8 +2,9 @@
 // Deterministic: every random draw comes from a seeded stream, so a match replays exactly.
 import { stream } from "../engine/rng";
 import { SEATS } from "../engine/types";
-import { AGENDAS, AGENDA_BY_ID, PERSONALITIES, POLICIES, POLICY_BY_ID, SHIELD_FOR, START, TRUST_START } from "./catalog";
+import { AGENDAS, AGENDA_BY_ID, PERSONALITIES, START, TRUST_START } from "./catalog";
 import { CRISES, CRISIS_BY_ID } from "./deck";
+import { RESPONSES, RESPONSE_BY_ID } from "./responses";
 import type { ChatLine, Choice, CrisisDef, Iso3, MatchState, Meter, MeterDelta, Meters, Orders, Personality, Reason, SeatState, YearRecord } from "./types";
 import { CHOICES, METERS } from "./types";
 
@@ -11,6 +12,8 @@ export const TURNS = 10;
 export const START_YEAR = 2026;
 export const POLICY_PICKS = 2;
 export const HAND_SIZE = 4;
+/** Score points for each joint answer you helped win. */
+const STATESMAN = 5;
 
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
 const zero = (): Meters => ({ economy: 0, people: 0, military: 0, allies: 0 });
@@ -77,18 +80,15 @@ export function drawCrisis(m: MatchState): string {
   return list[list.length - 1].id;
 }
 
-/** A hand of four home policies: the shield for this year's crisis, help for the weakest meter, and two others. */
+/** The four home responses to this year's crisis, in a seeded order so the best card is never always on top. */
 export function dealHand(m: MatchState, iso: Iso3): string[] {
   const r = stream(m.seed, m.turn, `hand:${iso}`);
-  const theme = CRISIS_BY_ID.get(m.crisisId)!.theme;
-  const hand = [SHIELD_FOR[theme]];
-  const meters = m.seats[iso].meters;
-  const weakest = METERS.reduce((a, b) => (meters[b] < meters[a] ? b : a));
-  const helpers = POLICIES.filter((p) => !p.shield && (p.effect[weakest] ?? 0) >= 4);
-  if (helpers.length) hand.push(helpers[Math.floor(r() * helpers.length)].id);
-  const rest = POLICIES.filter((p) => !p.shield && !hand.includes(p.id));
-  while (hand.length < HAND_SIZE && rest.length) hand.push(rest.splice(Math.floor(r() * rest.length), 1)[0].id);
-  return hand;
+  const hand = RESPONSES[m.crisisId].map((x) => x.id);
+  for (let i = hand.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [hand[i], hand[j]] = [hand[j], hand[i]];
+  }
+  return hand.slice(0, HAND_SIZE);
 }
 
 // ───────── bots ─────────
@@ -123,7 +123,24 @@ function coopOdds(m: MatchState, iso: Iso3, pledges: Partial<Record<Iso3, Choice
   const kept = seat.pledgesKept + seat.pledgesBroken ? seat.pledgesKept / (seat.pledgesKept + seat.pledgesBroken) : 0.7;
   if (pledges[s] === "coop") return clamp(0.25 + 0.45 * (m.trust[iso][s] / 100) + 0.3 * kept, 0, 0.95);
   if (pledges[s]) return 0.05;
-  return s === m.me ? 0.45 : BASE_COOP[seat.personality];
+  return s === m.me ? habit(m, s) : BASE_COOP[seat.personality];
+}
+
+/** The table learns your habits: a leader who always cooperates is counted on, and free riders lean on them. */
+function habit(m: MatchState, s: Iso3) {
+  const n = m.history.length;
+  const coop = m.history.filter((h) => h.picks[s] === "coop").length;
+  return (coop + 0.9) / (n + 2);
+}
+
+/** How likely the joint answer is to work, as `iso` sees it, if it picks `ch`. */
+function successOdds(m: MatchState, iso: Iso3, pledges: Partial<Record<Iso3, Choice>>, ch: Choice) {
+  const c = crisisOf(m);
+  const others = SEATS.filter((s) => s !== iso);
+  const expCoop = others.reduce((t, s) => t + coopOdds(m, iso, pledges, s), 0);
+  const expHard = c.hardHelps ? others.reduce((t, s) => t + (pledges[s] === "hard" ? 0.6 : 0.15), 0) * 0.5 : 0;
+  const eff = expCoop + expHard + (ch === "coop" ? 1 : 0) + (ch === "hard" && c.hardHelps ? 0.5 : 0);
+  return sigmoid((eff - c.need + 0.5) * 2.2);
 }
 
 /** A bot's best answer, given what it believes the others will do. */
@@ -132,15 +149,11 @@ export function decideBot(m: MatchState, iso: Iso3, pledges: Partial<Record<Iso3
   const c = crisisOf(m);
   const seat = m.seats[iso];
   const w = WEIGHT[seat.personality];
-  const others = SEATS.filter((s) => s !== iso);
-  const expCoop = others.reduce((t, s) => t + coopOdds(m, iso, pledges, s), 0);
-  const expHard = c.hardHelps ? others.reduce((t, s) => t + (pledges[s] === "hard" ? 0.6 : 0.15), 0) * 0.5 : 0;
   const exposure = c.exposure[iso] ?? 1;
   let best: Choice = "wait";
   let bestV = -Infinity;
   for (const ch of CHOICES) {
-    const eff = expCoop + expHard + (ch === "coop" ? 1 : 0) + (ch === "hard" && c.hardHelps ? 0.5 : 0);
-    const p = sigmoid((eff - c.need + 0.5) * 2.2);
+    const p = successOdds(m, iso, pledges, ch);
     const shield = ch === "self" ? 0.4 : 1;
     let v = value(c.cost[ch], w) + p * value(c.win, w) + (1 - p) * value(c.lose, w) * exposure * shield;
     if (ch === "coop") v += p * 2 * w.allies - 1.5;
@@ -192,14 +205,17 @@ function finalBotChoice(m: MatchState, iso: Iso3, plan: BotPlan | undefined, ple
   return decideBot(m, iso, pledges);
 }
 
-function botPolicies(m: MatchState, iso: Iso3): string[] {
+function botPolicies(m: MatchState, iso: Iso3, ch: Choice, pledges: Partial<Record<Iso3, Choice>>): string[] {
   const r = stream(m.seed, m.turn, `policies:${iso}`);
-  const theme = crisisOf(m).theme;
+  const c = crisisOf(m);
   const w = WEIGHT[m.seats[iso].personality];
+  const p = successOdds(m, iso, pledges, ch);
+  const hurt = -value(c.lose, w) * (c.exposure[iso] ?? 1) * (ch === "self" ? 0.4 : 1);
   return [...m.hands[iso]]
     .map((id) => {
-      const p = POLICY_BY_ID.get(id)!;
-      return { id, v: value(p.effect, w) + (p.shield === theme ? 4 : 0) + r() * 2 };
+      const x = RESPONSE_BY_ID.get(id)!;
+      const v = value(x.effect, w) + (x.shield ? 0.5 * (1 - p) * hurt : 0) + (x.ifWin ? p * value(x.ifWin, w) : 0) + (x.tension && m.seats[iso].personality !== "hawk" ? -1 : 0);
+      return { id, v: v + r() * 2 };
     })
     .sort((a, b) => b.v - a.v)
     .slice(0, POLICY_PICKS)
@@ -218,8 +234,8 @@ export function resolveYear(m: MatchState, mine: Orders, plan: Partial<Record<Is
   const policies: Partial<Record<Iso3, string[]>> = {};
   for (const s of SEATS) {
     picks[s] = s === m.me ? mine.choice : finalBotChoice(m, s, plan[s], pledges);
-    policies[s] = s === m.me ? mine.policies.filter((p) => m.hands[s].includes(p)).slice(0, POLICY_PICKS) : botPolicies(m, s);
   }
+  for (const s of SEATS) policies[s] = s === m.me ? mine.policies.filter((p) => m.hands[s].includes(p)).slice(0, POLICY_PICKS) : botPolicies(m, s, picks[s], pledges);
 
   const counts = { coop: 0, self: 0, hard: 0, wait: 0 } as Record<Choice, number>;
   for (const s of SEATS) counts[picks[s]]++;
@@ -250,15 +266,19 @@ export function resolveYear(m: MatchState, mine: Orders, plan: Partial<Record<Is
     add(c.cost[ch], `You chose: ${c.choices[ch].title}`);
     if (success) {
       add(c.win, c.success);
+      for (const id of policies[s]!) {
+        const x = RESPONSE_BY_ID.get(id)!;
+        if (x.ifWin) add(x.ifWin, `Your bet paid off: ${x.name}`);
+      }
       if (ch === "coop") {
-        add({ allies: 2 }, "Part of the coalition that solved it");
+        add({ allies: 1 }, "Part of the coalition that solved it");
         seat.joinedWins++;
       } else if (ch !== "hard") seat.freeRides++;
     } else {
-      const shielded = policies[s]!.some((p) => POLICY_BY_ID.get(p)!.shield === c.theme);
+      const shielded = policies[s]!.some((id) => RESPONSE_BY_ID.get(id)!.shield);
       const exposure = c.exposure[s] ?? 1;
       const k = exposure * (ch === "self" ? 0.4 : 1) * (shielded ? 0.5 : 1) * (drift ? 1.25 : 1);
-      const note = exposure < 0 ? `${c.failure}: you profit from it` : ch === "self" ? `${c.failure}: your private deal softened it` : shielded ? `${c.failure}: your policy softened it` : c.failure;
+      const note = exposure < 0 ? `${c.failure}: you profit from it` : ch === "self" ? `${c.failure}: your private deal softened it` : shielded ? `${c.failure}: your protection softened it` : c.failure;
       add(c.lose, note, k);
       if (ch === "coop") why.push({ meter: "allies", delta: 0, text: "Not enough leaders joined, so your cost bought nothing" });
     }
@@ -273,12 +293,12 @@ export function resolveYear(m: MatchState, mine: Orders, plan: Partial<Record<Is
         broke.push(s);
       } else {
         seat.pledgesKept++;
-        if (pledged === "coop") add({ allies: 2 }, "Kept your word to the table");
+        if (pledged === "coop") add({ allies: 1 }, "Kept your word to the table");
       }
     }
     for (const id of policies[s]!) {
-      const p = POLICY_BY_ID.get(id)!;
-      add(p.effect, `Policy: ${p.name}`);
+      const x = RESPONSE_BY_ID.get(id)!;
+      add(x.effect, `At home: ${x.name}`);
     }
     for (const key of METERS) {
       const before = seat.meters[key];
@@ -298,7 +318,8 @@ export function resolveYear(m: MatchState, mine: Orders, plan: Partial<Record<Is
   const oil0 = m.oil;
   const ten0 = m.tension;
   if (c.oil) next.oil = clamp(m.oil + (success ? c.oil.win : c.oil.lose), 60, 180);
-  next.tension = clamp(m.tension + counts.hard * 5 + (success ? -6 : 5));
+  const homeTension = SEATS.reduce((t, s) => t + policies[s]!.reduce((u, id) => u + (RESPONSE_BY_ID.get(id)!.tension ?? 0), 0), 0);
+  next.tension = clamp(m.tension + counts.hard * 5 + (success ? -6 : 5) + Math.round(homeTension / 3));
 
   const record: YearRecord = {
     year: m.year,
@@ -351,7 +372,7 @@ export function score(m: MatchState, iso: Iso3): Score {
   const seat = m.seats[iso];
   const improvement = METERS.reduce((t, k) => t + (seat.meters[k] - seat.start[k]) * 2.5, 0);
   const agenda = 100 * (AGENDA_BY_ID.get(seat.agenda)?.progress(m, iso) ?? 0);
-  const statesman = 10 * seat.joinedWins - 10 * seat.pledgesBroken;
+  const statesman = STATESMAN * seat.joinedWins - 10 * seat.pledgesBroken;
   return { total: Math.round(clamp(500 + improvement + agenda + statesman, 0, 1000)), improvement: Math.round(improvement), agenda: Math.round(agenda), statesman };
 }
 

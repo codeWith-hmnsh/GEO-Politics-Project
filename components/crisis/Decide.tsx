@@ -1,17 +1,17 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Check, Lightbulb, Lock, MapPin, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Lightbulb, Lock, MapPin } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
 import { Flag } from "@/components/chrome/Flag";
-import { POLICY_BY_ID } from "@/lib/game/crisis/catalog";
 import { becauseLine, crisisOf, POLICY_PICKS } from "@/lib/game/crisis/engine";
-import { CHOICE_LOOK } from "@/lib/game/crisis/look";
+import { CHOICE_LOOK, KIND_LOOK } from "@/lib/game/crisis/look";
+import { RESPONSE_BY_ID } from "@/lib/game/crisis/responses";
 import { useCrisis } from "@/lib/game/crisis/store";
 import type { Choice, CrisisDef, Iso3 } from "@/lib/game/crisis/types";
 import { CHOICES } from "@/lib/game/crisis/types";
 import { SEATS } from "@/lib/game/engine/types";
-import { NAMES, SHORT } from "@/lib/game/text";
+import { SHORT } from "@/lib/game/text";
 import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { Btn, eyebrow } from "../game/bits";
@@ -25,7 +25,7 @@ export function stakesFor(c: CrisisDef, iso: Iso3) {
   return { tone: "mid" as const, text: `${SHORT[iso]} takes a normal hit if this fails.` };
 }
 
-/** The year's decision flow: the crisis briefing, your answer to the world, your home policies, then lock. */
+/** The year's decision flow: the crisis briefing, your answer to the world, your two home responses, then lock. */
 export function Decide() {
   const phase = useCrisis((s) => s.phase);
   const m = useCrisis((s) => s.m);
@@ -80,7 +80,9 @@ function Brief() {
           </p>
         )}
         <div className="mt-5 flex items-center justify-between gap-3">
-          <span className="text-[12.5px] text-ink-3">The other leaders are already talking. Read them on the left.</span>
+          <span className="text-[12.5px] text-ink-3">
+            This year: <b className="text-ink-2">1 answer to the world</b> and <b className="text-ink-2">{POLICY_PICKS} moves at home</b>.
+          </span>
           <Btn className="min-h-12 px-6 text-[15px]" onClick={() => useCrisis.getState().setPhase("choose")}>
             See your options <ArrowRight className="size-4" aria-hidden />
           </Btn>
@@ -129,7 +131,7 @@ function Steps() {
   const step = phase === "choose" ? 0 : 1;
   return (
     <ol className="flex items-center gap-1.5 text-[11.5px] font-bold" aria-label="Steps">
-      {["World", "Home"].map((l, i) => (
+      {["World", "At home"].map((l, i) => (
         <li key={l} className={cn("flex items-center gap-1 rounded-full px-2 py-0.5", i === step ? "bg-[var(--ink-strong)] text-white" : i < step ? "text-[var(--up)]" : "text-ink-3")}>
           {i < step ? <Check className="size-3" /> : <span>{i + 1}</span>} {l}
         </li>
@@ -241,10 +243,13 @@ function ChoiceCard({ k, c, on, index }: { k: Choice; c: CrisisDef; on: boolean;
 function Home() {
   const m = useCrisis((s) => s.m)!;
   const me = useCrisis((s) => s.me);
+  const choice = useCrisis((s) => s.choice);
   const policies = useCrisis((s) => s.policies);
   const phase = useCrisis((s) => s.phase);
-  const theme = crisisOf(m).theme;
+  const c = crisisOf(m);
+  const stakes = stakesFor(c, me);
   const locking = phase === "locking";
+  const betting = choice === "coop" || (choice === "hard" && c.hardHelps);
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}>
       {!locking && (
@@ -253,41 +258,75 @@ function Home() {
         </button>
       )}
       <p className="text-[14px] font-semibold text-ink-2">
-        At home in {NAMES[me]}: pick up to {POLICY_PICKS} policies. <span className="text-ink-3">({policies.length} of {POLICY_PICKS})</span>
+        How does {SHORT[me]} respond at home? Pick {POLICY_PICKS}.{" "}
+        <span className="text-ink-3 tabular-nums">
+          ({policies.length} of {POLICY_PICKS})
+        </span>
       </p>
-      <div className="mt-3 grid gap-2">
-        {m.hands[me].map((id, i) => {
-          const p = POLICY_BY_ID.get(id)!;
-          const on = policies.includes(id);
-          const shield = p.shield === theme;
-          return (
-            <motion.button
-              key={id}
-              type="button"
-              disabled={locking}
-              aria-pressed={on}
-              initial={{ opacity: 0, x: 12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05, duration: 0.3, ease: ease.out }}
-              onClick={() => useCrisis.getState().togglePolicy(id)}
-              className={cn("flex items-center gap-3 rounded-2xl border bg-white px-3.5 py-3 text-left transition disabled:opacity-60", on ? "border-[var(--ink-strong)] shadow-[inset_0_0_0_1px_var(--ink-strong)]" : "border-border hover:shadow-[var(--shadow-card)]")}
-            >
-              <span className={cn("grid size-6 shrink-0 place-items-center rounded-lg border-2 transition", on ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white" : "border-[#cfcac0]")}>{on && <Check className="size-3.5" />}</span>
-              <span className="min-w-0 flex-1">
-                <b className="block text-[14px]">{p.name}</b>
-                <DeltaChips d={p.effect} className="mt-1" />
-                {shield && (
-                  <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[rgba(242,179,61,.18)] px-2 py-0.5 text-[11px] font-bold text-[var(--gold-ink)]">
-                    <ShieldCheck className="size-3" /> Halves the damage if this crisis goes badly
-                  </span>
-                )}
-              </span>
-            </motion.button>
-          );
-        })}
+      <p className="mt-1 text-[12.5px] text-ink-3">{stakes.text}</p>
+      {choice && !locking && (
+        <p className="mt-2.5 flex items-start gap-2 rounded-2xl bg-paper px-3.5 py-2.5 text-[12.5px] leading-snug text-ink-2">
+          <Lightbulb className="mt-0.5 size-4 shrink-0 text-[var(--gold-ink)]" aria-hidden />
+          {betting ? (
+            <span>
+              You are counting on the joint answer. <b className="text-ink">Bet</b> cards pay extra if it works; <b className="text-ink">Protect</b> cards are your insurance if it fails.
+            </span>
+          ) : (
+            <span>
+              You are not joining the joint answer. If it fails, <b className="text-ink">Protect</b> cards halve your damage. If it works, you gain anyway.
+            </span>
+          )}
+        </p>
+      )}
+      <div className="mt-3 grid gap-2" role="group" aria-label="Home responses">
+        {m.hands[me].map((id, i) => (
+          <ResponseCard key={id} id={id} on={policies.includes(id)} index={i} disabled={locking} />
+        ))}
       </div>
       {locking && <LockingRow />}
     </motion.div>
+  );
+}
+
+function ResponseCard({ id, on, index, disabled }: { id: string; on: boolean; index: number; disabled: boolean }) {
+  const x = RESPONSE_BY_ID.get(id)!;
+  const look = KIND_LOOK[x.kind];
+  const Icon = look.icon;
+  return (
+    <motion.button
+      type="button"
+      disabled={disabled}
+      aria-pressed={on}
+      initial={{ opacity: 0, x: 12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05, duration: 0.3, ease: ease.out }}
+      whileTap={{ scale: 0.98 }}
+      onClick={() => useCrisis.getState().togglePolicy(id)}
+      className={cn("relative flex items-start gap-3 overflow-hidden rounded-2xl border bg-white py-3 pr-3.5 pl-4 text-left transition disabled:opacity-60", on ? "border-[var(--ink-strong)] shadow-[inset_0_0_0_1px_var(--ink-strong),0_10px_24px_rgba(17,35,43,.1)]" : "border-border hover:shadow-[var(--shadow-card)]")}
+    >
+      <i aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ background: look.color }} />
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl" style={{ background: look.soft, color: look.color }}>
+        <Icon className="size-[18px]" aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[10.5px] font-extrabold tracking-[.12em] uppercase" style={{ color: look.color }}>
+          {look.name}
+        </span>
+        <b className="block text-[14.5px] leading-tight">{x.name}</b>
+        <span className="mt-0.5 block text-[12.5px] leading-snug text-ink-2">{x.why}</span>
+        <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <DeltaChips d={x.effect} />
+          {x.shield && <span className="rounded-full bg-[rgba(242,179,61,.18)] px-2 py-px text-[11px] font-bold text-[var(--gold-ink)]">Halves your damage if it fails</span>}
+          {x.ifWin && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(63,99,216,.08)] py-px pr-1 pl-2 text-[11px] font-bold text-[#2c4cb8]">
+              If it works <DeltaChips d={x.ifWin} />
+            </span>
+          )}
+          {x.tension && <span className="rounded-full bg-[rgba(229,72,77,.08)] px-2 py-px text-[11px] font-bold text-[var(--down)]">Raises world tension</span>}
+        </span>
+      </span>
+      <span className={cn("mt-1 grid size-6 shrink-0 place-items-center rounded-lg border-2 transition", on ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white" : "border-[#cfcac0]")}>{on && <Check className="size-3.5" />}</span>
+    </motion.button>
   );
 }
 
@@ -320,7 +359,7 @@ function Footer() {
         <Btn className="min-h-[52px] w-full text-[15px]" disabled={!choice} onClick={() => st.setPhase("home")}>
           {choice ? (
             <>
-              Next: home policies <ArrowRight className="size-4" aria-hidden />
+              Next: respond at home <ArrowRight className="size-4" aria-hidden />
             </>
           ) : (
             "Pick an answer first"
@@ -332,7 +371,7 @@ function Footer() {
             <div className="mb-2.5 flex flex-wrap items-center gap-1.5 text-[12px] font-semibold text-ink-3">
               Your answer <ChoiceTag c={choice} />
               {pledge && <span>· promised</span>}
-              {policies.length > 0 && <span>· {policies.length} {policies.length === 1 ? "policy" : "policies"}</span>}
+              {policies.length > 0 && <span>· {policies.length} of {POLICY_PICKS} home moves</span>}
             </div>
           )}
           <Btn className="min-h-[52px] w-full text-[15px]" disabled={phase === "locking"} onClick={() => st.lock()}>
