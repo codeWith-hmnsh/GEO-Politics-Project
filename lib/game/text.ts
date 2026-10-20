@@ -5,13 +5,13 @@ import type { Cause, Good, Iso3 } from "./engine/types";
 
 export const NAMES: Record<Iso3, string> = { IND: "India", CHN: "China", USA: "United States", RUS: "Russia", SAU: "Saudi Arabia", JPN: "Japan" };
 export const SHORT: Record<Iso3, string> = { IND: "India", CHN: "China", USA: "USA", RUS: "Russia", SAU: "Saudi Arabia", JPN: "Japan" };
-export const SEAT_COLOR: Record<Iso3, string> = { IND: "#E57A3A", CHN: "#D14D72", USA: "#3F63D8", RUS: "#5E6B70", SAU: "#2FA36B", JPN: "#7A4FD0" };
+export const SEAT_COLOR: Record<Iso3, string> = { IND: "#E57A3A", CHN: "#C2413B", USA: "#2B6A73", RUS: "#5E6B70", SAU: "#2FA36B", JPN: "#8B6B3E" };
 export const LEADERS: Record<Iso3, string> = { IND: "Asha Rao", CHN: "Li Wen", USA: "Dana Brooks", RUS: "Pavel Orlov", SAU: "Faisal Al-Amin", JPN: "Hana Mori" };
 /** Capitals, used for labels, arcs and camera moves. [lat, lng] */
 export const CAPITAL: Record<Iso3, [number, number]> = { IND: [28.6, 77.2], CHN: [39.9, 116.4], USA: [38.9, -77.0], RUS: [55.75, 37.6], SAU: [24.7, 46.7], JPN: [35.7, 139.7] };
 export const GOOD_WORD: Record<Good, string> = { energy: "oil and gas", food: "food", tech: "chips" };
 export const GOOD_SHORT: Record<Good, string> = { energy: "Energy", food: "Food", tech: "Chips" };
-export const GOOD_COLOR: Record<Good, string> = { energy: "#E8A21C", food: "#5E9E3A", tech: "#4C74D9" };
+export const GOOD_COLOR: Record<Good, string> = { energy: "#E8A21C", food: "#5E9E3A", tech: "#2B6A73" };
 
 export const money = (b: number) => (Math.abs(b) >= 1000 ? `$${(b / 1000).toFixed(Math.abs(b) >= 10000 ? 1 : 2)}T` : `$${Math.round(b)}B`);
 export const signed = (x: number, d = 1) => `${x > 0 ? "+" : x < 0 ? "−" : "±"}${Math.abs(x).toFixed(d)}`;

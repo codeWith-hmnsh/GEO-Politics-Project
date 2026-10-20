@@ -36,9 +36,9 @@ export const ERA_LOOK: Record<
     name: "Next",
     tag: "What next",
     line: "What happens if…",
-    color: "#3F63D8",
-    ink: "#2c4cb8",
-    soft: "rgba(63,99,216,.1)",
+    color: "#2B6A73",
+    ink: "#1F5159",
+    soft: "rgba(43,106,115,.1)",
     icon: Telescope,
   },
 };

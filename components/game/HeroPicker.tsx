@@ -24,7 +24,7 @@ type Game = {
 
 const GAMES: Game[] = [
   { id: "statecraft", name: "Statecraft", icon: Globe2, color: "#f2b33d", title: ["Run a country.", "Shape the world."], line: "Six leaders. Twelve years. One world that answers back.", meta: "About 20 min · solo or with friends", href: "/play/match", cta: "Start", look: [22, 70, 4.2] },
-  { id: "crisis", name: "Crisis Table", icon: UsersRound, color: "#3F63D8", title: ["One crisis.", "Secret choices."], line: "Join, deal, escalate or wait. Then see who kept their word.", meta: "About 10 min · you and five leaders", href: "/play/crisis", cta: "Take a seat", look: [26.6, 56.3, 3.4] },
+  { id: "crisis", name: "Crisis Table", icon: UsersRound, color: "#2B6A73", title: ["One crisis.", "Secret choices."], line: "Join, deal, escalate or wait. Then see who kept their word.", meta: "About 10 min · you and five leaders", href: "/play/crisis", cta: "Take a seat", look: [26.6, 56.3, 3.4] },
   { id: "quiz", name: "Daily Quiz", icon: Sparkles, color: "#E5484D", title: ["Then. Now.", "Next."], line: "Ten quick questions. The globe shows you where.", meta: "About 3 min · new every day", href: "/play/quiz", cta: "Play today's quiz", look: [18, 10, 4.6] },
 ];
 

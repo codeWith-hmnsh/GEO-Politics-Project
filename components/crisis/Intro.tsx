@@ -224,14 +224,16 @@ function Agenda() {
                 whileHover={{ y: -6 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => useCrisis.getState().chooseAgenda(id)}
-                className="group relative overflow-hidden rounded-[22px] bg-[var(--ink-strong)] p-6 text-left text-white shadow-[0_30px_70px_rgba(15,29,36,.35)]"
+                className="group relative overflow-hidden rounded-[8px] border border-[rgba(15,29,36,.18)] bg-[#fbf8f0] p-6 text-left shadow-[0_1px_0_rgba(15,29,36,.06),0_24px_50px_-18px_rgba(15,29,36,.35)] transition-shadow hover:shadow-[0_1px_0_rgba(15,29,36,.06),0_30px_60px_-16px_rgba(15,29,36,.42)]"
               >
-                <i aria-hidden className="absolute -top-14 -right-14 size-44 rounded-full bg-[radial-gradient(circle,rgba(242,179,61,.5),transparent_70%)] transition-transform duration-500 group-hover:scale-125" />
-                <span className="relative text-[11px] font-extrabold tracking-[.16em] text-[var(--gold)] uppercase">Secret agenda</span>
-                <b className="relative mt-2 block font-display text-[28px] leading-tight font-semibold">{a.title}</b>
-                <span className="relative mt-2 block text-[15px] text-white/75">{a.goal}</span>
-                <span className="relative mt-6 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)] px-4 py-2 text-[13.5px] font-extrabold text-[var(--ink-strong)]">
-                  Take this one <ArrowRight className="size-4" aria-hidden />
+                <span aria-hidden className="absolute top-5 right-5 rotate-[8deg] rounded-[4px] border-2 border-[var(--down)] px-2 py-0.5 text-[10.5px] font-extrabold tracking-[.18em] text-[var(--down)] uppercase opacity-80 transition group-hover:rotate-[4deg]">
+                  Confidential
+                </span>
+                <span className="block border-b border-dashed border-[rgba(15,29,36,.25)] pb-2 text-[11px] font-extrabold tracking-[.16em] text-[var(--gold-ink)] uppercase">Secret agenda · No. {i + 1}</span>
+                <b className="mt-3 block font-display text-[28px] leading-tight font-semibold text-ink">{a.title}</b>
+                <span className="mt-1.5 block text-[15px] text-ink-2">{a.goal}</span>
+                <span className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-[var(--ink-strong)] px-4 py-2 text-[13.5px] font-extrabold text-white transition group-hover:bg-[var(--gold)] group-hover:text-[var(--ink-strong)]">
+                  Take this one <ArrowRight className="size-4 transition group-hover:translate-x-0.5" aria-hidden />
                 </span>
               </motion.button>
             );

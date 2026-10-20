@@ -122,7 +122,7 @@ function ResultRow({ row, index, causes, me, trendDim }: { row: Row; index: numb
         <div className="flex items-center gap-1.5">
           <Delta v={row.d} d={row.digits} invert={row.invert} />
           <button
-            className="rounded-lg px-2 py-1 text-[12px] font-extrabold text-[var(--neutral)] hover:bg-[rgba(76,116,217,.1)]"
+            className="rounded-lg px-2 py-1 text-[12px] font-extrabold text-[#1F5159] hover:bg-[rgba(43,106,115,.1)]"
             onClick={() => {
               setOpen((o) => !o);
               if (tutorial !== null && tutorial >= 3) setTutorial(null);

@@ -29,14 +29,14 @@ const TABS: { id: Tab; label: string; icon: typeof Zap }[] = [
   { id: "advanced", label: "Advanced", icon: SlidersHorizontal },
 ];
 /** Left-edge colours for a crisis's choices, so each option reads as its own path. */
-const BRANCH = ["#3F63D8", "#E8A21C", "#E5484D", "#7A4FD0"];
+const BRANCH = ["#2B6A73", "#E8A21C", "#E5484D", "#8B6B3E"];
 const GROUP: Record<CardDef["group"], { name: string; color: string }> = {
-  economy: { name: "Economy", color: "#3F63D8" },
+  economy: { name: "Economy", color: "#2B6A73" },
   trade: { name: "Trade", color: "#17A2B8" },
   energy: { name: "Energy", color: "#E8A21C" },
   food: { name: "Food", color: "#5E9E3A" },
-  people: { name: "People", color: "#C25A84" },
-  diplomacy: { name: "Diplomacy", color: "#7A4FD0" },
+  people: { name: "People", color: "#B5652F" },
+  diplomacy: { name: "Diplomacy", color: "#8B6B3E" },
 };
 const MIN_NAME: Record<Ministry, string> = { industry: "Industry & Jobs", infrastructure: "Infrastructure", agriculture: "Agriculture", energy: "Energy", education: "Education", welfare: "Health & Welfare", defence: "Defence" };
 
@@ -122,8 +122,7 @@ function YearPane() {
       </div>
 
       {goal && (
-        <section data-coach="goal" className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1A2C35] to-[var(--ink-strong)] p-4 text-[var(--paper)] shadow-[0_14px_34px_rgba(15,29,36,.28)]">
-          <i aria-hidden className="pointer-events-none absolute -top-12 -right-12 size-40 rounded-full bg-[radial-gradient(circle,rgba(242,179,61,.42),transparent_70%)]" />
+        <section data-coach="goal" className="relative overflow-hidden rounded-2xl border-l-4 border-[var(--gold)] bg-[var(--ink-strong)] p-4 text-[var(--paper)] shadow-[0_14px_34px_rgba(15,29,36,.2)]">
           <div className="relative flex items-center gap-1.5 text-[11px] font-extrabold tracking-[.14em] text-[var(--gold)] uppercase">
             <TargetIcon /> Your goal this year
           </div>
@@ -295,7 +294,7 @@ function CrisisCard({ id, chosen }: { id: string; chosen?: string }) {
   );
 }
 
-const REC_COLOR: Record<"card" | "project" | "deal", string> = { card: "#3F63D8", project: "#B9821A", deal: "#2FA36B" };
+const REC_COLOR: Record<"card" | "project" | "deal", string> = { card: "#2B6A73", project: "#B9821A", deal: "#2FA36B" };
 
 function TargetIcon() {
   return (
@@ -389,7 +388,7 @@ function CardTile({ id, onDone }: { id: string; onDone?: () => void }) {
       <div className="mt-auto pt-1">
         {legal === true ? (
           <button
-            className="text-[12.5px] font-extrabold text-[var(--neutral)] hover:underline"
+            className="text-[12.5px] font-extrabold text-[#1F5159] hover:underline"
             onClick={() => {
               add(id, params);
               onDone?.();
@@ -714,7 +713,7 @@ function AdvancedPane() {
   );
 }
 
-const MIN_COLOR: Record<Ministry, string> = { industry: "#3F63D8", infrastructure: "#17A2B8", agriculture: "#5E9E3A", energy: "#E8A21C", education: "#7A4FD0", welfare: "#C25A84", defence: "#5E6B70" };
+const MIN_COLOR: Record<Ministry, string> = { industry: "#2B6A73", infrastructure: "#17A2B8", agriculture: "#5E9E3A", energy: "#E8A21C", education: "#8B6B3E", welfare: "#B5652F", defence: "#5E6B70" };
 
 function BudgetSection() {
   const world = useGame((s) => s.world)!;

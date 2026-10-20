@@ -155,8 +155,8 @@ function Choose() {
         ))}
       </div>
       {first && (
-        <p className="mt-3 flex items-start gap-2 rounded-2xl bg-[rgba(63,99,216,.07)] px-3.5 py-2.5 text-[12.5px] leading-snug text-ink-2">
-          <Lightbulb className="mt-0.5 size-4 shrink-0 text-[#3F63D8]" aria-hidden />
+        <p className="mt-3 flex items-start gap-2 rounded-2xl bg-[rgba(43,106,115,.07)] px-3.5 py-2.5 text-[12.5px] leading-snug text-ink-2">
+          <Lightbulb className="mt-0.5 size-4 shrink-0 text-[#2B6A73]" aria-hidden />
           <span>
             <b className="text-ink">Cooperate only works if {c.need} leaders pick it.</b> If fewer join, they pay and nothing is fixed. Leaders who stay out still gain when it works.
           </span>
@@ -318,7 +318,7 @@ function ResponseCard({ id, on, index, disabled }: { id: string; on: boolean; in
           <DeltaChips d={x.effect} />
           {x.shield && <span className="rounded-full bg-[rgba(242,179,61,.18)] px-2 py-px text-[11px] font-bold text-[var(--gold-ink)]">Halves your damage if it fails</span>}
           {x.ifWin && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(63,99,216,.08)] py-px pr-1 pl-2 text-[11px] font-bold text-[#2c4cb8]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(43,106,115,.08)] py-px pr-1 pl-2 text-[11px] font-bold text-[#1F5159]">
               If it works <DeltaChips d={x.ifWin} />
             </span>
           )}

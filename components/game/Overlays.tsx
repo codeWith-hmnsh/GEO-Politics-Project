@@ -199,8 +199,7 @@ export function PickScreen() {
                     <Traits label="Weak spots" items={WEAK[me]} />
                   </div>
 
-                  <div className="relative overflow-hidden rounded-2xl bg-[var(--ink-strong)] px-5 py-3.5 text-white">
-                    <i aria-hidden className="absolute -top-10 -right-10 size-32 rounded-full bg-[radial-gradient(circle,rgba(242,179,61,.45),transparent_70%)]" />
+                  <div className="relative overflow-hidden rounded-2xl border-l-4 border-[var(--gold)] bg-[var(--ink-strong)] px-5 py-3.5 text-white">
                     <div className="relative flex items-center gap-2 text-[10.5px] font-extrabold tracking-[.16em] text-[var(--gold)] uppercase">
                       <Target /> Your mission · up to 120 points
                     </div>
@@ -567,10 +566,10 @@ export function EndScreen() {
               ? "Kept the lights on and the shelves full."
               : "Held the country steady through a turbulent decade.";
   const parts = [
-    ["Improvement vs. doing nothing", mine.improvement, "#3F63D8"],
+    ["Improvement vs. doing nothing", mine.improvement, "#2B6A73"],
     ["Mission", mine.mission, "#F2B33D"],
     ["Rank climb", mine.rankClimb, "#2FA36B"],
-    ["Objectives", mine.objectives, "#7A4FD0"],
+    ["Objectives", mine.objectives, "#8B6B3E"],
     ["Difficulty", mine.difficulty, "#5E6B70"],
   ] as const;
   const history = world.history.map((h) => ({ y: h.year, head: (h.news.find((n) => n.iso3 === me) ?? h.news[0])?.headline ?? "A quiet year", move: h.moves[me] ?? "Held steady" }));
@@ -705,7 +704,7 @@ function confetti() {
   cv.width = innerWidth * dpr;
   cv.height = innerHeight * dpr;
   const g = cv.getContext("2d")!;
-  const cols = ["#F2B33D", "#E57A3A", "#3F63D8", "#2FA36B", "#7A4FD0", "#D14D72"];
+  const cols = ["#F2B33D", "#E57A3A", "#2B6A73", "#2FA36B", "#8B6B3E", "#C2413B"];
   const ps = Array.from({ length: 150 }, () => ({ x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * 0.4, vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 4, r: Math.random() * 6.28, s: (4 + Math.random() * 6) * dpr, c: cols[(Math.random() * cols.length) | 0] }));
   const t0 = performance.now();
   const f = (t: number) => {

@@ -293,7 +293,7 @@ function Rail() {
     <aside aria-label="World Power Index" className={cn(glass, "fixed top-[92px] left-4 z-20 w-[272px] p-4 max-[1100px]:w-[244px] max-md:hidden")}>
       <div className="flex items-center justify-between">
         <span className={eyebrow}>World Power Index</span>
-        <button className="text-[11px] font-extrabold tracking-[.08em] text-[var(--neutral)] uppercase hover:underline" onClick={() => setTable(true)}>
+        <button className="text-[11px] font-extrabold tracking-[.08em] text-[#1F5159] uppercase hover:underline" onClick={() => setTable(true)}>
           World table
         </button>
       </div>

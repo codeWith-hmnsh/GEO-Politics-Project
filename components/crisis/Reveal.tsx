@@ -117,9 +117,9 @@ function Stage() {
                 <motion.i
                   key={i}
                   animate={{ scale: full || half ? [1.4, 1] : 1 }}
-                  className={cn("relative size-3.5 overflow-hidden rounded-full border-2", i < c.need ? "border-[#3F63D8]" : "border-[#cfd6e8]")}
+                  className={cn("relative size-3.5 overflow-hidden rounded-full border-2", i < c.need ? "border-[#2B6A73]" : "border-[#c9d8da]")}
                 >
-                  <i className="absolute inset-y-0 left-0 bg-[#3F63D8] transition-[width] duration-300" style={{ width: full ? "100%" : half ? "50%" : "0%" }} />
+                  <i className="absolute inset-y-0 left-0 bg-[#2B6A73] transition-[width] duration-300" style={{ width: full ? "100%" : half ? "50%" : "0%" }} />
                 </motion.i>
               );
             })}
