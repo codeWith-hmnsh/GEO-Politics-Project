@@ -185,14 +185,14 @@ export function planBots(m: MatchState): { plan: Partial<Record<Iso3, BotPlan>>;
     let pledge: Choice | undefined;
     if (r() < talk) pledge = intended !== "coop" && r() > seat.honesty ? "coop" : intended;
     plan[s] = { intended, pledge };
-    const line = pledge ? PLEDGE_LINES[pledge][Math.floor(r() * 2)].replace("{x}", c.choices[pledge].title.toLowerCase()) : CHATTER[Math.floor(r() * CHATTER.length)];
+    const line = pledge ? PLEDGE_LINES[pledge][Math.floor(r() * 2)].replace("{x}", c.choices[pledge].title.toLowerCase()).replace("{n}", String(c.need)) : CHATTER[Math.floor(r() * CHATTER.length)];
     chat.push({ iso3: s, text: line, pledge });
   }
   return { plan, chat };
 }
 
 const PLEDGE_LINES: Record<Choice, [string, string]> = {
-  coop: ["We're in. Count us for the {x}.", "Join us: {x}. We need three."],
+  coop: ["We're in. Count us for the {x}.", "Join us: {x}. We need {n}."],
   self: ["We'll go our own way this time: {x}.", "Sorry, we're handling this alone: {x}."],
   hard: ["Time to get tough. We choose: {x}.", "Weakness invites more of this. We act."],
   wait: ["Not our fight. We'll wait and see.", "We're staying out of this one."],
