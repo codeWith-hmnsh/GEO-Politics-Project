@@ -53,7 +53,7 @@ export function CrisisGame() {
     else if (phase === "pick" || phase === "agenda") focus(CAPITAL[me][0] - 4, CAPITAL[me][1] + (wide ? 20 : 0), 3.9, 1100);
     else if (phase === "brief" && crisisId) {
       const c = CRISIS_BY_ID.get(crisisId)!;
-      focus(c.place.lat - (wide ? 4 : 0), c.place.lng, 3.3, 1600);
+      focus(c.place.lat - (wide ? 4 : 0), c.place.lng, c.place.global ? 5.2 : 3.3, 1600);
     }
   }, [phase, me, crisisId]);
 
@@ -110,7 +110,7 @@ function CrisisMarker() {
   if (!m || !IN_MATCH.has(phase)) return null;
   const id = phase === "reveal" || phase === "result" ? record?.crisisId : m.crisisId;
   const c = id ? CRISIS_BY_ID.get(id) : null;
-  if (!c) return null;
+  if (!c || c.place.global) return null;
   const tone = phase === "result" && record ? (record.success ? "#2fa36b" : "#e5484d") : "#e8a21c";
   return (
     <div className="pointer-events-none fixed inset-0 z-[6] overflow-hidden">
@@ -122,6 +122,7 @@ function CrisisMarker() {
           <span className="absolute top-1/2 left-7 flex -translate-y-1/2 items-center gap-1.5 rounded-full bg-[var(--ink-strong)] py-1 pr-3 pl-2 text-[12px] font-bold whitespace-nowrap text-white shadow-[0_8px_20px_rgba(17,35,43,.25)]">
             <TriangleAlert className="size-3.5" style={{ color: tone }} aria-hidden />
             {c.place.name}
+            {c.place.note && <span className="font-semibold text-white/60">· {c.place.note}</span>}
           </span>
         </div>
       </Marker>

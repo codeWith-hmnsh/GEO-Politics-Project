@@ -35,7 +35,7 @@ function Stage() {
 
   useEffect(() => {
     const c = CRISIS_BY_ID.get(record.crisisId)!;
-    focus(c.place.lat, c.place.lng, 4.4, 1300);
+    focus(c.place.lat, c.place.lng, c.place.global ? 5.2 : 4.4, 1300);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let alive = true;
     const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, skip.current || reduce ? 0 : ms));
@@ -75,24 +75,34 @@ function Stage() {
       <AnimatePresence>
         {stamp && (
           <motion.div
-            initial={{ opacity: 0, scale: 1.4, rotate: -4 }}
-            animate={{ opacity: 1, scale: 1, rotate: -2 }}
-            transition={{ type: "spring", bounce: 0.45, duration: 0.55 }}
-            className="absolute top-[18%] left-1/2 w-[min(560px,calc(100%-32px))] -translate-x-1/2 text-center max-md:top-[16%]"
+            initial={{ opacity: 0, y: -14, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.4, ease: ease.out }}
+            className="absolute top-[14%] left-1/2 w-[min(560px,calc(100%-32px))] -translate-x-1/2 max-md:top-[12%]"
           >
-            <div className={cn("inline-flex items-center gap-2 rounded-xl border-[3px] bg-white/95 px-5 py-2 text-[clamp(20px,3vw,30px)] font-extrabold tracking-[.14em] uppercase shadow-[0_20px_50px_rgba(17,35,43,.2)]", record.success ? "border-[var(--ally)] text-[var(--up)]" : "border-[var(--conflict)] text-[var(--down)]")}>
-              {record.success ? <Check className="size-7" strokeWidth={3} /> : <X className="size-7" strokeWidth={3} />}
-              {record.success ? "It worked" : "It failed"}
+            <div className="relative rounded-[24px] border border-white/80 bg-white/96 px-7 pt-9 pb-6 text-center shadow-[0_30px_70px_rgba(17,35,43,.25)] backdrop-blur-xl max-md:px-5">
+              <motion.div
+                initial={{ opacity: 0, scale: 1.6, rotate: -8, x: "-50%" }}
+                animate={{ opacity: 1, scale: 1, rotate: -2, x: "-50%" }}
+                transition={{ type: "spring", bounce: 0.5, duration: 0.55, delay: 0.15 }}
+                className={cn("absolute -top-6 left-1/2 inline-flex items-center gap-2 rounded-xl border-[3px] bg-white px-5 py-1.5 text-[clamp(20px,3vw,28px)] font-extrabold tracking-[.14em] whitespace-nowrap uppercase shadow-[0_14px_30px_rgba(17,35,43,.18)]", record.success ? "border-[var(--ally)] text-[var(--up)]" : "border-[var(--conflict)] text-[var(--down)]")}>
+                {record.success ? <Check className="size-7" strokeWidth={3} /> : <X className="size-7" strokeWidth={3} />}
+                {record.success ? "It worked" : "It failed"}
+              </motion.div>
+              <p className="font-display text-[clamp(21px,2.6vw,28px)] leading-tight font-semibold text-ink">{record.headline}</p>
+              <p className="mt-2 text-[13px] font-bold text-ink-3">
+                {c.place.name}
+                {c.place.note ? ` · ${c.place.note}` : ""}
+              </p>
             </div>
-            <p className="mt-3 font-display text-[clamp(20px,2.6vw,28px)] leading-tight font-semibold text-ink [text-shadow:0_2px_16px_rgba(243,241,236,.9)]">{record.headline}</p>
           </motion.div>
         )}
       </AnimatePresence>
 
       <div className="absolute inset-x-0 bottom-[max(20px,env(safe-area-inset-bottom))] mx-auto grid w-[min(1000px,100%)] justify-items-center gap-4 px-3">
-        <div className="text-center">
+        <div className="rounded-2xl bg-white/95 px-5 py-2.5 text-center shadow-[var(--shadow-card)] backdrop-blur-xl">
           <div className={eyebrow}>The world decides · {record.year}</div>
-          <h2 className="mt-1 font-display text-[22px] leading-tight font-semibold max-md:text-[18px]">{c.title}</h2>
+          <h2 className="mt-0.5 font-display text-[20px] leading-tight font-semibold max-md:text-[16px]">{c.title}</h2>
         </div>
 
         <div className="flex items-center gap-3 rounded-full bg-white/90 px-4 py-2 shadow-[var(--shadow-card)]" aria-live="polite">

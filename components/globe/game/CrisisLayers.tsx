@@ -85,6 +85,7 @@ function CrisisArcs() {
   const flipped = useCrisis((s) => s.flipped);
   if (!record || !SHOW_PICKS.has(phase)) return null;
   const c = CRISIS_BY_ID.get(record.crisisId)!;
+  if (c.place.global) return null;
   const to: [number, number] = [c.place.lat, c.place.lng];
   return (
     <>

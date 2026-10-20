@@ -26,7 +26,8 @@ export interface CrisisDef {
   id: string;
   theme: Theme;
   title: string;
-  place: { name: string; lat: number; lng: number };
+  /** Where it happens: a name players know, an optional precise spot, and `global` for crises with no one place. */
+  place: { name: string; note?: string; lat: number; lng: number; global?: boolean };
   story: string;
   choices: Record<Choice, ChoiceText>;
   /** Blue picks needed for the joint answer to work (Escalate counts half where `hardHelps`). */

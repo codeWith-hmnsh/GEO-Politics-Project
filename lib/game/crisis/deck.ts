@@ -6,7 +6,7 @@ export const CRISES: CrisisDef[] = [
     id: "hormuz",
     theme: "energy",
     title: "Tankers attacked in the Strait of Hormuz",
-    place: { name: "Strait of Hormuz", lat: 26.6, lng: 56.3 },
+    place: { name: "Strait of Hormuz", note: "the Gulf's only sea exit", lat: 26.6, lng: 56.3 },
     story: "A fifth of the world's oil passes through this strait. Shipping has stopped and oil prices are jumping.",
     choices: {
       coop: { title: "Joint navy mission", line: "Escort tankers together and reopen the strait." },
@@ -29,7 +29,7 @@ export const CRISES: CrisisDef[] = [
     id: "opec",
     theme: "energy",
     title: "Oil producers cut output by surprise",
-    place: { name: "Vienna", lat: 48.2, lng: 16.4 },
+    place: { name: "OPEC", note: "producers meet in Vienna", lat: 48.2, lng: 16.4 },
     story: "The big producers will pump less oil. Prices rise for every country that imports it.",
     choices: {
       coop: { title: "Release reserves together", line: "Big importers open their oil reserves at the same time." },
@@ -136,7 +136,7 @@ export const CRISES: CrisisDef[] = [
     id: "redsea",
     theme: "trade",
     title: "Missile attacks close Red Sea shipping",
-    place: { name: "Bab-el-Mandeb", lat: 12.6, lng: 43.3 },
+    place: { name: "Red Sea", note: "near the Bab-el-Mandeb strait", lat: 18.5, lng: 39.6 },
     story: "Ships are being attacked near the Suez route. Cargo is going the long way around Africa.",
     choices: {
       coop: { title: "Escort convoys", line: "Protect shipping together with navies." },
@@ -180,7 +180,7 @@ export const CRISES: CrisisDef[] = [
     id: "debt",
     theme: "money",
     title: "Poorer countries can no longer pay their debts",
-    place: { name: "Nairobi", lat: -1.3, lng: 36.8 },
+    place: { name: "Africa and Asia", note: "debt crisis", lat: -1.3, lng: 36.8 },
     story: "Several countries in Africa and Asia are about to default. Lenders want to be paid first.",
     choices: {
       coop: { title: "Joint debt relief", line: "Share the losses and give them time." },
@@ -329,7 +329,7 @@ export const CRISES: CrisisDef[] = [
     id: "deepfakes",
     theme: "security",
     title: "A wave of fake videos hits elections worldwide",
-    place: { name: "Global", lat: 20, lng: -30 },
+    place: { name: "Worldwide", lat: 20, lng: 10, global: true },
     story: "AI-made videos of leaders saying things they never said are everywhere, weeks before big elections.",
     choices: {
       coop: { title: "Shared AI rules", line: "Agree together on labels and takedowns." },
