@@ -100,7 +100,7 @@ function Stage() {
       </AnimatePresence>
 
       <div className="absolute inset-x-0 bottom-[max(20px,env(safe-area-inset-bottom))] mx-auto grid w-[min(1000px,100%)] justify-items-center gap-4 px-3">
-        <div className="rounded-2xl bg-white/95 px-5 py-2.5 text-center shadow-[var(--shadow-card)] backdrop-blur-xl">
+        <div className={cn("rounded-2xl bg-white/95 px-5 py-2.5 text-center shadow-[var(--shadow-card)] backdrop-blur-xl", stamp && "max-md:hidden")}>
           <div className={eyebrow}>The world decides · {record.year}</div>
           <h2 className="mt-0.5 font-display text-[20px] leading-tight font-semibold max-md:text-[16px]">{c.title}</h2>
         </div>
@@ -167,8 +167,8 @@ function FlipCard({ iso, on, me }: { iso: Iso3; on: boolean; me: boolean }) {
         {/* face: the answer */}
         <div className="absolute inset-0 flex flex-col overflow-hidden rounded-2xl border bg-white p-3 shadow-[var(--shadow-card)] [backface-visibility:hidden]" style={{ borderColor: look.color, boxShadow: me ? `0 0 0 2px var(--gold), var(--shadow-card)` : undefined }}>
           <i aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: look.color }} />
-          <span className="flex items-center gap-1.5 text-[12px] font-extrabold">
-            <Flag iso3={iso} className="h-3 w-[18px]" /> {me ? "You" : SHORT[iso]}
+          <span className="flex min-w-0 items-center gap-1.5 text-[12px] font-extrabold">
+            <Flag iso3={iso} className="h-3 w-[18px]" /> <span className="truncate">{me ? "You" : SHORT[iso]}</span>
           </span>
           <span className="mt-2 grid size-9 place-items-center rounded-xl max-md:size-7" style={{ background: look.soft, color: look.color }}>
             <Icon className="size-[18px] max-md:size-4" aria-hidden />
@@ -179,7 +179,8 @@ function FlipCard({ iso, on, me }: { iso: Iso3; on: boolean; me: boolean }) {
           <span className="text-[12px] leading-tight font-semibold text-ink-2 max-md:hidden">{c.choices[pick].title}</span>
           {pledged && (
             <span className={cn("mt-auto inline-flex items-center gap-1 text-[10.5px] font-bold", broke ? "text-[var(--down)]" : "text-[var(--up)]")}>
-              {broke ? <X className="size-3" /> : <Check className="size-3" />} {broke ? "Broke promise" : "Kept promise"}
+              {broke ? <X className="size-3" /> : <Check className="size-3" />} <span className="max-md:hidden">{broke ? "Broke promise" : "Kept promise"}</span>
+              <span className="md:hidden">{broke ? "Broke" : "Kept"}</span>
             </span>
           )}
         </div>

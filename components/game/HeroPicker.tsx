@@ -38,12 +38,12 @@ export function HeroPicker() {
   };
   return (
     <>
-      <div role="radiogroup" aria-label="Choose a game" className="inline-flex w-fit gap-1 rounded-full border border-white/80 bg-white/70 p-1 shadow-[0_8px_24px_rgba(17,35,43,.08)] backdrop-blur-xl">
+      <div role="radiogroup" aria-label="Choose a game" className="inline-flex w-fit gap-1 rounded-full border border-white/80 bg-white/70 p-1 max-sm:grid max-sm:w-full max-sm:grid-cols-3 shadow-[0_8px_24px_rgba(17,35,43,.08)] backdrop-blur-xl">
         {GAMES.map((x) => {
           const on = x.id === id;
           const Icon = x.icon;
           return (
-            <button key={x.id} type="button" role="radio" aria-checked={on} onClick={() => pick(x)} className={cn("relative flex items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-bold transition-colors max-sm:px-2.5 max-sm:text-[12.5px]", on ? "text-white" : "text-ink-2 hover:text-ink")}>
+            <button key={x.id} type="button" role="radio" aria-checked={on} onClick={() => pick(x)} className={cn("relative flex items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-bold transition-colors max-sm:justify-center max-sm:gap-1.5 max-sm:px-1.5 max-sm:text-[12px]", on ? "text-white" : "text-ink-2 hover:text-ink")}>
               {on && <motion.span layoutId="game-pill" transition={{ type: "spring", bounce: 0.2, duration: 0.45 }} className="absolute inset-0 rounded-full bg-[var(--ink-strong)] shadow-[0_6px_16px_rgba(15,29,36,.25)]" />}
               <span className="relative grid size-5 place-items-center rounded-full" style={{ background: on ? x.color : "transparent", color: on ? "#0f1d24" : x.color }}>
                 <Icon className="size-3.5" aria-hidden />

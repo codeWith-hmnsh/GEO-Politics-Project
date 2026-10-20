@@ -41,8 +41,11 @@ export function Hud() {
 
       <div className={cn(glass, "pointer-events-auto grid justify-items-center px-5 py-2 leading-none max-md:px-3.5")}>
         <span className="font-display text-[26px] font-semibold tabular-nums max-md:text-[20px]">{year}</span>
-        <small className="mt-0.5 text-[11px] font-semibold text-ink-3">{m.ended && resolved ? "Final year" : `Year ${Math.min(m.turns, resolved ? done : m.turn)} of ${m.turns}`}</small>
-        <span aria-hidden className="mt-1.5 flex gap-[3px]">
+        <small className="mt-0.5 text-[11px] font-semibold text-ink-3 max-md:hidden">{m.ended && resolved ? "Final year" : `Year ${Math.min(m.turns, resolved ? done : m.turn)} of ${m.turns}`}</small>
+        <small className="mt-0.5 text-[11px] font-bold text-ink-3 tabular-nums md:hidden">
+          {Math.min(m.turns, resolved ? done : m.turn)}/{m.turns}
+        </small>
+        <span aria-hidden className="mt-1.5 flex gap-[3px] max-md:hidden">
           {Array.from({ length: m.turns }, (_, i) => (
             <i key={i} className={cn("h-1 w-2.5 rounded-full max-md:w-1.5", i < done ? "bg-[var(--gold)]" : i === done && !resolved ? "animate-pulse bg-[var(--ink-strong)]" : "bg-[#e2ded4]")} />
           ))}
@@ -92,7 +95,7 @@ function MeterPill({ k, v }: { k: (typeof METERS)[number]; v: number }) {
   const Icon = look.icon;
   const shown = useRoll(v);
   return (
-    <div className="w-[64px] leading-none max-md:w-[46px]" title={`${look.name} ${v} of 100`}>
+    <div className="w-[64px] leading-none max-md:w-[40px]" title={`${look.name} ${v} of 100`}>
       <span className="flex items-center gap-1 text-[10px] font-extrabold tracking-[.08em] text-ink-3 uppercase max-md:hidden">
         <Icon className="size-3" style={{ color: look.color }} aria-hidden /> {look.name}
       </span>

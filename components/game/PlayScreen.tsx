@@ -183,7 +183,7 @@ function TopBar() {
           </div>
         </div>
       </div>
-      <div className={cn(glass, "pointer-events-auto flex items-center gap-3 py-2 pr-5 pl-4")}>
+      <div className={cn(glass, "pointer-events-auto flex items-center gap-3 py-2 pr-5 pl-4 max-md:gap-2 max-md:px-3")}>
         {setup.timed && (
           <div className="relative size-11">
             <svg viewBox="0 0 46 46" className="size-11 -rotate-90">
@@ -197,8 +197,11 @@ function TopBar() {
         )}
         <div className="grid justify-items-center leading-none">
           <div className="font-display text-[28px] font-semibold tabular-nums max-md:text-[20px]">{year}</div>
-          <small className="mt-0.5 text-[11.5px] font-semibold text-ink-3">{phase === "locking" ? (view ? "Locked · waiting for the others" : "Leaders are locking…") : phase === "reveal" ? "The world moves" : phase === "result" ? "Year resolved" : `Year ${Math.min(12, world.turn)} of 12${paused ? " · paused" : ""}`}</small>
-          <span aria-hidden className="mt-1.5 flex gap-[3px]">
+          <small className="mt-0.5 text-[11px] font-bold text-ink-3 tabular-nums md:hidden">
+            {Math.min(12, world.turn)}/12
+          </small>
+          <small className="mt-0.5 text-[11.5px] font-semibold text-ink-3 max-md:hidden">{phase === "locking" ? (view ? "Locked · waiting for the others" : "Leaders are locking…") : phase === "reveal" ? "The world moves" : phase === "result" ? "Year resolved" : `Year ${Math.min(12, world.turn)} of 12${paused ? " · paused" : ""}`}</small>
+          <span aria-hidden className="mt-1.5 flex gap-[3px] max-md:hidden">
             {Array.from({ length: 12 }, (_, i) => {
               const done = i < world.turn - 1;
               const now = i === world.turn - 1 && !world.ended && phase !== "reveal" && phase !== "result";

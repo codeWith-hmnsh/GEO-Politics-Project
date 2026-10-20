@@ -79,7 +79,7 @@ function Brief() {
             All six leaders face this same crisis. Each of you picks an answer in secret, and the result depends on what everyone picks.
           </p>
         )}
-        <div className="mt-5 flex items-center justify-between gap-3">
+        <div className="mt-5 flex items-center justify-between gap-3 max-md:flex-col max-md:items-stretch">
           <span className="text-[12.5px] text-ink-3">
             This year: <b className="text-ink-2">1 answer to the world</b> and <b className="text-ink-2">{POLICY_PICKS} moves at home</b>.
           </span>

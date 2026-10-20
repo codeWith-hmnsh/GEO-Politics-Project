@@ -148,7 +148,7 @@ export function PlayLanding() {
           <HeroPicker />
         </section>
 
-        <section className="pointer-events-auto max-w-[520px] pt-[8vh]">
+        <section className="pointer-events-auto max-w-[520px] pt-[8vh] max-md:mt-[8vh] max-md:rounded-[20px] max-md:bg-paper/92 max-md:px-5 max-md:py-4 max-md:backdrop-blur-xl">
           <div className={eyebrow}>How a year works</div>
           <h2 className="mt-2 font-display text-[clamp(34px,4vw,54px)] leading-tight font-semibold">One turn is one year.</h2>
         </section>
@@ -305,19 +305,19 @@ function WhyDemo() {
           <p className="mt-4 max-w-[36ch] text-[17px] text-ink-2">Tap any number and see the chain that moved it.</p>
         </div>
         <figure className="relative rounded-[6px] bg-white px-7 pt-6 pb-7 shadow-[0_1px_0_rgba(15,29,36,.08),0_24px_50px_-20px_rgba(15,29,36,.3)] max-md:px-5">
-          <figcaption className="flex items-baseline justify-between gap-3 border-b-2 border-[var(--ink-strong)] pb-3">
+          <figcaption className="flex items-baseline justify-between gap-3 border-b-2 border-[var(--ink-strong)] pb-3 max-md:flex-col max-md:gap-1">
             <b className="font-display text-[20px] font-semibold">Why India grew faster</b>
             <span className="text-[11px] font-extrabold tracking-[.16em] text-ink-3 uppercase">2026 · from the engine</span>
           </figcaption>
           <ol className="relative mt-1">
             <motion.i aria-hidden initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={{ once: true }} transition={{ duration: 1.2, ease: "easeOut" }} className="absolute top-6 bottom-6 left-[13px] w-px origin-top bg-[var(--ink-strong)]" />
             {rows.map(([t, v, root], i) => (
-              <motion.li key={t} initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 + i * 0.14, duration: 0.4 }} className="relative grid grid-cols-[28px_1fr_auto] items-center gap-3 border-b border-dashed border-[rgba(15,29,36,.18)] py-3.5 last:border-b-0">
+              <motion.li key={t} initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 + i * 0.14, duration: 0.4 }} className="relative grid grid-cols-[28px_1fr_auto] items-center gap-3 border-b border-dashed max-md:grid-cols-[28px_1fr] max-md:gap-y-0.5 border-[rgba(15,29,36,.18)] py-3.5 last:border-b-0">
                 <span className={cn("relative z-10 grid size-7 place-items-center rounded-full border text-[12px] font-extrabold tabular-nums", root ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-[var(--gold)]" : "border-[var(--ink-strong)] bg-white text-ink")}>{i + 1}</span>
                 <span className={cn("text-[15px] font-semibold", root && "font-extrabold")}>
                   <span className={cn(root && "bg-[linear-gradient(transparent_58%,rgba(242,179,61,.55)_58%)] px-0.5")}>{t}</span>
                 </span>
-                <span className="font-display text-[15px] font-semibold whitespace-nowrap text-ink-2 tabular-nums">{v}</span>
+                <span className="font-display text-[15px] font-semibold whitespace-nowrap text-ink-2 tabular-nums max-md:col-start-2 max-md:text-[14px]">{v}</span>
               </motion.li>
             ))}
           </ol>

@@ -72,6 +72,8 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
     let moved = 0;
     let pinch0 = 0;
     let dist0 = 0;
+    let mid: { x: number; y: number } | null = null;
+    let padUntil = 0;
     let lastMove = 0;
     let lastHover = 0;
 
@@ -83,6 +85,16 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
       ray.setFromCamera(ndc, camera);
       // the earth is a unit sphere at the origin: test the sphere itself, not the mesh's tens of thousands of triangles
       return ray.ray.intersectSphere(sphere, pt) ? vec3ToLatLng([pt.x, pt.y, pt.z]) : null;
+    };
+    /** Turn the globe as if the surface under the pointer moved by (dx, dy) pixels. */
+    const pan = (dx: number, dy: number) => {
+      const t = target.current;
+      const k = ((t.dist - 1) * 57.3) / (el.clientHeight * 1.1);
+      const dLng = (-dx * k) / Math.max(0.3, Math.cos((t.lat * Math.PI) / 180));
+      const dLat = dy * k;
+      t.lng += dLng;
+      t.lat = Math.max(-CAMERA_LIMITS.maxLat, Math.min(CAMERA_LIMITS.maxLat, t.lat + dLat));
+      return { dLat, dLng };
     };
     const touch = () => {
       lastInput.current = performance.now();
@@ -99,6 +111,7 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
       vel.current = { lat: 0, lng: 0 };
       touch();
       el.style.cursor = "grabbing";
+      mid = null;
       if (pointers.size === 2) {
         const [a, b] = [...pointers.values()];
         pinch0 = Math.hypot(a.x - b.x, a.y - b.y);
@@ -125,15 +138,16 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
       touch();
       const t = target.current;
       if (pointers.size === 2) {
+        // pinch: the gap between the fingers sets the zoom, and their midpoint drags the globe along
         const [a, b] = [...pointers.values()];
-        t.dist = clampCamera({ ...t, dist: (dist0 * pinch0) / Math.hypot(a.x - b.x, a.y - b.y) }).dist;
+        t.dist = clampCamera({ ...t, dist: (dist0 * pinch0) / Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)) }).dist;
+        const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        if (mid) pan(m.x - mid.x, m.y - mid.y);
+        mid = m;
+        vel.current = { lat: 0, lng: 0 };
         return;
       }
-      const k = ((t.dist - 1) * 57.3) / (el.clientHeight * 1.1);
-      const dLng = (-dx * k) / Math.max(0.3, Math.cos((t.lat * Math.PI) / 180));
-      const dLat = dy * k;
-      t.lng += dLng;
-      t.lat = Math.max(-CAMERA_LIMITS.maxLat, Math.min(CAMERA_LIMITS.maxLat, t.lat + dLat));
+      const { dLat, dLng } = pan(dx, dy);
       const now = performance.now();
       const dt = Math.max(8, now - lastMove);
       lastMove = now;
@@ -141,6 +155,7 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
     };
     const onUp = (e: PointerEvent) => {
       const had = pointers.delete(e.pointerId);
+      mid = null;
       el.style.cursor = "grab";
       if (performance.now() - lastMove > 80) vel.current = { lat: 0, lng: 0 };
       if (had && moved < 6 && pointers.size === 0) {
@@ -151,18 +166,40 @@ export function CameraRig({ countries }: { countries: IndexedCountry[] }) {
         if (c && useGlobe.getState().compareIso3 !== c.iso3) startFly({ lat: c.centroid[0], lng: c.centroid[1], dist: Math.min(Math.max(target.current.dist, 2.6), 3.4) });
       }
     };
-    const onCancel = (e: PointerEvent) => pointers.delete(e.pointerId);
+    const onCancel = (e: PointerEvent) => {
+      pointers.delete(e.pointerId);
+      mid = null;
+    };
     const onLeave = () => useGlobe.getState().setHover(null, null, 0, 0);
+    // Wheel events come from three things: a mouse wheel (big steady steps), a trackpad swipe (small, fast,
+    // often sideways) and a trackpad pinch (ctrlKey). Like a map: the wheel and the pinch zoom, a two-finger
+    // swipe turns the globe. A burst that looks like a trackpad is treated as one until it pauses.
     const onWheel = (e: WheelEvent) => {
-      // The wheel zooms only over the globe itself (or on a trackpad pinch); off the globe it scrolls the page.
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1;
+      const dx = e.deltaX * unit;
+      const dy = e.deltaY * unit;
+      const now = performance.now();
+      const pinch = e.ctrlKey;
+      if (!pinch && e.deltaMode === 0 && (dx !== 0 || Math.abs(dy) < 40 || !Number.isInteger(dy))) padUntil = now + 200;
+      const pad = !pinch && now < padUntil;
+      // on a page that scrolls (Home, Play), a two-finger swipe scrolls the page instead of turning the globe
+      const doc = document.scrollingElement;
+      if (pad && doc && doc.scrollHeight > window.innerHeight + 8) return;
+      // the mouse wheel zooms only over the globe itself; off the globe it is left alone
       const ll = hit(e);
-      if (!ll && !e.ctrlKey) return;
+      if (!ll && !pinch && !pad) return;
       e.preventDefault();
       // the globe takes this wheel: keep a page-level smooth scroller from also scrolling
       e.stopPropagation();
       touch();
+      if (pad) {
+        pan(-dx, -dy);
+        return;
+      }
       const t = target.current;
-      const next = clampCamera({ ...t, dist: t.dist * Math.exp(e.deltaY * 0.0013) }).dist;
+      // a pinch sends tiny steps, so it needs a stronger rate; one big step never jumps more than a notch
+      const step = Math.max(-120, Math.min(120, dy));
+      const next = clampCamera({ ...t, dist: t.dist * Math.exp(step * (pinch ? 0.012 : 0.0013)) }).dist;
       if (ll && next < t.dist) {
         const f = (1 - next / t.dist) * 0.9;
         t.lat += (ll[0] - t.lat) * f;
